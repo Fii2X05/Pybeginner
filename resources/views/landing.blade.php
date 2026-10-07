@@ -14,6 +14,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
+        html { scroll-behavior: smooth; }
         body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
         .font-mono-code { font-family: ui-monospace, 'Fira Code', 'Courier New', monospace; }
     </style>
@@ -28,12 +29,28 @@
                 <img src="{{ asset('images/logo-pybeginner.png') }}" alt="PyBeginner" class="h-9 w-auto">
             </a>
 
-            {{-- Menu Tengah --}}
-            <ul class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-                <li><a href="{{ route('beranda') }}" class="text-gray-900 border-b-2 border-emerald-600 pb-1">Beranda</a></li>
-                <li><a href="{{ route('modul.index') }}" class="hover:text-emerald-600 transition-colors">Modul Belajar</a></li>
-                <li><a href="{{ route('latihan.index') }}" class="hover:text-emerald-600 transition-colors">Latihan Coding</a></li>
-                <li><a href="{{ route('playground') }}" class="hover:text-emerald-600 transition-colors">Playground</a></li>
+            {{-- Menu Tengah: Anchor ke section bawah --}}
+            <ul class="hidden md:flex items-center gap-8 text-sm font-medium">
+                <li>
+                    <a href="#beranda" class="nav-link text-gray-900 border-b-2 border-emerald-600 pb-1 hover:text-emerald-600 transition-all">
+                        Beranda
+                    </a>
+                </li>
+                <li>
+                    <a href="#fitur" class="nav-link text-gray-600 hover:text-emerald-600 transition-all">
+                        Fitur Unggulan
+                    </a>
+                </li>
+                <li>
+                    <a href="#metode" class="nav-link text-gray-600 hover:text-emerald-600 transition-all">
+                        Metode Belajar
+                    </a>
+                </li>
+                <li>
+                    <a href="#mulai-coding" class="nav-link text-gray-600 hover:text-emerald-600 transition-all">
+                        Mulai Coding
+                    </a>
+                </li>
             </ul>
 
             {{-- Aksi Kanan --}}
@@ -60,16 +77,19 @@
 
         {{-- Menu Mobile --}}
         <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 px-6 py-4 space-y-3 text-sm font-medium text-gray-700">
-            <a href="{{ route('beranda') }}" class="block">Beranda</a>
-            <a href="{{ route('modul.index') }}" class="block">Modul Belajar</a>
-            <a href="{{ route('latihan.index') }}" class="block">Latihan Coding</a>
-            <a href="{{ route('playground') }}" class="block">Playground</a>
-            <a href="{{ route('login') }}" class="block">Masuk</a>
+            <a href="#beranda" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block hover:text-emerald-600">Beranda</a>
+            <a href="#fitur" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block hover:text-emerald-600">Fitur Unggulan</a>
+            <a href="#metode" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block hover:text-emerald-600">Metode Belajar</a>
+            <a href="#mulai-coding" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block hover:text-emerald-600">Mulai Coding</a>
+            <div class="pt-3 border-t border-gray-100 flex items-center gap-3">
+                <a href="{{ route('login') }}" class="text-sm font-medium text-gray-700 hover:text-gray-900">Masuk</a>
+                <a href="{{ route('register') }}" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 text-xs font-semibold px-3 py-1.5 rounded-full">Daftar Gratis</a>
+            </div>
         </div>
     </header>
 
     {{-- ===================== HERO SECTION ===================== --}}
-    <section class="relative overflow-hidden">
+    <section id="beranda" class="relative overflow-hidden scroll-mt-24">
         {{-- Background hero: 1 gambar utuh berisi ilustrasi maskot + efek blur, sesuai desain asli --}}
         <img src="{{ asset('images/hero-illustration.png') }}"
              alt=""
@@ -164,7 +184,7 @@
     </section>
 
     {{-- ===================== FITUR UNGGULAN ===================== --}}
-    <section class="bg-emerald-50/70 py-20">
+    <section id="fitur" class="bg-emerald-50/70 py-20 scroll-mt-24">
         <div class="max-w-7xl mx-auto px-6 lg:px-10">
             <div class="text-center max-w-2xl mx-auto mb-14">
                 <span class="inline-block bg-indigo-100 text-indigo-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-4">
@@ -204,7 +224,7 @@
     </section>
 
     {{-- ===================== METODE PEMBELAJARAN ===================== --}}
-    <section class="py-20">
+    <section id="metode" class="py-20 scroll-mt-24">
         <div class="max-w-7xl mx-auto px-6 lg:px-10">
             <div class="text-center max-w-2xl mx-auto mb-14">
                 <span class="inline-block bg-yellow-100 text-yellow-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-4">
@@ -241,7 +261,7 @@
     </section>
 
     {{-- ===================== CTA BANNER ===================== --}}
-    <section class="pb-20">
+    <section id="mulai-coding" class="pb-20 scroll-mt-24">
         <div class="max-w-6xl mx-auto px-6 lg:px-10">
             <div class="reveal relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-800 to-emerald-600 px-8 py-16 sm:px-16 text-center">
                 <span class="inline-flex items-center gap-2 bg-white/15 text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-6">
@@ -312,6 +332,35 @@
 
     <script>
         lucide.createIcons();
+
+        // Scroll spy untuk navbar aktif secara dinamis
+        const trackedSections = document.querySelectorAll('section[id]');
+        const desktopNavLinks = document.querySelectorAll('.nav-link');
+
+        function updateActiveNav() {
+            let currentId = 'beranda';
+            const scrollPos = window.scrollY + 140;
+
+            trackedSections.forEach(section => {
+                if (scrollPos >= section.offsetTop) {
+                    currentId = section.getAttribute('id');
+                }
+            });
+
+            desktopNavLinks.forEach(link => {
+                const targetHash = link.getAttribute('href');
+                if (targetHash === '#' + currentId) {
+                    link.classList.remove('text-gray-600');
+                    link.classList.add('text-gray-900', 'border-b-2', 'border-emerald-600', 'pb-1');
+                } else {
+                    link.classList.remove('text-gray-900', 'border-b-2', 'border-emerald-600', 'pb-1');
+                    link.classList.add('text-gray-600');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateActiveNav, { passive: true });
+        updateActiveNav();
     </script>
 </body>
 </html>
