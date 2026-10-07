@@ -278,7 +278,7 @@
                     <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
                         <i data-lucide="bot" class="w-4 h-4 text-emerald-600"></i>
                     </div>
-                    <span class="font-bold text-gray-900">PyLearn</span>
+                    <span class="font-bold text-gray-900">PyBeginner</span>
                 </div>
                 <p class="text-sm text-gray-600 max-w-xs leading-relaxed">
                     Platform interaktif modern untuk menguasai pemrograman Python mulai dari nol secara terstruktur dan ramah pemula.
