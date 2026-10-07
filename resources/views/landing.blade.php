@@ -14,6 +14,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
+        html { scroll-behavior: smooth; }
         body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
         .font-mono-code { font-family: ui-monospace, 'Fira Code', 'Courier New', monospace; }
     </style>
@@ -30,10 +31,10 @@
 
             {{-- Menu Tengah --}}
             <ul class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-                <li><a href="{{ route('beranda') }}" class="text-gray-900 border-b-2 border-emerald-600 pb-1">Beranda</a></li>
-                <li><a href="{{ route('modul.index') }}" class="hover:text-emerald-600 transition-colors">Modul Belajar</a></li>
-                <li><a href="{{ route('latihan.index') }}" class="hover:text-emerald-600 transition-colors">Latihan Coding</a></li>
-                <li><a href="{{ route('playground') }}" class="hover:text-emerald-600 transition-colors">Playground</a></li>
+                <li><a href="#beranda" class="nav-link text-gray-900 border-b-2 border-emerald-600 pb-1">Beranda</a></li>
+                <li><a href="#fitur" class="nav-link hover:text-emerald-600 transition-colors">Fitur Unggulan</a></li>
+                <li><a href="#metode" class="nav-link hover:text-emerald-600 transition-colors">Metode Belajar</a></li>
+                <li><a href="#mulai" class="nav-link hover:text-emerald-600 transition-colors">Mulai Belajar</a></li>
             </ul>
 
             {{-- Aksi Kanan --}}
@@ -60,16 +61,16 @@
 
         {{-- Menu Mobile --}}
         <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 px-6 py-4 space-y-3 text-sm font-medium text-gray-700">
-            <a href="{{ route('beranda') }}" class="block">Beranda</a>
-            <a href="{{ route('modul.index') }}" class="block">Modul Belajar</a>
-            <a href="{{ route('latihan.index') }}" class="block">Latihan Coding</a>
-            <a href="{{ route('playground') }}" class="block">Playground</a>
+            <a href="#beranda" class="block mobile-nav-link">Beranda</a>
+            <a href="#fitur" class="block mobile-nav-link">Fitur Unggulan</a>
+            <a href="#metode" class="block mobile-nav-link">Metode Belajar</a>
+            <a href="#mulai" class="block mobile-nav-link">Mulai Belajar</a>
             <a href="{{ route('login') }}" class="block">Masuk</a>
         </div>
     </header>
 
     {{-- ===================== HERO SECTION ===================== --}}
-    <section class="relative overflow-hidden">
+    <section id="beranda" class="relative overflow-hidden">
         {{-- Background hero: 1 gambar utuh berisi ilustrasi maskot + efek blur, sesuai desain asli --}}
         <img src="{{ asset('images/hero-illustration.png') }}"
              alt=""
@@ -164,7 +165,7 @@
     </section>
 
     {{-- ===================== FITUR UNGGULAN ===================== --}}
-    <section class="bg-emerald-50/70 py-20">
+    <section id="fitur" class="bg-emerald-50/70 py-20">
         <div class="max-w-7xl mx-auto px-6 lg:px-10">
             <div class="text-center max-w-2xl mx-auto mb-14">
                 <span class="inline-block bg-indigo-100 text-indigo-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-4">
@@ -204,7 +205,7 @@
     </section>
 
     {{-- ===================== METODE PEMBELAJARAN ===================== --}}
-    <section class="py-20">
+    <section id="metode" class="py-20">
         <div class="max-w-7xl mx-auto px-6 lg:px-10">
             <div class="text-center max-w-2xl mx-auto mb-14">
                 <span class="inline-block bg-yellow-100 text-yellow-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-4">
@@ -241,7 +242,7 @@
     </section>
 
     {{-- ===================== CTA BANNER ===================== --}}
-    <section class="pb-20">
+    <section id="mulai" class="pb-20">
         <div class="max-w-6xl mx-auto px-6 lg:px-10">
             <div class="reveal relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-800 to-emerald-600 px-8 py-16 sm:px-16 text-center">
                 <span class="inline-flex items-center gap-2 bg-white/15 text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-6">
@@ -312,6 +313,43 @@
 
     <script>
         lucide.createIcons();
+
+        // Active nav link highlighting on scroll
+        document.addEventListener('DOMContentLoaded', function () {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const header = document.querySelector('header');
+            const headerHeight = header ? header.offsetHeight : 80;
+
+            function setActiveLink() {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop - headerHeight - 20;
+                    if (window.scrollY >= sectionTop) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('text-gray-900', 'border-b-2', 'border-emerald-600', 'pb-1');
+                    link.classList.add('text-gray-600');
+                    if (link.getAttribute('href') === '#' + current) {
+                        link.classList.add('text-gray-900', 'border-b-2', 'border-emerald-600', 'pb-1');
+                        link.classList.remove('text-gray-600');
+                    }
+                });
+            }
+
+            window.addEventListener('scroll', setActiveLink);
+            setActiveLink();
+
+            // Close mobile menu on link click
+            document.querySelectorAll('.mobile-nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                });
+            });
+        });
     </script>
 </body>
 </html>
