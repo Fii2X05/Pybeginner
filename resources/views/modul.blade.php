@@ -27,7 +27,7 @@
                     <li><a href="{{ route('beranda') }}" class="hover:text-emerald-600 transition-colors">Beranda</a></li>
                     <li><a href="{{ route('modul.index') }}" class="text-gray-900 border-b-2 border-emerald-600 pb-1">Modul Belajar</a></li>
                     <li><a href="{{ route('latihan.index') }}" class="hover:text-emerald-600 transition-colors">Latihan Coding</a></li>
-                    <li><a href="#" class="hover:text-emerald-600 transition-colors">Riwayat Submission</a></li>
+                    <li><a href="{{ route('submissions.history') }}" class="hover:text-emerald-600 transition-colors">Riwayat Submission</a></li>
                 </ul>
             </div>
 
