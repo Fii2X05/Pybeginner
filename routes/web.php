@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SubmissionController;
 
 Route::get('/', function () {
     return view('landing');
@@ -49,3 +50,6 @@ Route::get('/playground', function () {
 Route::get('/profile', function () {
     return 'Halaman Profile (belum dibuat)';
 })->name('profile');
+
+Route::get('/riwayat-submission', [SubmissionController::class, 'history'])->name('submissions.history');
+Route::post('/submissions', [SubmissionController::class, 'submit'])->name('submissions.submit');
