@@ -34,16 +34,19 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-    
+
     'judge0' => [
-    'url'         => env('JUDGE0_URL'),
-    'language_id' => env('JUDGE0_LANGUAGE_ID', 71),
+        'url' => env('JUDGE0_URL'),
+        'language_id' => env('JUDGE0_LANGUAGE_ID', 71),
     ],
 
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI', env('APP_URL').'/auth/google/callback'),
+        'guzzle' => [
+            'verify' => env('CURL_SSL_VERIFY', env('APP_ENV') === 'production'),
+        ],
     ],
 
 ];

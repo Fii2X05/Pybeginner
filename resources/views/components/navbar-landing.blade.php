@@ -27,21 +27,36 @@
 
         {{-- Kanan --}}
         <div class="flex items-center gap-3 justify-self-end">
-            <a href="{{ route('login') }}"
-               class="hidden text-base font-medium text-slate-700 transition hover:text-emerald-700 sm:inline">Masuk</a>
+            @auth
+                <span class="hidden text-sm font-semibold text-slate-800 sm:inline">{{ auth()->user()->name }}</span>
 
-            <a href="{{ route('register') }}"
-               class="rounded-xl bg-yellow-400 px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
-                Daftar Gratis
-            </a>
+                <a href="{{ route('profile') }}" title="Profil" class="shrink-0">
+                    @if (auth()->user()->avatar)
+                        <img src="{{ auth()->user()->avatar }}" alt="{{ auth()->user()->name }}"
+                             class="h-10 w-10 rounded-full object-cover ring-2 ring-emerald-500 hover:ring-4 transition">
+                    @else
+                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600 text-white font-bold text-sm shadow-sm hover:bg-emerald-500 transition">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        </div>
+                    @endif
+                </a>
 
-            <a href="{{ route('profile') }}" title="Profil"
-               class="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-600 text-white transition hover:bg-emerald-500 hover:ring-4 hover:ring-emerald-100">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>
-                </svg>
-            </a>
+                <form method="POST" action="{{ route('logout') }}" class="hidden sm:inline">
+                    @csrf
+                    <button type="submit" title="Keluar"
+                            class="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-600">
+                        Keluar
+                    </button>
+                </form>
+            @else
+                <a href="{{ route('login') }}"
+                   class="hidden text-base font-medium text-slate-700 transition hover:text-emerald-700 sm:inline">Masuk</a>
+
+                <a href="{{ route('register') }}"
+                   class="rounded-xl bg-yellow-400 px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
+                    Daftar Gratis
+                </a>
+            @endauth
 
             <button type="button" aria-label="Buka menu"
                     onclick="document.getElementById('menu-mobile').classList.toggle('hidden')"
@@ -64,8 +79,26 @@
                     {{ $label }}
                 </a>
             @endforeach
-            <a href="{{ route('login') }}"
-               class="block rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-emerald-50 sm:hidden">Masuk</a>
+
+            @auth
+                <div class="border-t border-slate-100 pt-3 mt-2">
+                    <div class="px-4 py-2 text-xs font-semibold text-slate-500">
+                        Masuk sebagai <span class="font-bold text-slate-800">{{ auth()->user()->name }}</span>
+                    </div>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit"
+                                class="w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-red-600 transition hover:bg-red-50">
+                            Keluar dari Akun
+                        </button>
+                    </form>
+                </div>
+            @else
+                <a href="{{ route('login') }}"
+                   class="block rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-emerald-50 sm:hidden">Masuk</a>
+                <a href="{{ route('register') }}"
+                   class="block rounded-xl px-4 py-3 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50 sm:hidden">Daftar Gratis</a>
+            @endauth
         </div>
     </div>
 </header>
