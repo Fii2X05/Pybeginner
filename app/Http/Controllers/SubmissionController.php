@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Submission;
+use App\Models\TestCase;
 use App\Services\Judge0Service;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SubmissionController extends Controller
 {
@@ -66,15 +69,16 @@ class SubmissionController extends Controller
             $evaluated = $this->evaluate($request->source_code, $testCases);
         } catch (\Throwable $e) {
             report($e);
+
             return response()->json(['success' => false, 'message' => 'Layanan penilai (Judge0) tidak dapat dihubungi.'], 502);
         }
 
         return response()->json([
-            'success'      => true,
-            'score'        => round($evaluated['score'], 2),
+            'success' => true,
+            'score' => round($evaluated['score'], 2),
             'passed_tests' => $evaluated['passed'],
-            'total_tests'  => $evaluated['total'],
-            'results'      => $evaluated['results'],
+            'total_tests' => $evaluated['total'],
+            'results' => $evaluated['results'],
         ]);
     }
 
@@ -111,14 +115,14 @@ class SubmissionController extends Controller
         }
 
         return response()->json([
-            'success'       => true,
+            'success' => true,
             'submission_id' => $submissionRecord->id,
-            'status'        => $finalStatus,
-            'score'         => round($score, 2),
-            'passed_tests'  => $evaluated['passed'],
-            'total_tests'   => $evaluated['total'],
-            'results'       => $evaluated['results'],
-            'message'       => 'Submission berhasil dievaluasi.',
+            'status' => $finalStatus,
+            'score' => round($score, 2),
+            'passed_tests' => $evaluated['passed'],
+            'total_tests' => $evaluated['total'],
+            'results' => $evaluated['results'],
+            'message' => 'Submission berhasil dievaluasi.',
         ]);
     }
 }
