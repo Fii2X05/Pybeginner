@@ -54,7 +54,7 @@
                     KURIKULUM TERSTRUKTUR PEMULA
                 </span>
                 <span class="text-gray-400">•</span>
-                <span class="text-gray-500 font-mono-code">PYTHON 3.12+</span>
+                <span class="text-gray-500 font-mono-code">PYTHON 3.7.7</span>
             </div>
 
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
