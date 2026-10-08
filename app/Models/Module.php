@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Module extends Model
 {
     use HasFactory;
-    //1
+
 
     protected $fillable = [
         'course_id',
