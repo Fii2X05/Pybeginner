@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Services\Judge0Service;
+use Illuminate\Http\Request;
 
 class SubmissionController extends Controller
 {
@@ -18,7 +18,7 @@ class SubmissionController extends Controller
     {
         $request->validate([
             'source_code' => 'required|string',
-            'task_id' => 'nullable|integer'
+            'task_id' => 'nullable|integer',
         ]);
 
         $expectedOutput = "Halo Dunia\n";
@@ -34,13 +34,13 @@ class SubmissionController extends Controller
 
         if ($statusId === 3) {
             $score = 100;
-            $message = "Selamat! Solusi kamu benar.";
+            $message = 'Selamat! Solusi kamu benar.';
         } elseif ($statusId === 4) {
             $score = 0;
-            $message = "Jawaban belum sesuai dengan kriteria output.";
+            $message = 'Jawaban belum sesuai dengan kriteria output.';
         } else {
             $score = 0;
-            $message = "Terjadi Error pada kode kamu.";
+            $message = 'Terjadi Error pada kode kamu.';
         }
 
         return response()->json([

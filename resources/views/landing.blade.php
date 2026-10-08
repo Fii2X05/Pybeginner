@@ -55,17 +55,38 @@
 
             {{-- Aksi Kanan --}}
             <div class="flex items-center gap-4">
-                <a href="{{ route('login') }}" class="hidden sm:inline text-sm font-medium text-gray-700 hover:text-gray-900">
-                    Masuk
-                </a>
-                <a href="{{ route('register') }}"
-                   class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 text-sm font-semibold px-4 py-2 rounded-full transition-colors">
-                    Daftar Gratis
-                </a>
-                <a href="{{ route('profile') }}"
-                   class="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center text-white">
-                    <i data-lucide="user" class="w-4 h-4"></i>
-                </a>
+                @auth
+                    <div class="flex items-center gap-3">
+                        <span class="hidden sm:inline text-sm font-medium text-gray-700">
+                            Hai, <strong class="text-emerald-700">{{ Auth::user()->name }}</strong>
+                        </span>
+                        @if(Auth::user()->avatar)
+                            <img src="{{ Auth::user()->avatar }}" alt="{{ Auth::user()->name }}" class="w-9 h-9 rounded-full object-cover border border-emerald-500">
+                        @else
+                            <a href="{{ route('profile') }}"
+                               class="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center text-white font-semibold text-xs shadow">
+                                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                            </a>
+                        @endif
+                        <form method="POST" action="{{ route('logout') }}" class="inline">
+                            @csrf
+                            <button type="submit"
+                                    title="Keluar"
+                                    class="text-xs bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-600 px-3 py-2 rounded-lg font-medium transition-colors flex items-center gap-1.5">
+                                <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                                <span class="hidden sm:inline">Keluar</span>
+                            </button>
+                        </form>
+                    </div>
+                @else
+                    <a href="{{ route('login') }}" class="hidden sm:inline text-sm font-medium text-gray-700 hover:text-gray-900">
+                        Masuk
+                    </a>
+                    <a href="{{ route('register') }}"
+                       class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 text-sm font-semibold px-4 py-2 rounded-full transition-colors">
+                        Daftar Gratis
+                    </a>
+                @endauth
 
                 {{-- Tombol menu mobile --}}
                 <button type="button" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"
@@ -75,6 +96,14 @@
             </div>
         </nav>
 
+        {{-- Flash message --}}
+        @if (session('status'))
+            <div class="bg-emerald-600 text-white text-sm text-center py-2.5 px-4 flex items-center justify-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                <span>{{ session('status') }}</span>
+            </div>
+        @endif
+
         {{-- Menu Mobile --}}
         <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 px-6 py-4 space-y-3 text-sm font-medium text-gray-700">
             <a href="#beranda" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block hover:text-emerald-600">Beranda</a>
@@ -82,8 +111,16 @@
             <a href="#metode" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block hover:text-emerald-600">Metode Belajar</a>
             <a href="#mulai-coding" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block hover:text-emerald-600">Mulai Coding</a>
             <div class="pt-3 border-t border-gray-100 flex items-center gap-3">
-                <a href="{{ route('login') }}" class="text-sm font-medium text-gray-700 hover:text-gray-900">Masuk</a>
-                <a href="{{ route('register') }}" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 text-xs font-semibold px-3 py-1.5 rounded-full">Daftar Gratis</a>
+                @auth
+                    <span class="text-xs font-semibold text-gray-700">Hai, {{ Auth::user()->name }}</span>
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                        @csrf
+                        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full">Keluar</button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="text-sm font-medium text-gray-700 hover:text-gray-900">Masuk</a>
+                    <a href="{{ route('register') }}" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 text-xs font-semibold px-3 py-1.5 rounded-full">Daftar Gratis</a>
+                @endauth
             </div>
         </div>
     </header>

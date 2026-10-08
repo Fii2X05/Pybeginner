@@ -6,26 +6,20 @@ Route::get('/', function () {
     return view('landing');
 })->name('beranda');
 
-Route::get('/login', function () {
-    return view('login');
-})->name('login');
- 
-// Proses form login (sementara cuma redirect balik, belum ada logic auth sungguhan)
-Route::post('/login', function () {
-    // TODO: tambahkan logic autentikasi di sini (cek email & password ke database)
-    return redirect()->route('beranda')->with('status', 'Fitur login belum terhubung ke database.');
-})->name('login.store');
- 
-// Tampilkan halaman register
-Route::get('/register', function () {
-    return view('register');
-})->name('register');
- 
-// Proses form register (sementara cuma redirect balik, belum ada logic simpan user)
-Route::post('/register', function () {
-    // TODO: tambahkan logic simpan user baru ke database di sini
-    return redirect()->route('login')->with('status', 'Fitur daftar belum terhubung ke database.');
-})->name('register.store');
+use App\Http\Controllers\AuthController;
+
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.store');
+
+    Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.store');
+
+    Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
+    Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+});
+
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 Route::get('/modul', function () {
     return view('modul');
