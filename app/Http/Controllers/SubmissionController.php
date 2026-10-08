@@ -14,6 +14,73 @@ class SubmissionController extends Controller
         $this->judge0 = $judge0;
     }
 
+    // Halaman Riwayat Submission (tidak diubah)
+    public function history(Request $request)
+    {
+        $query = Submission::with('results')->latest('submitted_at');
+
+        if (Auth::check()) {
+            $query->where('user_id', Auth::id());
+        }
+
+        $submissions = $query->get();
+
+        $totalSubmissions = $submissions->count();
+        $perfectScores = $submissions->where('score', 100)->count();
+        $needsImprovement = $submissions->where('score', '<', 100)->count();
+        $averageScore = $totalSubmissions > 0 ? round($submissions->avg('score'), 1) : 0;
+
+        $selectedSubmissionId = $request->query('selected', $submissions->first()?->id);
+        $selectedSubmission = $submissions->firstWhere('id', $selectedSubmissionId) ?? $submissions->first();
+
+        return view('history', compact(
+            'submissions',
+            'totalSubmissions',
+            'perfectScores',
+            'needsImprovement',
+            'averageScore',
+            'selectedSubmission'
+        ));
+    }
+
+    /**
+     * Tombol "Jalankan Kode": hanya menjalankan test case yang TIDAK tersembunyi.
+     * Tidak disimpan ke database.
+     */
+    public function run(Request $request)
+    {
+        $request->validate([
+            'source_code' => 'required|string',
+            'exercise_id' => 'required|integer',
+        ]);
+
+        $testCases = TestCase::where('exercise_id', $request->exercise_id)->get()
+            ->reject(fn ($tc) => (bool) ($tc->is_hidden ?? false))
+            ->values();
+
+        if ($testCases->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Belum ada contoh uji coba untuk soal ini.'], 404);
+        }
+
+        try {
+            $evaluated = $this->evaluate($request->source_code, $testCases);
+        } catch (\Throwable $e) {
+            report($e);
+            return response()->json(['success' => false, 'message' => 'Layanan penilai (Judge0) tidak dapat dihubungi.'], 502);
+        }
+
+        return response()->json([
+            'success'      => true,
+            'score'        => round($evaluated['score'], 2),
+            'passed_tests' => $evaluated['passed'],
+            'total_tests'  => $evaluated['total'],
+            'results'      => $evaluated['results'],
+        ]);
+    }
+
+    /**
+     * Tombol "Kirim & Nilai Jawaban": semua test case, hasil disimpan.
+     */
     public function submit(Request $request)
     {
         $request->validate([
@@ -44,16 +111,14 @@ class SubmissionController extends Controller
         }
 
         return response()->json([
-            'success' => true,
-            'score' => $score,
-            'status_id' => $statusId,
-            'status_description' => $statusDescription,
-            'message' => $message,
-            'stdout' => $result['stdout'] ?? null,
-            'stderr' => $result['stderr'] ?? null,
-            'compile_output' => $result['compile_output'] ?? null,
-            'time' => $result['time'] ?? null,
-            'memory' => $result['memory'] ?? null,
+            'success'       => true,
+            'submission_id' => $submissionRecord->id,
+            'status'        => $finalStatus,
+            'score'         => round($score, 2),
+            'passed_tests'  => $evaluated['passed'],
+            'total_tests'   => $evaluated['total'],
+            'results'       => $evaluated['results'],
+            'message'       => 'Submission berhasil dievaluasi.',
         ]);
     }
 }
