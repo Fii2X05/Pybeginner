@@ -51,6 +51,12 @@
                         Mulai Coding
                     </a>
                 </li>
+            {{-- Menu Tengah --}}
+            <ul class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
+                <li><a href="#beranda" class="nav-link text-gray-900 border-b-2 border-emerald-600 pb-1">Beranda</a></li>
+                <li><a href="#fitur" class="nav-link hover:text-emerald-600 transition-colors">Fitur Unggulan</a></li>
+                <li><a href="#metode" class="nav-link hover:text-emerald-600 transition-colors">Metode Belajar</a></li>
+                <li><a href="#mulai" class="nav-link hover:text-emerald-600 transition-colors">Mulai Belajar</a></li>
             </ul>
 
             {{-- Aksi Kanan --}}
@@ -127,6 +133,7 @@
 
     {{-- ===================== HERO SECTION ===================== --}}
     <section id="beranda" class="relative overflow-hidden scroll-mt-24">
+    <section id="beranda" class="relative overflow-hidden">
         {{-- Background hero: 1 gambar utuh berisi ilustrasi maskot + efek blur, sesuai desain asli --}}
         <img src="{{ asset('images/hero-illustration.png') }}"
              alt=""
@@ -222,6 +229,7 @@
 
     {{-- ===================== FITUR UNGGULAN ===================== --}}
     <section id="fitur" class="bg-emerald-50/70 py-20 scroll-mt-24">
+    <section id="fitur" class="bg-emerald-50/70 py-20">
         <div class="max-w-7xl mx-auto px-6 lg:px-10">
             <div class="text-center max-w-2xl mx-auto mb-14">
                 <span class="inline-block bg-indigo-100 text-indigo-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-4">
@@ -262,6 +270,7 @@
 
     {{-- ===================== METODE PEMBELAJARAN ===================== --}}
     <section id="metode" class="py-20 scroll-mt-24">
+    <section id="metode" class="py-20">
         <div class="max-w-7xl mx-auto px-6 lg:px-10">
             <div class="text-center max-w-2xl mx-auto mb-14">
                 <span class="inline-block bg-yellow-100 text-yellow-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-4">
@@ -299,6 +308,7 @@
 
     {{-- ===================== CTA BANNER ===================== --}}
     <section id="mulai-coding" class="pb-20 scroll-mt-24">
+    <section id="mulai" class="pb-20">
         <div class="max-w-6xl mx-auto px-6 lg:px-10">
             <div class="reveal relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-800 to-emerald-600 px-8 py-16 sm:px-16 text-center">
                 <span class="inline-flex items-center gap-2 bg-white/15 text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-6">
