@@ -46,13 +46,6 @@ Route::post('/modul/{course:slug}/{module:slug}/{lesson:slug}/selesai', [ModulCo
     ->scopeBindings()->middleware('auth')->name('lesson.complete');
 
 // Latihan & Playground (Tugas Dinda)
-Route::get('/latihan', function () {
-    return view('latihan');
-})->name('latihan.index');
-
-Route::get('/playground', function () {
-    return view('playground');
-})->name('playground');
 
 Route::get('/profile', function () {
     return 'Halaman Profile (belum dibuat)';

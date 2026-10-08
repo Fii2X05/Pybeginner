@@ -18,7 +18,11 @@
 </head>
 <body class="flex min-h-screen flex-col bg-emerald-50 text-slate-800 antialiased">
 
-    <x-navbar-learner :active="$active" :guest="$navbar === 'landing'" />
+    @if ($navbar === 'landing')
+        <x-navbar-landing :active="$active" />
+    @else
+        <x-navbar-learner :active="$active" />
+    @endif
 
     @if ($flush)
         <main class="flex-1">{{ $slot }}</main>
