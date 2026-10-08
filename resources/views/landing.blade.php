@@ -7,135 +7,11 @@
 
         <div class="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-6 py-16 lg:grid-cols-5 lg:px-10 lg:py-24">
 
-    {{-- Ikon: pakai Lucide (lihat instruksi instalasi di bagian bawah file) --}}
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <style>
-        html { scroll-behavior: smooth; }
-        body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
-        .font-mono-code { font-family: ui-monospace, 'Fira Code', 'Courier New', monospace; }
-    </style>
-</head>
-<body class="bg-white text-gray-900 antialiased">
-
-    {{-- ===================== NAVBAR ===================== --}}
-    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100">
-        <nav class="max-w-7xl mx-auto px-6 lg:px-10 h-20 flex items-center justify-between">
-            {{-- Logo --}}
-            <a href="{{ url('/') }}" class="flex items-center">
-                <img src="{{ asset('images/logo-pybeginner.png') }}" alt="PyBeginner" class="h-9 w-auto">
-            </a>
-
-            {{-- Menu Tengah: Anchor ke section bawah --}}
-            <ul class="hidden md:flex items-center gap-8 text-sm font-medium">
-                <li>
-                    <a href="#beranda" class="nav-link text-gray-900 border-b-2 border-emerald-600 pb-1 hover:text-emerald-600 transition-all">
-                        Beranda
-                    </a>
-                </li>
-                <li>
-                    <a href="#fitur" class="nav-link text-gray-600 hover:text-emerald-600 transition-all">
-                        Fitur Unggulan
-                    </a>
-                </li>
-                <li>
-                    <a href="#metode" class="nav-link text-gray-600 hover:text-emerald-600 transition-all">
-                        Metode Belajar
-                    </a>
-                </li>
-                <li>
-                    <a href="#mulai-coding" class="nav-link text-gray-600 hover:text-emerald-600 transition-all">
-                        Mulai Coding
-                    </a>
-                </li>
-            </ul>
-
-            {{-- Aksi Kanan --}}
-            <div class="flex items-center gap-4">
-                @auth
-                    <div class="flex items-center gap-3">
-                        <span class="hidden sm:inline text-sm font-medium text-gray-700">
-                            Hai, <strong class="text-emerald-700">{{ Auth::user()->name }}</strong>
-                        </span>
-                        @if(Auth::user()->avatar)
-                            <img src="{{ Auth::user()->avatar }}" alt="{{ Auth::user()->name }}" class="w-9 h-9 rounded-full object-cover border border-emerald-500">
-                        @else
-                            <a href="{{ route('profile') }}"
-                               class="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center text-white font-semibold text-xs shadow">
-                                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                            </a>
-                        @endif
-                        <form method="POST" action="{{ route('logout') }}" class="inline">
-                            @csrf
-                            <button type="submit"
-                                    title="Keluar"
-                                    class="text-xs bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-600 px-3 py-2 rounded-lg font-medium transition-colors flex items-center gap-1.5">
-                                <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
-                                <span class="hidden sm:inline">Keluar</span>
-                            </button>
-                        </form>
-                    </div>
-                @else
-                    <a href="{{ route('login') }}" class="hidden sm:inline text-sm font-medium text-gray-700 hover:text-gray-900">
-                        Masuk
-                    </a>
-                    <a href="{{ route('register') }}"
-                       class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 text-sm font-semibold px-4 py-2 rounded-full transition-colors">
-                        Daftar Gratis
-                    </a>
-                @endauth
-
-                {{-- Tombol menu mobile --}}
-                <button type="button" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"
-                        class="md:hidden text-gray-700">
-                    <i data-lucide="menu" class="w-6 h-6"></i>
-                </button>
-            </div>
-        </nav>
-
-        {{-- Flash message --}}
-        @if (session('status'))
-            <div class="bg-emerald-600 text-white text-sm text-center py-2.5 px-4 flex items-center justify-center gap-2">
-                <i data-lucide="check-circle" class="w-4 h-4"></i>
-                <span>{{ session('status') }}</span>
-            </div>
-        @endif
-
-        {{-- Menu Mobile --}}
-        <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 px-6 py-4 space-y-3 text-sm font-medium text-gray-700">
-            <a href="#beranda" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block hover:text-emerald-600">Beranda</a>
-            <a href="#fitur" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block hover:text-emerald-600">Fitur Unggulan</a>
-            <a href="#metode" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block hover:text-emerald-600">Metode Belajar</a>
-            <a href="#mulai-coding" onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="block hover:text-emerald-600">Mulai Coding</a>
-            <div class="pt-3 border-t border-gray-100 flex items-center gap-3">
-                @auth
-                    <span class="text-xs font-semibold text-gray-700">Hai, {{ Auth::user()->name }}</span>
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
-                        @csrf
-                        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full">Keluar</button>
-                    </form>
-                @else
-                    <a href="{{ route('login') }}" class="text-sm font-medium text-gray-700 hover:text-gray-900">Masuk</a>
-                    <a href="{{ route('register') }}" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 text-xs font-semibold px-3 py-1.5 rounded-full">Daftar Gratis</a>
-                @endauth
-            </div>
-        </div>
-    </header>
-
-    {{-- ===================== HERO SECTION ===================== --}}
-    <section id="beranda" class="relative overflow-hidden scroll-mt-24">
-        {{-- Background hero: 1 gambar utuh berisi ilustrasi maskot + efek blur, sesuai desain asli --}}
-        <img src="{{ asset('images/hero-illustration.png') }}"
-             alt=""
-             class="absolute inset-0 w-full h-full object-cover object-left z-0">
-
-        <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 py-16 lg:py-24 grid lg:grid-cols-5 gap-12 items-center">
-
-            {{-- Kolom Kiri: Teks --}}
-            <div class="relative z-10 lg:col-span-3">
-                <span class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 text-xs font-semibold px-4 py-2 rounded-full mb-6">
-                    <i data-lucide="zap" class="w-3.5 h-3.5"></i>
-                    Belajar Python Interaktif & Gratis untuk Pemula
+            {{-- Teks --}}
+            <div class="lg:col-span-3">
+                <span class="mb-6 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-xs font-semibold text-emerald-800">
+                    <i data-lucide="zap" class="h-3.5 w-3.5"></i>
+                    Belajar Python Interaktif &amp; Gratis untuk Pemula
                 </span>
 
                 <h1 class="mb-6 text-3xl font-extrabold leading-tight text-slate-900 sm:text-4xl">
@@ -209,10 +85,10 @@
     </section>
 
     {{-- ===================== FITUR UNGGULAN ===================== --}}
-    <section id="fitur" class="bg-emerald-50/70 py-20 scroll-mt-24">
-        <div class="max-w-7xl mx-auto px-6 lg:px-10">
-            <div class="text-center max-w-2xl mx-auto mb-14">
-                <span class="inline-block bg-indigo-100 text-indigo-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-4">
+    <section id="fitur" class="scroll-mt-24 bg-emerald-50 py-20">
+        <div class="mx-auto max-w-7xl px-6 lg:px-10">
+            <div class="mx-auto mb-14 max-w-2xl text-center">
+                <span class="mb-4 inline-block rounded-full bg-emerald-100 px-4 py-1.5 text-xs font-semibold text-emerald-800">
                     Fitur Unggulan
                 </span>
                 <h2 class="mb-4 text-3xl font-extrabold text-slate-900 sm:text-4xl">
@@ -252,10 +128,10 @@
     </section>
 
     {{-- ===================== METODE PEMBELAJARAN ===================== --}}
-    <section id="metode" class="py-20 scroll-mt-24">
-        <div class="max-w-7xl mx-auto px-6 lg:px-10">
-            <div class="text-center max-w-2xl mx-auto mb-14">
-                <span class="inline-block bg-yellow-100 text-yellow-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-4">
+    <section id="metode" class="scroll-mt-24 bg-white py-20">
+        <div class="mx-auto max-w-7xl px-6 lg:px-10">
+            <div class="mx-auto mb-14 max-w-2xl text-center">
+                <span class="mb-4 inline-block rounded-full bg-yellow-100 px-4 py-1.5 text-xs font-semibold text-yellow-700">
                     Metode Pembelajaran
                 </span>
                 <h2 class="mb-4 text-3xl font-extrabold text-slate-900 sm:text-4xl">
@@ -288,43 +164,35 @@
         </div>
     </section>
 
-    {{-- ===================== CTA BANNER ===================== --}}
-    <section id="mulai-coding" class="pb-20 scroll-mt-24">
-        <div class="max-w-6xl mx-auto px-6 lg:px-10">
-            <div class="reveal relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-800 to-emerald-600 px-8 py-16 sm:px-16 text-center">
-                <span class="inline-flex items-center gap-2 bg-white/15 text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-6">
-                    <i data-lucide="rocket" class="w-3.5 h-3.5"></i>
-                    Akses 100% Gratis Selamanya
-                </span>
+    {{-- ===================== CTA ===================== --}}
+    <section id="mulai-coding" class="scroll-mt-24 bg-white pb-20">
+        <div class="mx-auto max-w-6xl px-6 lg:px-10">
+            <div class="reveal relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-700 to-emerald-500 px-8 py-16 text-center sm:px-16">
+                <div class="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full bg-white/10"></div>
+                <div class="pointer-events-none absolute -bottom-12 left-16 h-32 w-32 rounded-full bg-yellow-300/20"></div>
 
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">
-                    Siap Menulis Kode Python Pertamamu Hari Ini?
-                </h2>
-                <p class="text-emerald-100 max-w-xl mx-auto mb-8">
-                    Bergabunglah dengan ribuan pemula lainnya. Buka modul pertamamu sekarang dan buktikan bahwa coding itu mudah dan menyenangkan.
-                </p>
+                <div class="relative">
+                    <span class="mb-6 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold text-white">
+                        <i data-lucide="rocket" class="h-3.5 w-3.5"></i>
+                        Akses 100% Gratis
+                    </span>
 
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="{{ route('register') }}"
-                       class="inline-flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-6 py-3.5 rounded-xl transition-colors">
-                        Mulai Belajar Gratis <i data-lucide="rocket" class="w-4 h-4"></i>
-                    </a>
-                    <a href="{{ route('playground') }}"
-                       class="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-900 font-semibold px-6 py-3.5 rounded-xl transition-colors">
-                        Coba Mulai Coding
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
+                    <h2 class="mb-4 text-3xl font-extrabold text-white sm:text-4xl">
+                        Siap Menulis Kode Python Pertamamu Hari Ini?
+                    </h2>
+                    <p class="mx-auto mb-8 max-w-xl text-emerald-50">
+                        Buka soal pertamamu sekarang dan buktikan bahwa coding itu mudah dan menyenangkan.
+                    </p>
 
-    {{-- ===================== FOOTER ===================== --}}
-    <footer class="border-t border-gray-100 py-14">
-        <div class="max-w-7xl mx-auto px-6 lg:px-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
-            <div class="lg:col-span-2">
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                        <i data-lucide="bot" class="w-4 h-4 text-emerald-600"></i>
+                    <div class="flex flex-col justify-center gap-4 sm:flex-row">
+                        <a href="{{ route('register') }}"
+                           class="inline-flex items-center justify-center gap-2 rounded-xl bg-yellow-400 px-6 py-3.5 font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
+                            Mulai Belajar Gratis <i data-lucide="rocket" class="h-4 w-4"></i>
+                        </a>
+                        <a href="{{ route('latihan.index') }}"
+                           class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-slate-900 transition hover:bg-emerald-50">
+                            Coba Latihan Coding
+                        </a>
                     </div>
                 </div>
             </div>
