@@ -1,5 +1,4 @@
 <?php
-// app/Models/TestCase.php
 
 namespace App\Models;
 
@@ -7,9 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class TestCase extends Model
 {
-    // Sesuaikan dengan nama tabelmu jika berbeda
-    protected $table = 'test_cases'; 
-    
-    // Sesuaikan dengan kolom di databasemu
-    protected $fillable = ['task_id', 'stdin', 'expected_output']; 
+    protected $table = 'test_cases';
+
+      protected $fillable = ['exercise_id', 'stdin', 'expected_output', 'is_hidden'];
+
+    protected $casts = ['is_hidden' => 'boolean'];
+
+    // Supaya $tc->input di Blade sama dengan $tc->stdin
+    public function getInputAttribute(): ?string
+    {
+        return $this->stdin;
+    }
 }

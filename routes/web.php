@@ -60,7 +60,7 @@ Route::get('/profile', function () {
 
 Route::get('/riwayat-submission', [SubmissionController::class, 'history'])->name('submissions.history');
 Route::post('/submissions', [SubmissionController::class, 'submit'])->name('submissions.submit');
-
+Route::post('/run', [SubmissionController::class, 'run'])->name('submissions.run');
 // --- Exercise & Code Editor (Dinda) ---
 Route::get('/latihan', [ExerciseController::class, 'index'])->name('latihan.index');
 Route::get('/latihan/{slug}', [ExerciseController::class, 'show'])->name('latihan.show');
