@@ -33,15 +33,16 @@ return new class extends Migration
 
             $table->unique([
                 'submission_id',
-                'test_case_id'
+                'test_case_id',
             ]);
 
             $table->index([
                 'submission_id',
-                'status'
+                'status',
             ]);
         });
     }
+
     /**
      * Reverse the migrations.
      */

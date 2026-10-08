@@ -17,11 +17,11 @@ class Judge0Service
     {
         $response = Http::post("{$this->baseUrl}/submissions?base64_encoded=false&wait=true", [
             'source_code' => $sourceCode,
-            'language_id' => 10, 
+            'language_id' => 10,
             'expected_output' => $expectedOutput,
             'stdin' => $stdin,
-            'cpu_time_limit' => 2.0, 
-            'memory_limit' => 128000 
+            'cpu_time_limit' => 2.0,
+            'memory_limit' => 128000,
         ]);
 
         return $response->json();

@@ -40,7 +40,7 @@ return new class extends Migration
             $table->index([
                 'lesson_id',
                 'is_published',
-                'sort_order'
+                'sort_order',
             ]);
         });
     }
