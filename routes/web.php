@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ModulController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\SubmissionController;
@@ -8,13 +9,13 @@ Route::get('/', function () {
     return view('landing');
 })->name('beranda');
 
+// Auth routes (sementara)
 Route::get('/login', function () {
     return view('login');
 })->name('login');
 
 // Proses form login (sementara cuma redirect balik, belum ada logic auth sungguhan)
 Route::post('/login', function () {
-    // TODO: tambahkan logic autentikasi di sini (cek email & password ke database)
     return redirect()->route('beranda')->with('status', 'Fitur login belum terhubung ke database.');
 })->name('login.store');
 
@@ -25,20 +26,33 @@ Route::get('/register', function () {
 
 // Proses form register (sementara cuma redirect balik, belum ada logic simpan user)
 Route::post('/register', function () {
-    // TODO: tambahkan logic simpan user baru ke database di sini
     return redirect()->route('login')->with('status', 'Fitur daftar belum terhubung ke database.');
 })->name('register.store');
 
-Route::get('/modul', function () {
-    return view('modul');
-    // Nanti kalau sudah ada data modul dari database, bisa diganti jadi:
-    // $modulList = Modul::all();
-    // return view('modul', compact('modulList'));
-})->name('modul.index');
-
+// Modul & Pelajaran (Tugas Adelia)
+Route::get('/modul', [ModulController::class, 'index'])->name('modul.index');
 Route::get('/modul/mulai', function () {
     return redirect()->route('modul.index');
 })->name('modul.mulai');
+
+Route::get('/modul/01/dasar-python', function () {
+    return view('modul-detail');
+})->name('modul.detail.01');
+
+Route::get('/modul/{course:slug}/{module:slug}/{lesson:slug}', [ModulController::class, 'show'])
+    ->scopeBindings()->name('lesson.show');
+
+Route::post('/modul/{course:slug}/{module:slug}/{lesson:slug}/selesai', [ModulController::class, 'complete'])
+    ->scopeBindings()->middleware('auth')->name('lesson.complete');
+
+// Latihan & Playground (Tugas Dinda)
+Route::get('/latihan', function () {
+    return view('latihan');
+})->name('latihan.index');
+
+Route::get('/playground', function () {
+    return view('playground');
+})->name('playground');
 
 Route::get('/profile', function () {
     return 'Halaman Profile (belum dibuat)';
