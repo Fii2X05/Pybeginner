@@ -15,33 +15,7 @@
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased">
 
-    {{-- ===================== NAVBAR ===================== --}}
-    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100">
-        <nav class="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-10">
-                <a href="{{ url('/') }}" class="flex items-center">
-                    <img src="{{ asset('images/logo-pybeginner.png') }}" alt="PyBeginner" class="h-8 w-auto">
-                </a>
-
-                <ul class="hidden md:flex items-center gap-7 text-sm font-medium text-gray-600">
-                    <li><a href="{{ route('beranda') }}" class="hover:text-emerald-600 transition-colors">Beranda</a></li>
-                    <li><a href="{{ route('modul.index') }}" class="text-gray-900 border-b-2 border-gray-900 pb-1 font-semibold">Modul Belajar</a></li>
-                    <li><a href="{{ route('latihan.index') }}" class="hover:text-emerald-600 transition-colors">Latihan Coding</a></li>
-                    <li><a href="{{ route('submissions.history') }}" class="hover:text-emerald-600 transition-colors">Riwayat Submission</a></li>
-                </ul>
-            </div>
-
-            <div class="flex items-center gap-5">
-                <button type="button" class="relative text-gray-500 hover:text-gray-700">
-                    <i data-lucide="bell" class="w-5 h-5"></i>
-                </button>
-                <span class="hidden sm:inline text-sm font-medium text-gray-700">{{ auth()->user()->name ?? 'Sukma Ananda' }}</span>
-                <span class="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center text-white">
-                    <i data-lucide="user" class="w-4 h-4"></i>
-                </span>
-            </div>
-        </nav>
-    </header>
+    <x-navbar-learner active="modul" />
 
     {{-- ===================== HEADER MODUL ===================== --}}
     <section class="relative overflow-hidden bg-gradient-to-b from-white via-emerald-50/70 to-emerald-50">
