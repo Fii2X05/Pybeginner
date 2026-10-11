@@ -1,4 +1,8 @@
 <x-layouts.app title="Belajar Python Interaktif & Gratis untuk Pemula" active="beranda" navbar="landing" :flush="true">
+    @php
+    // Sudah login: pakai nama akun. Belum login: nama contoh.
+    $namaDemo = auth()->check() ? auth()->user()->name : 'Sukma';
+    @endphp
 
     {{-- ===================== HERO ===================== --}}
     <section id="beranda" class="relative scroll-mt-24 overflow-hidden bg-emerald-50">
@@ -51,7 +55,7 @@
 
                     <div class="overflow-x-auto px-5 py-4 font-mono text-sm leading-relaxed text-slate-200">
 <pre><span class="text-slate-500"># Program sapaan ramah PyBeginner</span>
-<span class="text-emerald-300">nama</span> = <span class="text-yellow-300">"Sukma"</span>
+<span class="text-emerald-300">nama</span> = <span class="text-yellow-300">"{{ $namaDemo }}"</span>
 <span class="text-emerald-300">target</span> = <span class="text-yellow-300">"Memahami Dasar Python untuk Pemula"</span>
 
 <span class="text-emerald-400">def</span> <span class="text-yellow-200">sambut</span>(user):
@@ -74,7 +78,7 @@
                             <span>OUTPUT</span>
                             <span class="text-emerald-400">Lolos: 1/1</span>
                         </div>
-                        <p class="text-slate-300">&gt; Selamat datang di PyBeginner, Sukma!</p>
+                        <p class="text-slate-300">&gt; Selamat datang di PyBeginner, {{ $namaDemo }}!</p>
                         <p class="mt-2 inline-block rounded-lg bg-emerald-900/40 px-2 py-1 text-emerald-300">
                             ✓ Test case 1 lolos dalam 0.04s
                         </p>
