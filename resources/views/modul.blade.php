@@ -1,25 +1,4 @@
-<<<<<<< HEAD
 <x-layouts.app title="Modul Belajar Python - PyBeginner" active="modul">
-=======
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modul Belajar Python - PyBeginner</title>
-
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <style>
-        body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
-        .font-mono-code { font-family: ui-monospace, 'Fira Code', 'Courier New', monospace; }
-    </style>
-</head>
-<body class="bg-gray-50 text-gray-900 antialiased">
-
-    <x-navbar-learner active="modul" />
->>>>>>> origin/main
 
     {{-- ===================== HEADER MODUL ===================== --}}
     <section class="relative overflow-hidden bg-gradient-to-b from-white via-emerald-50/70 to-emerald-50">
@@ -454,10 +433,5 @@
             urut.addEventListener('change', terapkan);
         })();
     </script>
-<<<<<<< HEAD
     @endpush
 </x-layouts.app>
-=======
-</body>
-</html>
->>>>>>> origin/main
