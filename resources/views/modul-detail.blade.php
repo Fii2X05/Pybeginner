@@ -522,9 +522,9 @@ total = harga_satuan * jumlah
                            class="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-emerald-700 bg-white border border-gray-200 px-5 py-2.5 rounded-xl transition-colors">
                             <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali ke Modul
                         </a>
-                        <a href="#"
+                        <a href="{{ route('modul.detail.02') }}"
                            class="flex items-center gap-2 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-800 px-5 py-2.5 rounded-xl transition-colors">
-                            Modul Selanjutnya <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            Modul Selanjutnya (Modul 02) <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </a>
                     </div>
 

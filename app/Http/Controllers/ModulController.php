@@ -32,6 +32,7 @@ class ModulController extends Controller
             ])
             ->values();
 
+
         // Jumlah latihan per modul. Pakai query langsung ke tabel `exercises`
         // supaya tidak bergantung pada model Exercise milik Dinda.
         $latihanPerModul = DB::table('exercises')
