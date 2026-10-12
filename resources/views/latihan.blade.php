@@ -83,6 +83,10 @@
                    class="w-full rounded-2xl border border-emerald-100 bg-white py-3 pl-12 pr-4 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100">
         </div>
 
+            <p id="jumlah" class="mb-3 text-sm text-slate-500">
+            Menampilkan {{ $exercises->count() }} dari {{ $exercises->count() }} soal
+        </p>
+
         {{-- DAFTAR SOAL --}}
         <div class="space-y-3">
             @forelse ($exercises as $i => $ex)
@@ -120,6 +124,7 @@
         <script>
             const input = document.getElementById('cari');
             const kosong = document.getElementById('kosong');
+            const jumlah = document.getElementById('jumlah');
             const items = document.querySelectorAll('.item');
 
             input.addEventListener('input', function () {
@@ -132,6 +137,7 @@
                     if (cocok) tampil++;
                 });
 
+                jumlah.textContent = 'Menampilkan ' + tampil + ' dari ' + items.length + ' soal';
                 kosong.classList.toggle('hidden', tampil > 0 || items.length === 0);
             });
         </script>

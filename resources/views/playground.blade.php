@@ -88,7 +88,9 @@
         const EXERCISE_ID = {{ $exercise->id }};
         const STARTER = @json($exercise->starter_code ?? '');
         const URL_LIST = @json(route('latihan.index', ['level' => $exercise->difficulty]));
-        const USE_MOCK = true; // ganti false setelah backend teman siap
+        // Default mock (aman untuk demo). Tambahkan ?live=1 di URL untuk menguji server asli.
+        const USE_MOCK = !new URLSearchParams(location.search).has('live');
+        const SUBMIT_URL = @json(route('submissions.submit'));
         let editor;
 
         require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } });
@@ -101,10 +103,43 @@
 
         const hasilEl  = document.getElementById('hasil');
         const materiEl = document.getElementById('materi'); // null kalau tidak ada materi
+        const btnRun = document.getElementById('btn-run');
+        const btnSubmit = document.getElementById('btn-submit');
         const PLACEHOLDER = '<p class="text-sm text-slate-500">Hasil akan tampil di sini setelah kamu menjalankan atau mengirim kode.</p>';
 
         function esc(t) {
             return String(t ?? '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+        }
+
+        // Tombol nonaktif dan berubah teks selama proses berjalan
+        function setBusy(busy, aktif) {
+            [btnRun, btnSubmit].forEach(b => {
+                b.disabled = busy;
+                b.classList.toggle('opacity-60', busy);
+                b.classList.toggle('cursor-not-allowed', busy);
+                if (!busy && b.dataset.label) { b.innerHTML = b.dataset.label; delete b.dataset.label; }
+            });
+            if (busy) { aktif.dataset.label = aktif.innerHTML; aktif.textContent = 'Memproses...'; }
+        }
+
+        // Samakan bentuk respons server dengan yang dipakai tampilan
+        function normalisasi(d) {
+            const results = Array.isArray(d.results) ? d.results : [];
+            return {
+                score: d.score ?? 0,
+                passed_tests: d.passed_tests ?? results.filter(r => r.is_passed).length,
+                total_tests: d.total_tests ?? results.length,
+                results,
+            };
+        }
+
+        function tampilkanError(status, data, isSubmit) {
+            let pesan = 'Gagal terhubung ke server. Coba lagi sebentar.';
+            if (status === 404) pesan = isSubmit ? (data?.message ?? 'Soal atau test case tidak ditemukan.') : 'Tombol Jalankan belum tersedia di server.';
+            else if (status === 401 || status === 419) pesan = 'Sesi kamu habis. Muat ulang halaman atau masuk lagi.';
+            else if (status === 422) pesan = 'Kode tidak boleh kosong.';
+            else if (status >= 500) pesan = 'Server bermasalah. Kemungkinan layanan penilai belum aktif.';
+            hasilEl.innerHTML = `<p class="text-sm font-semibold text-yellow-800">${esc(pesan)}</p>`;
         }
 
         function tampilkanHasil(data, isSubmit) {
@@ -112,8 +147,8 @@
             const persen = Math.max(0, Math.min(100, Number(data.score) || 0));
 
             let html = `<div class="flex items-end justify-between">
-                    <p class="text-2xl font-extrabold text-slate-900">${data.score}<span class="text-sm font-medium text-slate-400"> / 100</span></p>
-                    <p class="text-sm text-slate-500">${data.passed_tests}/${data.total_tests} test case lolos</p>
+                    <p class="text-2xl font-extrabold text-slate-900">${esc(data.score)}<span class="text-sm font-medium text-slate-400"> / 100</span></p>
+                    <p class="text-sm text-slate-500">${esc(data.passed_tests)}/${esc(data.total_tests)} test case lolos</p>
                 </div>
                 <div class="mt-2 h-2 overflow-hidden rounded-full bg-emerald-100">
                     <div class="h-full rounded-full bg-emerald-500" style="width:${persen}%"></div>
@@ -152,21 +187,23 @@
         }
 
         async function kirim(url, isSubmit) {
+            setBusy(true, isSubmit ? btnSubmit : btnRun);
             hasilEl.innerHTML = '<p class="text-sm text-slate-500">Memproses...</p>';
             if (materiEl) materiEl.classList.add('hidden');
 
-            if (USE_MOCK) {
-                await new Promise(r => setTimeout(r, 600));
-                return tampilkanHasil({
-                    score: 66.67, passed_tests: 2, total_tests: 3,
-                    results: [
-                        { is_hidden: false, is_passed: true,  input: '4', expected: 'Genap',  actual: 'Genap' },
-                        { is_hidden: false, is_passed: true,  input: '7', expected: 'Ganjil', actual: 'Ganjil' },
-                        { is_hidden: true,  is_passed: false },
-                    ],
-                }, isSubmit);
-            }
             try {
+                if (USE_MOCK) {
+                    await new Promise(r => setTimeout(r, 600));
+                    return tampilkanHasil({
+                        score: 66.67, passed_tests: 2, total_tests: 3,
+                        results: [
+                            { is_hidden: false, is_passed: true,  input: '4', expected: 'Genap',  actual: 'Genap' },
+                            { is_hidden: false, is_passed: true,  input: '7', expected: 'Ganjil', actual: 'Ganjil' },
+                            { is_hidden: true,  is_passed: false },
+                        ],
+                    }, isSubmit);
+                }
+
                 const res = await fetch(url, {
                     method: 'POST',
                     headers: {
@@ -176,14 +213,21 @@
                     },
                     body: JSON.stringify({ source_code: editor.getValue(), exercise_id: EXERCISE_ID }),
                 });
-                tampilkanHasil(await res.json(), isSubmit);
+
+                let data = null;
+                try { data = await res.json(); } catch (_) {}
+
+                if (!res.ok || !data) return tampilkanError(res.status, data, isSubmit);
+                tampilkanHasil(normalisasi(data), isSubmit);
             } catch (e) {
-                hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Gagal terhubung ke server.</p>';
+                tampilkanError(0, null, isSubmit);
+            } finally {
+                setBusy(false);
             }
         }
 
-        document.getElementById('btn-run').addEventListener('click', () => kirim('/run', false));
-        document.getElementById('btn-submit').addEventListener('click', () => kirim('{{ route('submissions.submit') }}', true));
+        btnRun.addEventListener('click', () => kirim('/run', false));
+        btnSubmit.addEventListener('click', () => kirim(SUBMIT_URL, true));
 
         // "Coba lagi": sembunyikan materi, reset hasil, kembali ke editor (kode tetap)
         const btnUlang = document.getElementById('btn-ulang');
