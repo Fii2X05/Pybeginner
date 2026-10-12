@@ -39,6 +39,30 @@ Route::get('/modul/01/dasar-python', function () {
     return view('modul-detail');
 })->name('modul.detail.01');
 
+Route::get('/modul/02/variabel-tipe-data', function () {
+    return view('modul-02-detail');
+})->name('modul.detail.02');
+
+Route::get('/modul/03/percabangan-logika', function () {
+    return view('modul-03-detail');
+})->name('modul.detail.03');
+
+Route::get('/modul/04/perulangan-loops', function () {
+    return view('modul-04-detail');
+})->name('modul.detail.04');
+
+Route::get('/modul/05/fungsi-modularitas', function () {
+    return view('modul-05-detail');
+})->name('modul.detail.05');
+
+Route::get('/modul/06/struktur-data', function () {
+    return view('modul-06-detail');
+})->name('modul.detail.06');
+
+Route::get('/modul/07/pengantar-pandas-numpy', function () {
+    return view('modul-07-detail');
+})->name('modul.detail.07');
+
 Route::get('/modul/{course:slug}/{module:slug}/{lesson:slug}', [ModulController::class, 'show'])
     ->scopeBindings()->name('lesson.show');
 
