@@ -30,8 +30,12 @@
                 @foreach ($samples as $i => $s)
                     <div class="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 font-mono text-xs text-slate-700">
                         <p class="mb-2 font-sans text-xs font-semibold text-emerald-700">Contoh {{ $i + 1 }}</p>
-                        <p class="whitespace-pre-line"><span class="text-slate-400">Input &nbsp;:</span> {{ $s->input }}</p>
-                        <p class="mt-1"><span class="text-slate-400">Output :</span> {{ $s->expected_output }}</p>
+                        @if ($s->assertion_code)
+                            <pre class="whitespace-pre-wrap">{{ $s->assertion_code }}</pre>
+                        @else
+                            <p class="whitespace-pre-line"><span class="text-slate-400">Input &nbsp;:</span> {{ $s->input }}</p>
+                            <p class="mt-1"><span class="text-slate-400">Output :</span> {{ $s->expected_output }}</p>
+                        @endif
                     </div>
                 @endforeach
             </div>
@@ -54,10 +58,17 @@
                             class="rounded-xl border border-emerald-400/60 px-4 py-2 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-400/10">
                         Jalankan Kode
                     </button>
-                    <button id="btn-submit"
-                            class="rounded-xl bg-yellow-400 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
-                        Kirim &amp; Nilai Jawaban
-                    </button>
+                    @auth
+                        <button id="btn-submit"
+                                class="rounded-xl bg-yellow-400 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
+                            Kirim &amp; Nilai Jawaban
+                        </button>
+                    @else
+                        <a href="{{ route('login') }}"
+                           class="rounded-xl bg-yellow-400 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
+                            Masuk untuk Mengirim
+                        </a>
+                    @endauth
                 </div>
             </div>
 
@@ -88,8 +99,12 @@
         const EXERCISE_ID = {{ $exercise->id }};
         const STARTER = @json($exercise->starter_code ?? '');
         const URL_LIST = @json(route('latihan.index', ['level' => $exercise->difficulty]));
+<<<<<<< HEAD
+        const RUN_URL = @json(route('submissions.run'));
+=======
         // Default mock (aman untuk demo). Tambahkan ?live=1 di URL untuk menguji server asli.
         const USE_MOCK = !new URLSearchParams(location.search).has('live');
+>>>>>>> origin/main
         const SUBMIT_URL = @json(route('submissions.submit'));
         let editor;
 
@@ -191,6 +206,14 @@
             hasilEl.innerHTML = '<p class="text-sm text-slate-500">Memproses...</p>';
             if (materiEl) materiEl.classList.add('hidden');
 
+<<<<<<< HEAD
+            if (!editor) {
+                hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Editor belum siap. Muat ulang halaman dan coba lagi.</p>';
+                return;
+            }
+
+=======
+>>>>>>> origin/main
             try {
                 if (USE_MOCK) {
                     await new Promise(r => setTimeout(r, 600));
@@ -213,12 +236,23 @@
                     },
                     body: JSON.stringify({ source_code: editor.getValue(), exercise_id: EXERCISE_ID }),
                 });
+<<<<<<< HEAD
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    hasilEl.innerHTML = `<p class="text-sm text-yellow-800">${esc(data.message || 'Permintaan tidak dapat diproses.')}</p>`;
+                    return;
+                }
+
+                tampilkanHasil(data, isSubmit);
+=======
 
                 let data = null;
                 try { data = await res.json(); } catch (_) {}
 
                 if (!res.ok || !data) return tampilkanError(res.status, data, isSubmit);
                 tampilkanHasil(normalisasi(data), isSubmit);
+>>>>>>> origin/main
             } catch (e) {
                 tampilkanError(0, null, isSubmit);
             } finally {
@@ -226,8 +260,16 @@
             }
         }
 
+<<<<<<< HEAD
+        document.getElementById('btn-run').addEventListener('click', () => kirim(RUN_URL, false));
+        const submitButton = document.getElementById('btn-submit');
+        if (submitButton) {
+            submitButton.addEventListener('click', () => kirim(SUBMIT_URL, true));
+        }
+=======
         btnRun.addEventListener('click', () => kirim('/run', false));
         btnSubmit.addEventListener('click', () => kirim(SUBMIT_URL, true));
+>>>>>>> origin/main
 
         // "Coba lagi": sembunyikan materi, reset hasil, kembali ke editor (kode tetap)
         const btnUlang = document.getElementById('btn-ulang');

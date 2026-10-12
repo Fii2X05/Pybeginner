@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+<x-layouts.app title="Modul Belajar Python - PyBeginner" active="modul">
+=======
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -16,6 +19,7 @@
 <body class="bg-gray-50 text-gray-900 antialiased">
 
     <x-navbar-learner active="modul" />
+>>>>>>> origin/main
 
     {{-- ===================== HEADER MODUL ===================== --}}
     <section class="relative overflow-hidden bg-gradient-to-b from-white via-emerald-50/70 to-emerald-50">
@@ -391,42 +395,7 @@
         </div>
     </section>
 
-    {{-- ===================== FOOTER ===================== --}}
-    <footer class="border-t border-gray-100 py-14 bg-white">
-        <div class="max-w-7xl mx-auto px-6 lg:px-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
-            <div class="lg:col-span-2">
-                <div class="mb-4">
-                    <span class="text-lg font-bold text-gray-900">PyBeginner</span>
-                </div>
-                <p class="text-sm text-gray-600 max-w-xs leading-relaxed">
-                    Platform interaktif modern untuk menguasai pemrograman Python mulai dari nol secara terstruktur dan ramah pemula.
-                </p>
-            </div>
-
-            <div>
-                <h4 class="font-semibold text-gray-900 mb-4">Kurikulum</h4>
-                <ul class="space-y-2 text-sm text-gray-600">
-                    <li><a href="#" class="hover:text-emerald-600">Python Dasar</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">Struktur Data</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">Algoritma & Logika</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">OOP Python</a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h4 class="font-semibold text-gray-900 mb-4">Fitur Belajar</h4>
-                <ul class="space-y-2 text-sm text-gray-600">
-                    <li><a href="#" class="hover:text-emerald-600">Pembelajaran Interaktif</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">Kuis & Tantangan</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="max-w-7xl mx-auto px-6 lg:px-10 mt-10 pt-6 border-t border-gray-100 text-xs text-gray-500">
-            &copy; {{ date('Y') }} Tim PBL Kelompok 5 - SIB 3B
-        </div>
-    </footer>
-
+    @push('scripts')
     <script>
         lucide.createIcons();
 
@@ -485,5 +454,10 @@
             urut.addEventListener('change', terapkan);
         })();
     </script>
+<<<<<<< HEAD
+    @endpush
+</x-layouts.app>
+=======
 </body>
 </html>
+>>>>>>> origin/main

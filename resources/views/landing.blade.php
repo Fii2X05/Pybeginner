@@ -4,6 +4,22 @@
     $namaDemo = auth()->check() ? auth()->user()->name : 'Sukma';
     @endphp
 
+<<<<<<< HEAD
+    {{-- ===================== HERO SECTION ===================== --}}
+    <section id="beranda" class="relative overflow-hidden scroll-mt-24">
+        {{-- Background hero: 1 gambar utuh berisi ilustrasi maskot + efek blur, sesuai desain asli --}}
+        <img src="{{ asset('images/hero-illustration.png') }}"
+             alt=""
+             class="absolute inset-0 w-full h-full object-cover object-left z-0">
+
+        <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 py-16 lg:py-24 grid lg:grid-cols-5 gap-12 items-center">
+
+            {{-- Kolom Kiri: Teks --}}
+            <div class="relative z-10 lg:col-span-3">
+                <span class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 text-xs font-semibold px-4 py-2 rounded-full mb-6">
+                    <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+                    Belajar Python Interaktif & Gratis untuk Pemula
+=======
     {{-- ===================== HERO ===================== --}}
     <section id="beranda" class="relative scroll-mt-24 overflow-hidden bg-emerald-50">
         <img src="{{ asset('images/hero-illustration.png') }}" alt=""
@@ -16,6 +32,7 @@
                 <span class="mb-6 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-xs font-semibold text-emerald-800">
                     <i data-lucide="zap" class="h-3.5 w-3.5"></i>
                     Belajar Python Interaktif &amp; Gratis untuk Pemula
+>>>>>>> origin/main
                 </span>
 
                 <h1 class="mb-6 text-3xl font-extrabold leading-tight text-slate-900 sm:text-4xl">
@@ -188,6 +205,8 @@
                         Buka soal pertamamu sekarang dan buktikan bahwa coding itu mudah dan menyenangkan.
                     </p>
 
+<<<<<<< HEAD
+=======
                     <div class="flex flex-col justify-center gap-4 sm:flex-row">
                         <a href="{{ route('register') }}"
                            class="inline-flex items-center justify-center gap-2 rounded-xl bg-yellow-400 px-6 py-3.5 font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
@@ -203,4 +222,5 @@
         </div>
     </section>
 
+>>>>>>> origin/main
 </x-layouts.app>

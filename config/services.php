@@ -37,7 +37,19 @@ return [
 
     'judge0' => [
         'url' => env('JUDGE0_URL'),
+<<<<<<< HEAD
+        'language_id' => env('JUDGE0_LANGUAGE_ID', 10),
+        'token' => env('JUDGE0_TOKEN'),
+        'auth_header' => env('JUDGE0_AUTH_HEADER', 'X-Auth-Token'),
+        'timeout' => env('JUDGE0_TIMEOUT', 30),
+        'cpu_time_limit' => env('JUDGE0_CPU_TIME_LIMIT', 2),
+        'memory_limit' => env('JUDGE0_MEMORY_LIMIT', 128000),
+        'max_processes_and_or_threads' => env('JUDGE0_MAX_PROCESSES_AND_OR_THREADS', 8),
+        'per_process_time_limit' => env('JUDGE0_PER_PROCESS_TIME_LIMIT', true),
+        'per_process_memory_limit' => env('JUDGE0_PER_PROCESS_MEMORY_LIMIT', true),
+=======
         'language_id' => env('JUDGE0_LANGUAGE_ID', 71),
+>>>>>>> origin/main
     ],
 
     'google' => [
