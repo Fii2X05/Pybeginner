@@ -37,6 +37,7 @@ return [
 
     'judge0' => [
         'url' => env('JUDGE0_URL'),
+<<<<<<< HEAD
         'language_id' => env('JUDGE0_LANGUAGE_ID', 10),
         'token' => env('JUDGE0_TOKEN'),
         'auth_header' => env('JUDGE0_AUTH_HEADER', 'X-Auth-Token'),
@@ -46,12 +47,18 @@ return [
         'max_processes_and_or_threads' => env('JUDGE0_MAX_PROCESSES_AND_OR_THREADS', 8),
         'per_process_time_limit' => env('JUDGE0_PER_PROCESS_TIME_LIMIT', true),
         'per_process_memory_limit' => env('JUDGE0_PER_PROCESS_MEMORY_LIMIT', true),
+=======
+        'language_id' => env('JUDGE0_LANGUAGE_ID', 71),
+>>>>>>> origin/main
     ],
 
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI', env('APP_URL').'/auth/google/callback'),
+        'guzzle' => [
+            'verify' => env('CURL_SSL_VERIFY', env('APP_ENV') === 'production'),
+        ],
     ],
 
 ];
