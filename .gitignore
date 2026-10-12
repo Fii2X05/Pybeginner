@@ -25,3 +25,9 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+.agents/
+opencode.json
+AGENTS.md
+CLAUDE.md
+boost.json
+judge0-v1.13.0.zip
