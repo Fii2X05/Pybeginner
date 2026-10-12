@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Controllers\ModulController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ExerciseController;
+use App\Http\Controllers\ModulController;
 use App\Http\Controllers\SubmissionController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('landing');
@@ -46,8 +46,8 @@ Route::get('/profile', function () {
     return 'Halaman Profile (belum dibuat)';
 })->name('profile');
 
-Route::get('/riwayat-submission', [SubmissionController::class, 'history'])->name('submissions.history');
-Route::post('/submissions', [SubmissionController::class, 'submit'])->name('submissions.submit');
+Route::get('/riwayat-submission', [SubmissionController::class, 'history'])->middleware('auth')->name('submissions.history');
+Route::post('/submissions', [SubmissionController::class, 'submit'])->middleware('auth')->name('submissions.submit');
 Route::post('/run', [SubmissionController::class, 'run'])->name('submissions.run');
 // --- Exercise & Code Editor (Dinda) ---
 Route::get('/latihan', [ExerciseController::class, 'index'])->name('latihan.index');

@@ -30,8 +30,12 @@
                 @foreach ($samples as $i => $s)
                     <div class="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 font-mono text-xs text-slate-700">
                         <p class="mb-2 font-sans text-xs font-semibold text-emerald-700">Contoh {{ $i + 1 }}</p>
-                        <p class="whitespace-pre-line"><span class="text-slate-400">Input &nbsp;:</span> {{ $s->input }}</p>
-                        <p class="mt-1"><span class="text-slate-400">Output :</span> {{ $s->expected_output }}</p>
+                        @if ($s->assertion_code)
+                            <pre class="whitespace-pre-wrap">{{ $s->assertion_code }}</pre>
+                        @else
+                            <p class="whitespace-pre-line"><span class="text-slate-400">Input &nbsp;:</span> {{ $s->input }}</p>
+                            <p class="mt-1"><span class="text-slate-400">Output :</span> {{ $s->expected_output }}</p>
+                        @endif
                     </div>
                 @endforeach
             </div>
@@ -54,10 +58,17 @@
                             class="rounded-xl border border-emerald-400/60 px-4 py-2 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-400/10">
                         Jalankan Kode
                     </button>
-                    <button id="btn-submit"
-                            class="rounded-xl bg-yellow-400 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
-                        Kirim &amp; Nilai Jawaban
-                    </button>
+                    @auth
+                        <button id="btn-submit"
+                                class="rounded-xl bg-yellow-400 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
+                            Kirim &amp; Nilai Jawaban
+                        </button>
+                    @else
+                        <a href="{{ route('login') }}"
+                           class="rounded-xl bg-yellow-400 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
+                            Masuk untuk Mengirim
+                        </a>
+                    @endauth
                 </div>
             </div>
 
@@ -88,7 +99,8 @@
         const EXERCISE_ID = {{ $exercise->id }};
         const STARTER = @json($exercise->starter_code ?? '');
         const URL_LIST = @json(route('latihan.index', ['level' => $exercise->difficulty]));
-        const USE_MOCK = true; // ganti false setelah backend teman siap
+        const RUN_URL = @json(route('submissions.run'));
+        const SUBMIT_URL = @json(route('submissions.submit'));
         let editor;
 
         require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } });
@@ -155,17 +167,11 @@
             hasilEl.innerHTML = '<p class="text-sm text-slate-500">Memproses...</p>';
             if (materiEl) materiEl.classList.add('hidden');
 
-            if (USE_MOCK) {
-                await new Promise(r => setTimeout(r, 600));
-                return tampilkanHasil({
-                    score: 66.67, passed_tests: 2, total_tests: 3,
-                    results: [
-                        { is_hidden: false, is_passed: true,  input: '4', expected: 'Genap',  actual: 'Genap' },
-                        { is_hidden: false, is_passed: true,  input: '7', expected: 'Ganjil', actual: 'Ganjil' },
-                        { is_hidden: true,  is_passed: false },
-                    ],
-                }, isSubmit);
+            if (!editor) {
+                hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Editor belum siap. Muat ulang halaman dan coba lagi.</p>';
+                return;
             }
+
             try {
                 const res = await fetch(url, {
                     method: 'POST',
@@ -176,14 +182,24 @@
                     },
                     body: JSON.stringify({ source_code: editor.getValue(), exercise_id: EXERCISE_ID }),
                 });
-                tampilkanHasil(await res.json(), isSubmit);
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    hasilEl.innerHTML = `<p class="text-sm text-yellow-800">${esc(data.message || 'Permintaan tidak dapat diproses.')}</p>`;
+                    return;
+                }
+
+                tampilkanHasil(data, isSubmit);
             } catch (e) {
                 hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Gagal terhubung ke server.</p>';
             }
         }
 
-        document.getElementById('btn-run').addEventListener('click', () => kirim('/run', false));
-        document.getElementById('btn-submit').addEventListener('click', () => kirim('{{ route('submissions.submit') }}', true));
+        document.getElementById('btn-run').addEventListener('click', () => kirim(RUN_URL, false));
+        const submitButton = document.getElementById('btn-submit');
+        if (submitButton) {
+            submitButton.addEventListener('click', () => kirim(SUBMIT_URL, true));
+        }
 
         // "Coba lagi": sembunyikan materi, reset hasil, kembali ke editor (kode tetap)
         const btnUlang = document.getElementById('btn-ulang');
