@@ -77,10 +77,19 @@
 
             {{-- Flash message --}}
             @if (session('status'))
-                <div class="mb-3 bg-amber-50 border border-amber-200 text-amber-700 text-xs px-3 py-2 rounded-lg">
-                    {{ session('status') }}
+                <div class="mb-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs px-3 py-2 rounded-xl flex items-start gap-2">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i>
+                    <span>{{ session('status') }}</span>
                 </div>
             @endif
+
+            {{-- Google Error --}}
+            @error('google_error')
+                <div class="mb-3 bg-red-50 border border-red-200 text-red-700 text-xs px-3 py-2 rounded-xl flex items-start gap-2">
+                    <i data-lucide="alert-circle" class="w-4 h-4 text-red-500 shrink-0 mt-0.5"></i>
+                    <span>{{ $message }}</span>
+                </div>
+            @enderror
 
             <form method="POST" action="{{ route('login.store') }}" class="space-y-3.5">
                 @csrf
@@ -138,16 +147,16 @@
             {{-- Divider --}}
             <div class="flex items-center gap-2.5 my-3.5">
                 <div class="flex-1 h-px bg-gray-200"></div>
-                <span class="text-[11px] text-gray-400 uppercase tracking-wider">Atau dengan email</span>
+                <span class="text-[11px] text-gray-400 uppercase tracking-wider">Atau masuk dengan</span>
                 <div class="flex-1 h-px bg-gray-200"></div>
             </div>
 
             {{-- Google Login --}}
-            <button type="button"
-                    class="w-full flex items-center justify-center gap-2.5 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-gray-700 font-medium text-xs py-2.5 rounded-xl transition-all">
+            <a href="{{ route('auth.google') }}"
+               class="w-full flex items-center justify-center gap-2.5 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-gray-700 font-medium text-xs py-2.5 rounded-xl transition-all shadow-sm">
                 <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.52 12.27c0-.85-.07-1.47-.23-2.12H12v3.85h6.59c-.13 1.1-.86 2.76-2.47 3.87l-.02.15 3.59 2.78.25.02c2.28-2.1 3.58-5.2 3.58-8.55z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.07 7.94-2.91l-3.78-2.93c-1.02.7-2.4 1.19-4.16 1.19-3.18 0-5.88-2.1-6.84-4.99l-.14.01-3.73 2.89-.05.13C3.23 21.3 7.26 24 12 24z"/><path fill="#FBBC05" d="M5.16 14.36A7.17 7.17 0 014.76 12c0-.82.14-1.62.39-2.36L5.14 9.5 1.36 6.56l-.12.06A11.98 11.98 0 000 12c0 1.93.46 3.75 1.28 5.38l3.88-3.02z"/><path fill="#EA4335" d="M12 4.75c2.25 0 3.77.97 4.64 1.79l3.39-3.31C17.95 1.19 15.24 0 12 0 7.26 0 3.23 2.7 1.24 6.62l3.91 3.02c.97-2.89 3.67-4.89 6.85-4.89z"/></svg>
                 Masuk dengan Google
-            </button>
+            </a>
 
             {{-- Link ke Register --}}
             <p class="text-center text-xs text-gray-600 mt-3.5">

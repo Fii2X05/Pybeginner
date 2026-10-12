@@ -31,12 +31,12 @@ return new class extends Migration
 
             $table->unique([
                 'user_id',
-                'lesson_id'
+                'lesson_id',
             ]);
 
             $table->index([
                 'user_id',
-                'status'
+                'status',
             ]);
         });
     }

@@ -33,7 +33,7 @@ return new class extends Migration
             $table->index([
                 'exercise_id',
                 'is_active',
-                'sort_order'
+                'sort_order',
             ]);
         });
     }

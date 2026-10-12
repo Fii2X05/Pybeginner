@@ -40,15 +40,16 @@ return new class extends Migration
             $table->index([
                 'user_id',
                 'exercise_id',
-                'submitted_at'
+                'submitted_at',
             ]);
 
             $table->index([
                 'exercise_id',
-                'score'
+                'score',
             ]);
         });
     }
+
     /**
      * Reverse the migrations.
      */

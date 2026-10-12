@@ -1,33 +1,28 @@
 <?php
 
-use App\Http\Controllers\ModulController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ExerciseController;
+use App\Http\Controllers\ModulController;
 use App\Http\Controllers\SubmissionController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('landing');
 })->name('beranda');
 
-// Auth routes (sementara)
-Route::get('/login', function () {
-    return view('login');
-})->name('login');
+use App\Http\Controllers\AuthController;
 
-// Proses form login (sementara cuma redirect balik, belum ada logic auth sungguhan)
-Route::post('/login', function () {
-    return redirect()->route('beranda')->with('status', 'Fitur login belum terhubung ke database.');
-})->name('login.store');
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.store');
 
-// Tampilkan halaman register
-Route::get('/register', function () {
-    return view('register');
-})->name('register');
+    Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.store');
 
-// Proses form register (sementara cuma redirect balik, belum ada logic simpan user)
-Route::post('/register', function () {
-    return redirect()->route('login')->with('status', 'Fitur daftar belum terhubung ke database.');
-})->name('register.store');
+    Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
+    Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+});
+
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 // Modul & Pelajaran (Tugas Adelia)
 Route::get('/modul', [ModulController::class, 'index'])->name('modul.index');
@@ -70,21 +65,14 @@ Route::post('/modul/{course:slug}/{module:slug}/{lesson:slug}/selesai', [ModulCo
     ->scopeBindings()->middleware('auth')->name('lesson.complete');
 
 // Latihan & Playground (Tugas Dinda)
-Route::get('/latihan', function () {
-    return view('latihan');
-})->name('latihan.index');
-
-Route::get('/playground', function () {
-    return view('playground');
-})->name('playground');
 
 Route::get('/profile', function () {
     return 'Halaman Profile (belum dibuat)';
 })->name('profile');
 
-Route::get('/riwayat-submission', [SubmissionController::class, 'history'])->name('submissions.history');
-Route::post('/submissions', [SubmissionController::class, 'submit'])->name('submissions.submit');
-
+Route::get('/riwayat-submission', [SubmissionController::class, 'history'])->middleware('auth')->name('submissions.history');
+Route::post('/submissions', [SubmissionController::class, 'submit'])->middleware('auth')->name('submissions.submit');
+Route::post('/run', [SubmissionController::class, 'run'])->name('submissions.run');
 // --- Exercise & Code Editor (Dinda) ---
 Route::get('/latihan', [ExerciseController::class, 'index'])->name('latihan.index');
 Route::get('/latihan/{slug}', [ExerciseController::class, 'show'])->name('latihan.show');
