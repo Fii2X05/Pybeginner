@@ -124,8 +124,7 @@
                     <p class="text-sm text-gray-600 leading-relaxed mb-4 flex-1">Mengenal struktur program Python, fungsi <code class="bg-gray-100 px-1 rounded text-xs">print()</code>, komentar kode, dan aturan indentasi yang menjadi ciri khas Python.</p>
 
                     <div class="flex items-center gap-4 text-xs text-gray-500 mb-2">
-                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 5 Materi • 5 Latihan</span>
-                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 45 Menit</span>
+                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 5 Materi</span>
                     </div>
 
                     <div class="flex items-center justify-between text-xs mb-1.5">
@@ -160,8 +159,7 @@
                     <p class="text-sm text-gray-600 leading-relaxed mb-4 flex-1">Memahami cara menyimpan data ke dalam variabel, tipe data angka (integer & float), teks (string), boolean, serta konversi tipe data dinamis.</p>
 
                     <div class="flex items-center gap-4 text-xs text-gray-500 mb-2">
-                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 6 Materi • 6 Latihan</span>
-                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 60 Menit</span>
+                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 6 Materi</span>
                     </div>
 
                     <div class="flex items-center justify-between text-xs mb-1.5">
@@ -172,7 +170,7 @@
                         <div class="h-full rounded-full bg-emerald-500" style="width: 100%"></div>
                     </div>
 
-                    <a href="#"
+                    <a href="{{ route('modul.detail.02') }}"
                        class="w-full flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-sm py-2.5 rounded-lg transition-colors">
                         <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Tinjau Ulang
                     </a>
@@ -203,8 +201,7 @@
                     </div>
 
                     <div class="flex items-center gap-4 text-xs text-gray-500 mb-2">
-                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 5 Materi • 5 Latihan</span>
-                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 50 Menit</span>
+                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 5 Materi</span>
                     </div>
 
                     <div class="flex items-center justify-between text-xs mb-1.5">
@@ -215,7 +212,7 @@
                         <div class="h-full rounded-full bg-gradient-to-r from-emerald-500 to-yellow-400" style="width: 60%"></div>
                     </div>
 
-                    <a href="#"
+                    <a href="{{ route('modul.detail.03') }}"
                        class="w-full flex items-center justify-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-sm py-2.5 rounded-lg transition-colors">
                         Lanjutkan Belajar <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                     </a>
@@ -239,8 +236,7 @@
                     <p class="text-sm text-gray-600 leading-relaxed mb-4 flex-1">Otomatisasi tugas berulang dengan for loop, fungsi <code class="bg-gray-100 px-1 rounded text-xs">range()</code>, while loop, serta kontrol perulangan break dan continue.</p>
 
                     <div class="flex items-center gap-4 text-xs text-gray-500 mb-2">
-                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 6 Materi • 6 Latihan</span>
-                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 65 Menit</span>
+                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 6 Materi</span>
                     </div>
 
                     <div class="flex items-center justify-between text-xs mb-1.5">
@@ -251,7 +247,7 @@
                         <div class="h-full rounded-full bg-gray-200" style="width: 0%"></div>
                     </div>
 
-                    <a href="#"
+                    <a href="{{ route('modul.detail.04') }}"
                        class="w-full flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold text-sm py-2.5 rounded-lg transition-colors">
                         Mulai Modul
                     </a>
@@ -275,19 +271,18 @@
                     <p class="text-sm text-gray-600 leading-relaxed mb-4 flex-1">Membuat fungsi mandiri dengan <code class="bg-gray-100 px-1 rounded text-xs">def</code>, parameter, argumen default, return value, dan memahami konsep local vs global scope.</p>
 
                     <div class="flex items-center gap-4 text-xs text-gray-500 mb-2">
-                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 7 Materi • 7 Latihan</span>
-                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 75 Menit</span>
+                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 3 Materi</span>
                     </div>
 
                     <div class="flex items-center justify-between text-xs mb-1.5">
-                        <span class="text-gray-500">0 / 7 Materi</span>
+                        <span class="text-gray-500">0 / 3 Materi</span>
                         <span class="font-semibold text-gray-700">0%</span>
                     </div>
                     <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-4">
                         <div class="h-full rounded-full bg-gray-200" style="width: 0%"></div>
                     </div>
 
-                    <a href="#"
+                    <a href="{{ route('modul.detail.05') }}"
                        class="w-full flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold text-sm py-2.5 rounded-lg transition-colors">
                         Mulai Modul
                     </a>
@@ -311,19 +306,18 @@
                     <p class="text-sm text-gray-600 leading-relaxed mb-4 flex-1">Mengelola kumpulan data terstruktur: operasi indexing & slicing pada List, ketetapan Tuple, pasangan key-value Dictionary, dan keunikan Set.</p>
 
                     <div class="flex items-center gap-4 text-xs text-gray-500 mb-2">
-                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 8 Materi • 8 Latihan</span>
-                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 90 Menit</span>
+                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 3 Materi</span>
                     </div>
 
                     <div class="flex items-center justify-between text-xs mb-1.5">
-                        <span class="text-gray-500">0 / 8 Materi</span>
+                        <span class="text-gray-500">0 / 3 Materi</span>
                         <span class="font-semibold text-gray-700">0%</span>
                     </div>
                     <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-4">
                         <div class="h-full rounded-full bg-gray-200" style="width: 0%"></div>
                     </div>
 
-                    <a href="#"
+                    <a href="{{ route('modul.detail.06') }}"
                        class="w-full flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold text-sm py-2.5 rounded-lg transition-colors">
                         Mulai Modul
                     </a>
@@ -347,8 +341,7 @@
                     <p class="text-sm text-gray-600 leading-relaxed mb-4 flex-1">Pengenalan library analisis data Python: membuat dan memanipulasi array NumPy, serta bekerja dengan DataFrame dan Series pada Pandas.</p>
 
                     <div class="flex items-center gap-4 text-xs text-gray-500 mb-2">
-                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 6 Materi • 5 Latihan</span>
-                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 80 Menit</span>
+                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 6 Materi</span>
                     </div>
 
                     <div class="flex items-center justify-between text-xs mb-1.5">
@@ -359,7 +352,7 @@
                         <div class="h-full rounded-full bg-gray-200" style="width: 0%"></div>
                     </div>
 
-                    <a href="#"
+                    <a href="{{ route('modul.detail.07') }}"
                        class="w-full flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold text-sm py-2.5 rounded-lg transition-colors">
                         Mulai Modul
                     </a>

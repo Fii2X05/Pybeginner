@@ -24,9 +24,10 @@ return [
         ],
     ],
 
-    'judge0' => [
+        'judge0' => [
         'url' => env('JUDGE0_URL'),
         'language_id' => env('JUDGE0_LANGUAGE_ID', 10),
+        'language_id' => env('JUDGE0_LANGUAGE_ID', 71),
         'token' => env('JUDGE0_TOKEN'),
         'auth_header' => env('JUDGE0_AUTH_HEADER', 'X-Auth-Token'),
         'timeout' => env('JUDGE0_TIMEOUT', 30),
