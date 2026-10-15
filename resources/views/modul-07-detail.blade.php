@@ -76,13 +76,33 @@
                 <span class="text-gray-900 font-semibold">Modul 07</span>
             </nav>
 
+            @if (session('status'))
+                <div class="mb-6 bg-emerald-100 border border-emerald-300 text-emerald-800 px-4 py-3 rounded-xl flex items-center gap-3">
+                    <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600 shrink-0"></i>
+                    <span class="font-medium text-sm">{{ session('status') }}</span>
+                </div>
+            @endif
+
             <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                 <div class="flex-1">
                     <div class="flex items-center gap-3 mb-3">
                         <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-100 text-purple-700">Menengah</span>
-                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
-                            <i data-lucide="check" class="w-3 h-3"></i> Siap Dipelajari
-                        </span>
+
+                        {{-- Notif status di pojok kanan header --}}
+                        @if (($status ?? 'belum') === 'selesai')
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
+                                <i data-lucide="check" class="w-3 h-3"></i> Selesai
+                            </span>
+                        @elseif (($status ?? 'belum') === 'berjalan')
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold text-yellow-700 bg-yellow-50 px-2.5 py-1 rounded-full">
+                                <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full"></span> Sedang Berjalan
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
+                                <i data-lucide="lock" class="w-3 h-3"></i> Belum Mulai
+                            </span>
+                        @endif
+
                         <span class="text-xs text-gray-400 font-mono-code">MODUL 07</span>
                     </div>
                     <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-3">Pengantar Pandas & NumPy</h1>
@@ -93,11 +113,11 @@
 
                 <div class="flex items-center gap-3 shrink-0">
                     <div class="text-right mr-3">
-                        <p class="text-xs text-gray-500 mb-1">Total Materi</p>
-                        <p class="text-lg font-extrabold text-emerald-700">6/6 Materi</p>
+                        <p class="text-xs text-gray-500 mb-1">Kemajuan Modul</p>
+                        <p class="text-lg font-extrabold text-emerald-700">{{ $selesaiCount ?? 0 }}/{{ $totalMateri ?? 6 }} Materi</p>
                     </div>
-                    <div class="w-14 h-14 rounded-full border-4 border-emerald-500 flex items-center justify-center">
-                        <span class="text-sm font-extrabold text-emerald-700">100%</span>
+                    <div class="w-14 h-14 rounded-full border-4 {{ ($status ?? 'belum') === 'selesai' ? 'border-emerald-500' : (($status ?? 'belum') === 'berjalan' ? 'border-yellow-400' : 'border-gray-200') }} flex items-center justify-center">
+                        <span class="text-sm font-extrabold {{ ($status ?? 'belum') === 'selesai' ? 'text-emerald-700' : (($status ?? 'belum') === 'berjalan' ? 'text-yellow-600' : 'text-gray-400') }}">{{ $progress ?? 0 }}%</span>
                     </div>
                 </div>
             </div>
@@ -426,13 +446,31 @@ statistik = df.groupby(<span class="string">"kelas"</span>)[<span class="string"
                     </article>
 
                     {{-- ========== NAVIGASI BAWAH ========== --}}
-                    <div class="flex items-center justify-between pt-4">
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
                         <a href="{{ route('modul.detail.06') }}"
-                           class="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-emerald-700 bg-white border border-gray-200 px-5 py-2.5 rounded-xl transition-colors">
+                           class="w-full sm:w-auto flex items-center justify-center gap-2 text-sm font-semibold text-gray-600 hover:text-emerald-700 bg-white border border-gray-200 px-5 py-2.5 rounded-xl transition-colors">
                             <i data-lucide="arrow-left" class="w-4 h-4"></i> Modul Sebelumnya (Modul 06)
                         </a>
+
+                        @auth
+                            <form action="{{ route('modul.toggle-complete', 7) }}" method="POST" class="w-full sm:w-auto">
+                                @csrf
+                                @if (($status ?? 'belum') === 'selesai')
+                                    <button type="submit"
+                                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-5 py-2.5 rounded-xl transition-colors">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i> Modul Selesai (Klik untuk Ulangi)
+                                    </button>
+                                @else
+                                    <button type="submit"
+                                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 rounded-xl transition-colors shadow-sm">
+                                        <i data-lucide="check" class="w-4 h-4"></i> Tandai Modul Selesai
+                                    </button>
+                                @endif
+                            </form>
+                        @endauth
+
                         <a href="{{ route('modul.index') }}"
-                           class="flex items-center gap-2 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-800 px-5 py-2.5 rounded-xl transition-colors">
+                           class="w-full sm:w-auto flex items-center justify-center gap-2 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-800 px-5 py-2.5 rounded-xl transition-colors">
                             Kembali ke Daftar Modul <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </a>
                     </div>
