@@ -2,17 +2,6 @@
 
 return [
 
-    /*
-    |--------------------------------------------------------------------------
-    | Third Party Services
-    |--------------------------------------------------------------------------
-    |
-    | This file is for storing the credentials for third party services such
-    | as Resend, Postmark, AWS, and more. This file provides the de facto
-    | location for this type of information, allowing packages to have
-    | a conventional file to locate the various service credentials.
-    |
-    */
 
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
@@ -37,6 +26,7 @@ return [
 
         'judge0' => [
         'url' => env('JUDGE0_URL'),
+        'language_id' => env('JUDGE0_LANGUAGE_ID', 10),
         'language_id' => env('JUDGE0_LANGUAGE_ID', 71),
         'token' => env('JUDGE0_TOKEN'),
         'auth_header' => env('JUDGE0_AUTH_HEADER', 'X-Auth-Token'),
@@ -52,9 +42,6 @@ return [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI', env('APP_URL').'/auth/google/callback'),
-        'guzzle' => [
-            'verify' => env('CURL_SSL_VERIFY', env('APP_ENV') === 'production'),
-        ],
     ],
 
 ];

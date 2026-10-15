@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-<<<<<<< HEAD
 use App\Models\Exercise;
 use App\Models\Submission;
 use App\Models\TestCase;
@@ -12,16 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Throwable;
-=======
->>>>>>> origin/main
 
-use Illuminate\Http\Request;
-use App\Services\Judge0Service;
-use App\Models\TestCase;
-use App\Models\Submission;
-use App\Models\SubmissionResult;
-use Illuminate\Support\Carbon;
-   use Illuminate\Support\Facades\Auth;
 class SubmissionController extends Controller
 {
     public function __construct(private Judge0Service $judge0) {}
@@ -147,7 +137,6 @@ class SubmissionController extends Controller
      */
     private function evaluate(string $sourceCode, Collection $testCases, Exercise $exercise): array
     {
-<<<<<<< HEAD
         $results = [];
         $storedResults = [];
         $passedWeight = 0;
@@ -205,52 +194,6 @@ class SubmissionController extends Controller
                     : ($error !== '' ? $error : null),
                 'execution_time_ms' => $timeMs,
             ];
-=======
-        $request->validate([
-            'source_code' => 'required|string',
-            'exercise_id' => 'required|integer',
-        ]);
-
-        $testCases = TestCase::where('exercise_id', $request->exercise_id)->get();
-
-        if ($testCases->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Sistem gagal menemukan test case untuk modul ini.',
-            ], 404);
-        }
-
-        try {
-            $evaluated = $this->evaluate($request->source_code, $testCases);
-        } catch (\Throwable $e) {
-            report($e);
-            return response()->json(['success' => false, 'message' => 'Layanan penilai (Judge0) tidak dapat dihubungi.'], 502);
-        }
-
-        $score = $evaluated['score'];
-        $finalStatus = ($score == 100) ? 'accepted' : (($score > 0) ? 'partial' : 'failed');
-
-        $submissionRecord = Submission::create([
-            'user_id'      => auth()->id() ?? 1,
-            'exercise_id'  => $request->exercise_id,
-            'source_code'  => $request->source_code,
-            'status'       => $finalStatus,
-            'score'        => $score,
-            'passed_tests' => $evaluated['passed'],
-            'total_tests'  => $evaluated['total'],
-            'submitted_at' => Carbon::now(),
-        ]);
-
-        foreach ($evaluated['raw'] as $detail) {
-            SubmissionResult::create([
-                'submission_id'     => $submissionRecord->id,
-                'test_case_id'      => $detail['test_case_id'],
-                'status'            => $detail['status'],
-                'actual_output'     => $detail['stdout'],
-                'error_message'     => $detail['stderr'],
-                'execution_time_ms' => isset($detail['time']) ? (int) ($detail['time'] * 1000) : null,
-            ]);
->>>>>>> origin/main
         }
 
         return [
@@ -260,66 +203,6 @@ class SubmissionController extends Controller
             'execution_time_ms' => $executionTimeMs,
             'results' => $results,
             'stored_results' => $storedResults,
-        ];
-    }
-
-    /**
-     * Jalankan kode terhadap sekumpulan test case lewat Judge0.
-     * Mengembalikan: skor, jumlah lolos, hasil untuk browser ('results'),
-     * dan data lengkap untuk database ('raw').
-     */
-    private function evaluate(string $sourceCode, $testCases): array
-    {
-        $passed = 0;
-        $results = [];
-        $raw = [];
-
-        foreach ($testCases as $tc) {
-            $r = $this->judge0->evaluateCode($sourceCode, $tc->expected_output, $tc->stdin);
-
-            $statusId = $r['status']['id'] ?? null;
-            $statusDesc = $r['status']['description'] ?? 'Unknown Error';
-            $isPassed = ($statusId === 3);
-            $isHidden = (bool) ($tc->is_hidden ?? false);
-
-            if ($isPassed) {
-                $passed++;
-            }
-
-            // Pesan error: stderr, error kompilasi, atau status selain Accepted/Wrong Answer
-            $error = $r['stderr'] ?? $r['compile_output'] ?? $r['message'] ?? null;
-            if (!$error && !in_array($statusId, [3, 4], true)) {
-                $error = $statusDesc; // contoh: Time Limit Exceeded
-            }
-
-            $raw[] = [
-                'test_case_id' => $tc->id,
-                'status'       => $statusDesc,
-                'stdout'       => $r['stdout'] ?? null,
-                'stderr'       => $error,
-                'time'         => $r['time'] ?? null,
-            ];
-
-            // Test case tersembunyi: JANGAN kirim input / expected / actual ke browser
-            $item = ['is_hidden' => $isHidden, 'is_passed' => $isPassed, 'error' => $error];
-            if (!$isHidden) {
-                $item += [
-                    'input'    => $tc->stdin,
-                    'expected' => $tc->expected_output,
-                    'actual'   => rtrim($r['stdout'] ?? ''),
-                ];
-            }
-            $results[] = $item;
-        }
-
-        $total = $testCases->count();
-
-        return [
-            'score'   => $total > 0 ? ($passed / $total) * 100 : 0,
-            'passed'  => $passed,
-            'total'   => $total,
-            'results' => $results,
-            'raw'     => $raw,
         ];
     }
 }
