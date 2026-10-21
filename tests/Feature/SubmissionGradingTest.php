@@ -191,6 +191,105 @@ class SubmissionGradingTest extends TestCase
             ->assertJsonPath('total_tests', 2);
     }
 
+    public function test_manual_runtime_error_does_not_change_reference_test_case_progress(): void
+    {
+        Http::fake(function (ClientRequest $request) {
+            if ($request->data()['stdin'] === '0.5') {
+                return Http::response([
+                    'status' => ['id' => 11, 'description' => 'Runtime Error'],
+                    'stdout' => null,
+                    'stderr' => "ValueError: invalid literal for int() with base 10: '0.5'",
+                    'time' => '0.01',
+                ]);
+            }
+
+            return Http::response([
+                'status' => ['id' => 3, 'description' => 'Accepted'],
+                'stdout' => "Genap\n",
+                'time' => '0.01',
+            ]);
+        });
+
+        $exerciseId = $this->createExercise([
+            [
+                'input' => '4',
+                'expected_output' => 'Genap',
+                'assertion_code' => null,
+                'is_hidden' => false,
+            ],
+        ]);
+        $user = User::factory()->create();
+        $sourceCode = "angka = int(input())\nprint('Genap' if angka % 2 == 0 else 'Ganjil')";
+        $testCaseId = DB::table('test_cases')->where('exercise_id', $exerciseId)->value('id');
+
+        $this->actingAs($user)
+            ->postJson(route('submissions.test-case.run', [
+                'exerciseId' => $exerciseId,
+                'testCaseId' => $testCaseId,
+            ]), ['source_code' => $sourceCode])
+            ->assertOk()
+            ->assertJsonPath('is_passed', true)
+            ->assertJsonPath('input', '4');
+
+        $this->postJson(route('submissions.execute'), [
+            'exercise_id' => $exerciseId,
+            'source_code' => $sourceCode,
+            'stdin' => '0.5',
+        ])->assertOk()
+            ->assertJsonPath('status.id', 11)
+            ->assertJsonPath('stderr', "ValueError: invalid literal for int() with base 10: '0.5'");
+
+        $this->assertDatabaseHas('test_case_progress', [
+            'user_id' => $user->id,
+            'exercise_id' => $exerciseId,
+            'test_case_id' => $testCaseId,
+            'status' => 'passed',
+        ]);
+    }
+
+    public function test_wrong_answer_from_judge0_marks_test_case_as_failed(): void
+    {
+        Http::fake(function (ClientRequest $request) {
+            $this->assertSame('4', $request->data()['stdin']);
+            $this->assertSame('Genap', $request->data()['expected_output']);
+
+            return Http::response([
+                'status' => ['id' => 4, 'description' => 'Wrong Answer'],
+                'stdout' => "Ganjil\n",
+                'time' => '0.01',
+            ]);
+        });
+
+        $exerciseId = $this->createExercise([
+            [
+                'input' => '4',
+                'expected_output' => 'Genap',
+                'assertion_code' => null,
+                'is_hidden' => false,
+            ],
+        ]);
+        $user = User::factory()->create();
+        $testCaseId = DB::table('test_cases')->where('exercise_id', $exerciseId)->value('id');
+
+        $this->actingAs($user)
+            ->postJson(route('submissions.test-case.run', [
+                'exerciseId' => $exerciseId,
+                'testCaseId' => $testCaseId,
+            ]), ['source_code' => "print('Ganjil')"])
+            ->assertOk()
+            ->assertJsonPath('is_passed', false)
+            ->assertJsonPath('expected', 'Genap')
+            ->assertJsonPath('actual', "Ganjil\n")
+            ->assertJsonPath('passed_tests', 0);
+
+        $this->assertDatabaseHas('test_case_progress', [
+            'user_id' => $user->id,
+            'exercise_id' => $exerciseId,
+            'test_case_id' => $testCaseId,
+            'status' => 'failed',
+        ]);
+    }
+
     public function test_submit_requires_each_visible_case_to_pass_for_the_current_code(): void
     {
         Http::fake(fn (ClientRequest $request) => Http::response([
@@ -356,6 +455,11 @@ class SubmissionGradingTest extends TestCase
             ->assertOk()
             ->assertSee('id="editor"', false)
             ->assertSee('placeholder="Masukkan input : "', false)
+            ->assertSee('Input Program (Jalankan Kode)')
+            ->assertSee('Input manual:')
+            ->assertSee('Hasil ini terpisah dari test case acuan')
+            ->assertSee('Penilaian test case menggunakan input acuan')
+            ->assertSee('Input Program hanya untuk Jalankan Kode dan tidak mengubah status')
             ->assertSee('Uji test case ini')
             ->assertSee('assert jumlah(2, 3) == 5')
             ->assertSee('const RUN_URL =', false);
