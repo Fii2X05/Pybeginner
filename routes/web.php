@@ -24,11 +24,12 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
-// Modul & Pelajaran (Tugas Adelia)
-Route::get('/modul', [ModulController::class, 'index'])->name('modul.index');
-Route::get('/modul/mulai', function () {
-    return redirect()->route('modul.index');
-})->name('modul.mulai');
+// Modul & Pelajaran serta Latihan (Memerlukan Login)
+Route::middleware('auth')->group(function () {
+    Route::get('/modul', [ModulController::class, 'index'])->name('modul.index');
+    Route::get('/modul/mulai', function () {
+        return redirect()->route('modul.index');
+    })->name('modul.mulai');
 
 Route::get('/modul/01/dasar-python', [ModulController::class, 'detail01'])->name('modul.detail.01');
 Route::get('/modul/02/variabel-tipe-data', [ModulController::class, 'detail02'])->name('modul.detail.02');
@@ -42,17 +43,19 @@ Route::post('/modul/{nomor}/toggle-selesai', [ModulController::class, 'toggleCom
     ->name('modul.toggle-complete')
     ->middleware('auth');
 
-Route::get('/modul/{course:slug}/{module:slug}/{lesson:slug}', [ModulController::class, 'show'])
-    ->scopeBindings()->name('lesson.show');
+    Route::get('/modul/{course:slug}/{module:slug}/{lesson:slug}', [ModulController::class, 'show'])
+        ->scopeBindings()->name('lesson.show');
 
-Route::post('/modul/{course:slug}/{module:slug}/{lesson:slug}/selesai', [ModulController::class, 'complete'])
-    ->scopeBindings()->middleware('auth')->name('lesson.complete');
+    Route::post('/modul/{course:slug}/{module:slug}/{lesson:slug}/selesai', [ModulController::class, 'complete'])
+        ->scopeBindings()->name('lesson.complete');
 
-// Latihan & Playground (Tugas Dinda)
+    Route::get('/profile', function () {
+        return 'Halaman Profile (belum dibuat)';
+    })->name('profile');
 
-Route::get('/profile', function () {
-    return 'Halaman Profile (belum dibuat)';
-})->name('profile');
+    Route::get('/riwayat-submission', [SubmissionController::class, 'history'])->name('submissions.history');
+    Route::post('/submissions', [SubmissionController::class, 'submit'])->name('submissions.submit');
+    Route::post('/run', [SubmissionController::class, 'run'])->name('submissions.run');
 
 Route::get('/riwayat-submission', [SubmissionController::class, 'history'])->middleware('auth')->name('submissions.history');
 Route::post('/submissions', [SubmissionController::class, 'submit'])->middleware('auth')->name('submissions.submit');

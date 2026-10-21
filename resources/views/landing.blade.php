@@ -27,12 +27,12 @@
                 </p>
 
                 <div class="flex flex-col gap-4 sm:flex-row">
-                    <a href="{{ route('modul.mulai') }}"
+                    <a href="{{ auth()->check() ? route('modul.index') : route('login') }}"
                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 font-semibold text-white shadow-sm transition hover:bg-emerald-700">
                         Mulai Belajar Sekarang
                         <i data-lucide="arrow-right" class="h-4 w-4"></i>
                     </a>
-                    <a href="{{ route('modul.index') }}"
+                    <a href="{{ auth()->check() ? route('modul.index') : route('login') }}"
                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-slate-800 shadow-sm ring-1 ring-emerald-100 transition hover:ring-emerald-300">
                         Lihat Modul Pembelajaran
                     </a>
@@ -166,31 +166,36 @@
         </div>
     </section>
 
-    {{-- ===================== CTA BANNER ===================== --}}
-    <section id="mulai-coding" class="pb-20 scroll-mt-24">
-        <div class="max-w-6xl mx-auto px-6 lg:px-10">
-            <div class="reveal relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-800 to-emerald-600 px-8 py-16 sm:px-16 text-center">
-                <span class="inline-flex items-center gap-2 bg-white/15 text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-6">
-                    <i data-lucide="rocket" class="w-3.5 h-3.5"></i>
-                    Akses 100% Gratis Selamanya
-                </span>
+    {{-- ===================== CTA ===================== --}}
+    <section id="mulai-coding" class="scroll-mt-24 bg-white pb-20">
+        <div class="mx-auto max-w-6xl px-6 lg:px-10">
+            <div class="reveal relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-700 to-emerald-500 px-8 py-16 text-center sm:px-16">
+                <div class="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full bg-white/10"></div>
+                <div class="pointer-events-none absolute -bottom-12 left-16 h-32 w-32 rounded-full bg-yellow-300/20"></div>
 
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">
-                    Siap Menulis Kode Python Pertamamu Hari Ini?
-                </h2>
-                <p class="text-emerald-100 max-w-xl mx-auto mb-8">
-                    Bergabunglah dengan ribuan pemula lainnya. Buka modul pertamamu sekarang dan buktikan bahwa coding itu mudah dan menyenangkan.
-                </p>
+                <div class="relative">
+                    <span class="mb-6 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold text-white">
+                        <i data-lucide="rocket" class="h-3.5 w-3.5"></i>
+                        Akses 100% Gratis
+                    </span>
 
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="{{ route('register') }}"
-                       class="inline-flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-6 py-3.5 rounded-xl transition-colors">
-                        Mulai Belajar Gratis <i data-lucide="rocket" class="w-4 h-4"></i>
-                    </a>
-                    <a href="{{ route('playground') }}"
-                       class="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-900 font-semibold px-6 py-3.5 rounded-xl transition-colors">
-                        Coba Mulai Coding
-                    </a>
+                    <h2 class="mb-4 text-3xl font-extrabold text-white sm:text-4xl">
+                        Siap Menulis Kode Python Pertamamu Hari Ini?
+                    </h2>
+                    <p class="mx-auto mb-8 max-w-xl text-emerald-50">
+                        Buka soal pertamamu sekarang dan buktikan bahwa coding itu mudah dan menyenangkan.
+                    </p>
+
+                    <div class="flex flex-col justify-center gap-4 sm:flex-row">
+                        <a href="{{ auth()->check() ? route('modul.index') : route('login') }}"
+                           class="inline-flex items-center justify-center gap-2 rounded-xl bg-yellow-400 px-6 py-3.5 font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
+                            Mulai Belajar Gratis <i data-lucide="rocket" class="h-4 w-4"></i>
+                        </a>
+                        <a href="{{ auth()->check() ? route('latihan.index') : route('login') }}"
+                           class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-slate-900 transition hover:bg-emerald-50">
+                            Coba Mulai Coding
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
