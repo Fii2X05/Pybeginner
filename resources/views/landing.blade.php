@@ -1,14 +1,11 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PyLearn - Belajar Python Interaktif & Gratis untuk Pemula</title>
+<x-layouts.app title="Belajar Python Interaktif & Gratis untuk Pemula" active="beranda" navbar="landing" :flush="true">
 
-    {{-- Jika project belum pakai Vite/Tailwind build, aktifkan CDN ini sebagai fallback cepat --}}
-    {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
+    {{-- ===================== HERO ===================== --}}
+    <section id="beranda" class="relative scroll-mt-24 overflow-hidden bg-emerald-50">
+        <img src="{{ asset('images/hero-illustration.png') }}" alt=""
+             class="absolute inset-0 z-0 h-full w-full object-cover object-left">
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <div class="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-6 py-16 lg:grid-cols-5 lg:px-10 lg:py-24">
 
     {{-- Ikon: pakai Lucide (lihat instruksi instalasi di bagian bawah file) --}}
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -141,77 +138,68 @@
                     Belajar Python Interaktif & Gratis untuk Pemula
                 </span>
 
-                <h1 class="text-3xl sm:text-4xl font-extrabold leading-tight text-gray-900 mb-6">
+                <h1 class="mb-6 text-3xl font-extrabold leading-tight text-slate-900 sm:text-4xl">
                     Belajar <span class="text-emerald-600">Python</span>. <span class="whitespace-nowrap">Tulis Kode.</span>
                     <br>
-                    Dapatkan <span class="bg-yellow-300 px-2 rounded whitespace-nowrap">Feedback Instan</span>.
+                    Dapatkan <span class="whitespace-nowrap rounded bg-yellow-300 px-2">Feedback Instan</span>.
                 </h1>
 
-                <p class="text-gray-600 text-lg mb-8 max-w-md">
+                <p class="mb-8 max-w-md text-lg text-slate-600">
                     Pelajari Python dari nol langsung melalui browser tanpa perlu instalasi software atau konfigurasi environment yang rumit.
                 </p>
 
-                <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex flex-col gap-4 sm:flex-row">
                     <a href="{{ route('modul.mulai') }}"
-                       class="inline-flex items-center justify-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold px-6 py-3.5 rounded-xl transition-colors">
+                       class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 font-semibold text-white shadow-sm transition hover:bg-emerald-700">
                         Mulai Belajar Sekarang
-                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        <i data-lucide="arrow-right" class="h-4 w-4"></i>
                     </a>
                     <a href="{{ route('modul.index') }}"
-                       class="inline-flex items-center justify-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 font-semibold px-6 py-3.5 rounded-xl transition-colors">
+                       class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-slate-800 shadow-sm ring-1 ring-emerald-100 transition hover:ring-emerald-300">
                         Lihat Modul Pembelajaran
                     </a>
                 </div>
             </div>
 
-            {{-- Kolom Kanan: Mockup Code Editor --}}
-            <div class="relative lg:col-span-2">
-                <div class="relative bg-gray-900 rounded-2xl shadow-2xl overflow-hidden">
-                    {{-- Title bar --}}
-                    <div class="flex items-center justify-between px-4 py-3 bg-gray-800/80">
+            {{-- Mockup editor (gaya sama dengan editor di halaman latihan) --}}
+            <div class="lg:col-span-2">
+                <div class="overflow-hidden rounded-3xl bg-slate-900 shadow-2xl">
+                    <div class="flex items-center justify-between px-5 py-3 text-xs text-slate-300">
                         <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-red-500"></span>
-                            <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
-                            <span class="w-3 h-3 rounded-full bg-green-500"></span>
-                            <span class="ml-3 text-xs text-gray-400 flex items-center gap-1">
-                                <i data-lucide="code" class="w-3.5 h-3.5"></i> main.py
-                            </span>
+                            <span class="h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
+                            <span class="h-2.5 w-2.5 rounded-full bg-yellow-300"></span>
+                            <span class="ml-2 font-mono">main.py</span>
                         </div>
-                        <span class="text-xs text-emerald-400 flex items-center gap-1">
-                            <i data-lucide="circle-dot" class="w-3 h-3"></i> Python 3.11
+                        <span>Python 3</span>
+                    </div>
+
+                    <div class="overflow-x-auto px-5 py-4 font-mono text-sm leading-relaxed text-slate-200">
+<pre><span class="text-slate-500"># Program sapaan ramah PyBeginner</span>
+<span class="text-emerald-300">nama</span> = <span class="text-yellow-300">"Sukma"</span>
+<span class="text-emerald-300">target</span> = <span class="text-yellow-300">"Memahami Dasar Python untuk Pemula"</span>
+
+<span class="text-emerald-400">def</span> <span class="text-yellow-200">sambut</span>(user):
+    <span class="text-emerald-400">return</span> <span class="text-yellow-300">f"Selamat datang di PyBeginner, {user}!"</span>
+
+<span class="text-yellow-200">print</span>(sambut(nama))</pre>
+                    </div>
+
+                    <div class="flex items-center justify-between bg-slate-800 px-5 py-3">
+                        <span class="flex items-center gap-1.5 text-xs text-slate-400">
+                            <span class="h-2 w-2 rounded-full bg-emerald-400"></span> Siap dijalankan
+                        </span>
+                        <span class="inline-flex items-center gap-1 rounded-xl bg-yellow-400 px-3 py-1.5 text-xs font-semibold text-slate-900">
+                            Jalankan <i data-lucide="play" class="h-3 w-3"></i>
                         </span>
                     </div>
 
-                    {{-- Code body --}}
-                    <div class="px-5 py-4 text-sm font-mono-code leading-relaxed text-gray-200 overflow-x-auto">
-<pre><span class="text-gray-500"># Program sapaan ramah PyLearn</span>
-<span class="text-purple-400">nama</span> = <span class="text-orange-300">"Sukma"</span>
-<span class="text-purple-400">target</span> = <span class="text-orange-300">"Memahami Dasar Python untuk Pemula"</span>
-
-<span class="text-pink-400">def</span> <span class="text-blue-300">sambut</span>(user):
-    <span class="text-pink-400">return</span> <span class="text-orange-300">f"Selamat datang di PyBeginner, {user}!"</span>
-
-<span class="text-blue-300">print</span>(sambut(nama))</pre>
-                    </div>
-
-                    {{-- Run bar --}}
-                    <div class="flex items-center justify-between px-5 py-3 bg-gray-800/60 border-t border-gray-700">
-                        <span class="text-xs text-gray-400 flex items-center gap-1">
-                            <i data-lucide="circle" class="w-2.5 h-2.5 text-emerald-400"></i> In-Browser REPL Engine Ready
-                        </span>
-                        <button type="button" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-1.5 rounded-md flex items-center gap-1">
-                            Run <i data-lucide="play" class="w-3 h-3"></i>
-                        </button>
-                    </div>
-
-                    {{-- Output console --}}
-                    <div class="bg-black px-5 py-4 text-xs font-mono-code">
-                        <div class="flex items-center justify-between text-gray-500 mb-2">
-                            <span>OUTPUT / CONSOLE</span>
-                            <span class="text-emerald-400">Pass: 1/1</span>
+                    <div class="border-t border-slate-700 px-5 py-4 font-mono text-xs">
+                        <div class="mb-2 flex items-center justify-between text-slate-500">
+                            <span>OUTPUT</span>
+                            <span class="text-emerald-400">Lolos: 1/1</span>
                         </div>
-                        <p class="text-gray-300">&gt; Selamat datang di PyBeginner, Sukma!</p>
-                        <p class="mt-2 inline-block bg-emerald-900/40 text-emerald-400 px-2 py-1 rounded">
+                        <p class="text-slate-300">&gt; Selamat datang di PyBeginner, Sukma!</p>
+                        <p class="mt-2 inline-block rounded-lg bg-emerald-900/40 px-2 py-1 text-emerald-300">
                             ✓ Test case 1 lolos dalam 0.04s
                         </p>
                     </div>
@@ -227,33 +215,36 @@
                 <span class="inline-block bg-indigo-100 text-indigo-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-4">
                     Fitur Unggulan
                 </span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
+                <h2 class="mb-4 text-3xl font-extrabold text-slate-900 sm:text-4xl">
                     Dirancang Khusus untuk Memudahkan Pemula
                 </h2>
-                <p class="text-gray-600">
+                <p class="text-slate-600">
                     Semua rintangan teknis yang biasa ditemui saat pertama kali belajar coding kami singkirkan agar kamu bisa fokus memahami logika pemrograman.
                 </p>
             </div>
 
             @php
                 $fitur = [
-                    ['icon' => 'monitor', 'bg' => 'bg-blue-100', 'color' => 'text-blue-600', 'title' => 'Belajar Langsung dari Browser', 'desc' => 'Tanpa instalasi IDE atau compiler. Cukup buka browser favorit di laptop spek standar maupun Chromebook tanpa lag.'],
-                    ['icon' => 'graduation-cap', 'bg' => 'bg-yellow-100', 'color' => 'text-yellow-600', 'title' => 'Materi Python dari Nol', 'desc' => 'Disusun bertahap dari konsep variabel hingga manipulasi data terapan dengan bahasa santai yang tidak intimidatif bagi pemula.'],
-                    ['icon' => 'square-code', 'bg' => 'bg-indigo-100', 'color' => 'text-indigo-600', 'title' => 'Latihan Coding Interaktif', 'desc' => 'Tulis dan modifikasi kode langsung di web-editor dengan petunjuk soal terstruktur serta contoh implementasi real-time.'],
-                    ['icon' => 'shield-check', 'bg' => 'bg-emerald-100', 'color' => 'text-emerald-600', 'title' => 'Penilaian Kode Otomatis', 'desc' => 'Sistem auto-grading instan mengevaluasi ketepatan logikamu dengan puluhan skenario uji tersembunyi secara adil dan objektif.'],
-                    ['icon' => 'message-square', 'bg' => 'bg-orange-100', 'color' => 'text-orange-600', 'title' => 'Feedback Instan & Ramah', 'desc' => 'Pesan koreksi yang solutif menjelaskan kesalahan pengetikan dan sintaks secara bahasa manusia tanpa jargon rumit yang membuat pusing.'],
-                    ['icon' => 'line-chart', 'bg' => 'bg-cyan-100', 'color' => 'text-cyan-600', 'title' => 'Pantau Progress Belajar', 'desc' => 'Dashboard personal untuk memantau modul yang telah kamu tuntaskan, streak harian, dan arsip riwayat pengerjaan tugas.'],
+                    ['icon' => 'monitor',        'title' => 'Belajar Langsung dari Browser', 'desc' => 'Tanpa instalasi IDE atau compiler. Cukup buka browser favorit di laptop spek standar maupun Chromebook tanpa lag.'],
+                    ['icon' => 'graduation-cap', 'title' => 'Materi Python dari Nol',        'desc' => 'Disusun bertahap dari konsep variabel hingga manipulasi data terapan dengan bahasa santai yang tidak intimidatif bagi pemula.'],
+                    ['icon' => 'square-code',    'title' => 'Latihan Coding Interaktif',     'desc' => 'Tulis dan modifikasi kode langsung di web-editor dengan petunjuk soal terstruktur serta contoh uji coba.'],
+                    ['icon' => 'shield-check',   'title' => 'Penilaian Kode Otomatis',       'desc' => 'Sistem auto-grading instan mengevaluasi ketepatan logikamu dengan skenario uji tersembunyi secara adil dan objektif.'],
+                    ['icon' => 'message-square', 'title' => 'Feedback Instan & Ramah',       'desc' => 'Kalau jawabanmu belum tepat, materinya langsung ditampilkan supaya kamu bisa memahaminya lalu mencoba lagi.'],
+                    ['icon' => 'line-chart',     'title' => 'Pantau Progress Belajar',       'desc' => 'Pantau modul yang sudah kamu tuntaskan dan arsip riwayat pengerjaan tugas di satu tempat.'],
                 ];
             @endphp
 
-            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($fitur as $i => $item)
-                    <div class="reveal reveal-delay-{{ $i % 3 + 1 }} bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                        <div class="w-11 h-11 rounded-xl {{ $item['bg'] }} flex items-center justify-center mb-5">
-                            <i data-lucide="{{ $item['icon'] }}" class="w-5 h-5 {{ $item['color'] }}"></i>
+                    @php
+                        $kuning = $i % 2 === 1;
+                    @endphp
+                    <div class="reveal reveal-delay-{{ $i % 3 + 1 }} rounded-3xl bg-white p-6 shadow-sm ring-1 ring-emerald-100 transition duration-200 hover:-translate-y-1 hover:shadow-lg hover:ring-emerald-300">
+                        <div class="mb-5 flex h-11 w-11 items-center justify-center rounded-xl {{ $kuning ? 'bg-yellow-100 text-yellow-600' : 'bg-emerald-100 text-emerald-700' }}">
+                            <i data-lucide="{{ $item['icon'] }}" class="h-5 w-5"></i>
                         </div>
-                        <h3 class="font-bold text-gray-900 mb-2">{{ $item['title'] }}</h3>
-                        <p class="text-sm text-gray-600 leading-relaxed">{{ $item['desc'] }}</p>
+                        <h3 class="mb-2 font-bold text-slate-900">{{ $item['title'] }}</h3>
+                        <p class="text-sm leading-relaxed text-slate-600">{{ $item['desc'] }}</p>
                     </div>
                 @endforeach
             </div>
@@ -267,30 +258,30 @@
                 <span class="inline-block bg-yellow-100 text-yellow-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-4">
                     Metode Pembelajaran
                 </span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
+                <h2 class="mb-4 text-3xl font-extrabold text-slate-900 sm:text-4xl">
                     3 Langkah Mudah Menguasai Python
                 </h2>
-                <p class="text-gray-600">
-                    Alur ringkas yang memastikan kamu tidak hanya sekadar membaca teori, melainkan langsung membangun refleks coding praktis.
+                <p class="text-slate-600">
+                    Alur ringkas yang memastikan kamu tidak hanya membaca teori, tetapi langsung membangun refleks coding.
                 </p>
             </div>
 
             @php
                 $langkah = [
-                    ['no' => 1, 'bg' => 'bg-blue-100', 'color' => 'text-blue-600', 'title' => 'Pelajari Materi', 'desc' => 'Baca penjelasan konsep dasar Python yang ringkas dan dilengkapi contoh kode nyata yang aplikatif untuk kebutuhan harian.'],
-                    ['no' => 2, 'bg' => 'bg-yellow-100', 'color' => 'text-yellow-600', 'title' => 'Tulis & Jalankan Kode', 'desc' => 'Praktikkan langsung instruksi tugas di in-browser code editor. Ubah variabel dan lihat perubahannya seketika.'],
-                    ['no' => 3, 'bg' => 'bg-emerald-100', 'color' => 'text-emerald-600', 'title' => 'Dapatkan Penilaian Otomatis', 'desc' => 'Kirim kode kamu untuk dinilai bot penguji otomatis. Dapatkan verifikasi test case lulus beserta skor instan dan tips optimalisasi.'],
+                    ['no' => 1, 'title' => 'Kerjakan Soal',          'desc' => 'Pilih tingkat kesulitan, baca soalnya, lalu langsung tulis kodemu di editor tanpa harus membaca materi dulu.'],
+                    ['no' => 2, 'title' => 'Kirim & Dinilai',         'desc' => 'Kirim kodemu dan dapatkan skor instan dari penguji otomatis beserta hasil tiap test case.'],
+                    ['no' => 3, 'title' => 'Pelajari, Lalu Coba Lagi', 'desc' => 'Kalau belum tepat, materi yang relevan ditampilkan. Pahami, perbaiki kodemu, dan kirim ulang sampai nilainya sempurna.'],
                 ];
             @endphp
 
-            <div class="grid md:grid-cols-3 gap-6">
+            <div class="grid gap-6 md:grid-cols-3">
                 @foreach ($langkah as $step)
-                    <div class="reveal reveal-delay-{{ $loop->iteration }} bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-                        <div class="w-9 h-9 rounded-lg {{ $step['bg'] }} {{ $step['color'] }} font-bold flex items-center justify-center mb-5">
+                    <div class="reveal reveal-delay-{{ $loop->iteration }} rounded-3xl bg-white p-6 shadow-sm ring-1 ring-emerald-100">
+                        <div class="mb-5 flex h-10 w-10 items-center justify-center rounded-xl font-bold {{ $loop->iteration === 2 ? 'bg-yellow-100 text-yellow-700' : 'bg-emerald-100 text-emerald-700' }}">
                             {{ $step['no'] }}
                         </div>
-                        <h3 class="font-bold text-gray-900 mb-2">{{ $step['title'] }}</h3>
-                        <p class="text-sm text-gray-600 leading-relaxed">{{ $step['desc'] }}</p>
+                        <h3 class="mb-2 font-bold text-slate-900">{{ $step['title'] }}</h3>
+                        <p class="text-sm leading-relaxed text-slate-600">{{ $step['desc'] }}</p>
                     </div>
                 @endforeach
             </div>
@@ -335,69 +326,9 @@
                     <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
                         <i data-lucide="bot" class="w-4 h-4 text-emerald-600"></i>
                     </div>
-                    <span class="font-bold text-gray-900">PyBeginner</span>
                 </div>
-                <p class="text-sm text-gray-600 max-w-xs leading-relaxed">
-                    Platform interaktif modern untuk menguasai pemrograman Python mulai dari nol secara terstruktur dan ramah pemula.
-                </p>
-            </div>
-
-            <div>
-                <h4 class="font-semibold text-gray-900 mb-4">Kurikulum</h4>
-                <ul class="space-y-2 text-sm text-gray-600">
-                    <li><a href="#" class="hover:text-emerald-600">Python Dasar</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">Struktur Data</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">Algoritma & Logika</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">OOP Python</a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h4 class="font-semibold text-gray-900 mb-4">Fitur Belajar</h4>
-                <ul class="space-y-2 text-sm text-gray-600">
-                    <li><a href="#" class="hover:text-emerald-600">Pembelajaran Interaktif</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">Kuis & Tantangan</a></li>
-                </ul>
             </div>
         </div>
+    </section>
 
-        <div class="max-w-7xl mx-auto px-6 lg:px-10 mt-10 pt-6 border-t border-gray-100 flex flex-col sm:flex-row justify-between gap-3 text-xs text-gray-500">
-            <span>&copy; {{ date('Y') }} Tim PBL Kelompok 5 - SIB 3B</span>
-            <span class="font-mono-code">print("Selamat belajar dan terus berkarya!")</span>
-        </div>
-    </footer>
-
-    <script>
-        lucide.createIcons();
-
-        // Scroll spy untuk navbar aktif secara dinamis
-        const trackedSections = document.querySelectorAll('section[id]');
-        const desktopNavLinks = document.querySelectorAll('.nav-link');
-
-        function updateActiveNav() {
-            let currentId = 'beranda';
-            const scrollPos = window.scrollY + 140;
-
-            trackedSections.forEach(section => {
-                if (scrollPos >= section.offsetTop) {
-                    currentId = section.getAttribute('id');
-                }
-            });
-
-            desktopNavLinks.forEach(link => {
-                const targetHash = link.getAttribute('href');
-                if (targetHash === '#' + currentId) {
-                    link.classList.remove('text-gray-600');
-                    link.classList.add('text-gray-900', 'border-b-2', 'border-emerald-600', 'pb-1');
-                } else {
-                    link.classList.remove('text-gray-900', 'border-b-2', 'border-emerald-600', 'pb-1');
-                    link.classList.add('text-gray-600');
-                }
-            });
-        }
-
-        window.addEventListener('scroll', updateActiveNav, { passive: true });
-        updateActiveNav();
-    </script>
-</body>
-</html>
+</x-layouts.app>
