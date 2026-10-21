@@ -53,6 +53,11 @@
                     <span>Python 3</span>
                 </div>
                 <div id="editor" style="height: 320px;"></div>
+                <div class="bg-slate-800 px-5 pb-4">
+                    <label for="custom-stdin" class="mb-2 block text-xs font-semibold text-slate-300">Input Program</label>
+                    <textarea id="custom-stdin" rows="4" placeholder="Masukkan input : "
+                              class="w-full resize-y rounded-xl border border-slate-600 bg-slate-900 p-3 font-mono text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"></textarea>
+                </div>
                 <div class="flex justify-end gap-3 bg-slate-800 px-5 py-3">
                     <button id="btn-run"
                             class="rounded-xl border border-emerald-400/60 px-4 py-2 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-400/10">
@@ -99,7 +104,7 @@
         const EXERCISE_ID = {{ $exercise->id }};
         const STARTER = @json($exercise->starter_code ?? '');
         const URL_LIST = @json(route('latihan.index', ['level' => $exercise->difficulty]));
-        const RUN_URL = @json(route('submissions.run'));
+        const RUN_URL = @json(route('submissions.execute'));
         const SUBMIT_URL = @json(route('submissions.submit'));
         let editor;
 
@@ -163,6 +168,61 @@
             }
         }
 
+        function tampilkanHasilEksekusi(data) {
+            const status = data.status?.description || 'Status tidak diketahui';
+            const berhasil = Number(data.status?.id) === 3;
+            const keluaran = data.stdout || '';
+            const error = [data.compile_output, data.stderr, data.message].filter(Boolean).join('\n');
+
+            hasilEl.innerHTML = `<div class="flex items-center justify-between">
+                    <h2 class="text-sm font-bold text-slate-800">Hasil Eksekusi</h2>
+                    <span class="rounded-lg px-2.5 py-1 text-xs font-bold ${berhasil ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}">${esc(status)}</span>
+                </div>
+                <p class="mt-1 text-xs text-slate-500">Waktu: ${esc(data.time ?? '-')}s</p>
+                <div class="mt-4">
+                    <p class="mb-1 text-xs font-semibold text-slate-500">stdout</p>
+                    <pre class="overflow-x-auto whitespace-pre-wrap rounded-xl bg-slate-900 p-3 font-mono text-sm text-slate-100">${esc(keluaran || '(tidak ada output)')}</pre>
+                </div>
+                ${error ? `<div class="mt-3"><p class="mb-1 text-xs font-semibold text-red-600">stderr / error</p><pre class="overflow-x-auto whitespace-pre-wrap rounded-xl bg-red-50 p-3 font-mono text-sm text-red-800">${esc(error)}</pre></div>` : ''}`;
+            if (materiEl) materiEl.classList.add('hidden');
+        }
+
+        async function jalankanKode() {
+            hasilEl.innerHTML = '<p class="text-sm text-slate-500">Menjalankan kode...</p>';
+            if (materiEl) materiEl.classList.add('hidden');
+
+            if (!editor) {
+                hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Editor belum siap. Muat ulang halaman dan coba lagi.</p>';
+                return;
+            }
+
+            try {
+                const res = await fetch(RUN_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: JSON.stringify({
+                        source_code: editor.getValue(),
+                        stdin: document.getElementById('custom-stdin').value,
+                        exercise_id: EXERCISE_ID,
+                    }),
+                });
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    hasilEl.innerHTML = `<p class="text-sm text-yellow-800">${esc(data.message || 'Permintaan tidak dapat diproses.')}</p>`;
+                    return;
+                }
+
+                tampilkanHasilEksekusi(data);
+            } catch (e) {
+                hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Gagal terhubung ke server.</p>';
+            }
+        }
+
         async function kirim(url, isSubmit) {
             hasilEl.innerHTML = '<p class="text-sm text-slate-500">Memproses...</p>';
             if (materiEl) materiEl.classList.add('hidden');
@@ -195,7 +255,7 @@
             }
         }
 
-        document.getElementById('btn-run').addEventListener('click', () => kirim(RUN_URL, false));
+        document.getElementById('btn-run').addEventListener('click', jalankanKode);
         const submitButton = document.getElementById('btn-submit');
         if (submitButton) {
             submitButton.addEventListener('click', () => kirim(SUBMIT_URL, true));

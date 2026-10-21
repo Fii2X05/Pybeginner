@@ -57,6 +57,7 @@ Route::get('/profile', function () {
 Route::get('/riwayat-submission', [SubmissionController::class, 'history'])->middleware('auth')->name('submissions.history');
 Route::post('/submissions', [SubmissionController::class, 'submit'])->middleware('auth')->name('submissions.submit');
 Route::post('/run', [SubmissionController::class, 'run'])->name('submissions.run');
+Route::post('/execute', [SubmissionController::class, 'execute'])->name('submissions.execute');
 // --- Exercise & Code Editor (Dinda) ---
 Route::get('/latihan', [ExerciseController::class, 'index'])->name('latihan.index');
 Route::get('/latihan/{slug}', [ExerciseController::class, 'show'])->name('latihan.show');
