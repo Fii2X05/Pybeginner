@@ -1,21 +1,19 @@
 <x-layouts.app title="Belajar Python Interaktif & Gratis untuk Pemula" active="beranda" navbar="landing" :flush="true">
-    @php
-    // Sudah login: pakai nama akun. Belum login: nama contoh.
-    $namaDemo = auth()->check() ? auth()->user()->name : 'Sukma';
-    @endphp
 
-    {{-- ===================== HERO ===================== --}}
-    <section id="beranda" class="relative scroll-mt-24 overflow-hidden bg-emerald-50">
-        <img src="{{ asset('images/hero-illustration.png') }}" alt=""
-             class="absolute inset-0 z-0 h-full w-full object-cover object-left">
+    {{-- ===================== HERO SECTION ===================== --}}
+    <section id="beranda" class="relative overflow-hidden scroll-mt-24">
+        {{-- Background hero: 1 gambar utuh berisi ilustrasi maskot + efek blur, sesuai desain asli --}}
+        <img src="{{ asset('images/hero-illustration.png') }}"
+             alt=""
+             class="absolute inset-0 w-full h-full object-cover object-left z-0">
 
-        <div class="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-6 py-16 lg:grid-cols-5 lg:px-10 lg:py-24">
+        <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 py-16 lg:py-24 grid lg:grid-cols-5 gap-12 items-center">
 
-            {{-- Teks --}}
-            <div class="lg:col-span-3">
-                <span class="mb-6 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-xs font-semibold text-emerald-800">
-                    <i data-lucide="zap" class="h-3.5 w-3.5"></i>
-                    Belajar Python Interaktif &amp; Gratis untuk Pemula
+            {{-- Kolom Kiri: Teks --}}
+            <div class="relative z-10 lg:col-span-3">
+                <span class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 text-xs font-semibold px-4 py-2 rounded-full mb-6">
+                    <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+                    Belajar Python Interaktif & Gratis untuk Pemula
                 </span>
 
                 <h1 class="mb-6 text-3xl font-extrabold leading-tight text-slate-900 sm:text-4xl">
@@ -55,7 +53,7 @@
 
                     <div class="overflow-x-auto px-5 py-4 font-mono text-sm leading-relaxed text-slate-200">
 <pre><span class="text-slate-500"># Program sapaan ramah PyBeginner</span>
-<span class="text-emerald-300">nama</span> = <span class="text-yellow-300">"{{ $namaDemo }}"</span>
+<span class="text-emerald-300">nama</span> = <span class="text-yellow-300">"Sukma"</span>
 <span class="text-emerald-300">target</span> = <span class="text-yellow-300">"Memahami Dasar Python untuk Pemula"</span>
 
 <span class="text-emerald-400">def</span> <span class="text-yellow-200">sambut</span>(user):
@@ -78,7 +76,7 @@
                             <span>OUTPUT</span>
                             <span class="text-emerald-400">Lolos: 1/1</span>
                         </div>
-                        <p class="text-slate-300">&gt; Selamat datang di PyBeginner, {{ $namaDemo }}!</p>
+                        <p class="text-slate-300">&gt; Selamat datang di PyBeginner, Sukma!</p>
                         <p class="mt-2 inline-block rounded-lg bg-emerald-900/40 px-2 py-1 text-emerald-300">
                             ✓ Test case 1 lolos dalam 0.04s
                         </p>
@@ -89,10 +87,10 @@
     </section>
 
     {{-- ===================== FITUR UNGGULAN ===================== --}}
-    <section id="fitur" class="scroll-mt-24 bg-emerald-50 py-20">
-        <div class="mx-auto max-w-7xl px-6 lg:px-10">
-            <div class="mx-auto mb-14 max-w-2xl text-center">
-                <span class="mb-4 inline-block rounded-full bg-emerald-100 px-4 py-1.5 text-xs font-semibold text-emerald-800">
+    <section id="fitur" class="bg-emerald-50/70 py-20 scroll-mt-24">
+        <div class="max-w-7xl mx-auto px-6 lg:px-10">
+            <div class="text-center max-w-2xl mx-auto mb-14">
+                <span class="inline-block bg-indigo-100 text-indigo-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-4">
                     Fitur Unggulan
                 </span>
                 <h2 class="mb-4 text-3xl font-extrabold text-slate-900 sm:text-4xl">
@@ -132,10 +130,10 @@
     </section>
 
     {{-- ===================== METODE PEMBELAJARAN ===================== --}}
-    <section id="metode" class="scroll-mt-24 bg-white py-20">
-        <div class="mx-auto max-w-7xl px-6 lg:px-10">
-            <div class="mx-auto mb-14 max-w-2xl text-center">
-                <span class="mb-4 inline-block rounded-full bg-yellow-100 px-4 py-1.5 text-xs font-semibold text-yellow-700">
+    <section id="metode" class="py-20 scroll-mt-24">
+        <div class="max-w-7xl mx-auto px-6 lg:px-10">
+            <div class="text-center max-w-2xl mx-auto mb-14">
+                <span class="inline-block bg-yellow-100 text-yellow-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-4">
                     Metode Pembelajaran
                 </span>
                 <h2 class="mb-4 text-3xl font-extrabold text-slate-900 sm:text-4xl">

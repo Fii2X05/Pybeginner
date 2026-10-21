@@ -31,9 +31,17 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('modul.index');
     })->name('modul.mulai');
 
-    Route::get('/modul/01/dasar-python', function () {
-        return view('modul-detail');
-    })->name('modul.detail.01');
+Route::get('/modul/01/dasar-python', [ModulController::class, 'detail01'])->name('modul.detail.01');
+Route::get('/modul/02/variabel-tipe-data', [ModulController::class, 'detail02'])->name('modul.detail.02');
+Route::get('/modul/03/percabangan-logika', [ModulController::class, 'detail03'])->name('modul.detail.03');
+Route::get('/modul/04/perulangan-loops', [ModulController::class, 'detail04'])->name('modul.detail.04');
+Route::get('/modul/05/fungsi-modularitas', [ModulController::class, 'detail05'])->name('modul.detail.05');
+Route::get('/modul/06/struktur-data', [ModulController::class, 'detail06'])->name('modul.detail.06');
+Route::get('/modul/07/pengantar-pandas-numpy', [ModulController::class, 'detail07'])->name('modul.detail.07');
+
+Route::post('/modul/{nomor}/toggle-selesai', [ModulController::class, 'toggleComplete'])
+    ->name('modul.toggle-complete')
+    ->middleware('auth');
 
     Route::get('/modul/{course:slug}/{module:slug}/{lesson:slug}', [ModulController::class, 'show'])
         ->scopeBindings()->name('lesson.show');
@@ -49,13 +57,20 @@ Route::middleware('auth')->group(function () {
     Route::post('/submissions', [SubmissionController::class, 'submit'])->name('submissions.submit');
     Route::post('/run', [SubmissionController::class, 'run'])->name('submissions.run');
 
-    // --- Exercise & Code Editor (Dinda) ---
-    Route::get('/latihan', [ExerciseController::class, 'index'])->name('latihan.index');
-    Route::get('/latihan/{slug}', [ExerciseController::class, 'show'])->name('latihan.show');
+Route::get('/riwayat-submission', [SubmissionController::class, 'history'])->middleware('auth')->name('submissions.history');
+Route::post('/submissions', [SubmissionController::class, 'submit'])->middleware('auth')->name('submissions.submit');
+Route::post('/exercises/{exerciseId}/test-cases/{testCaseId}/run', [SubmissionController::class, 'runTestCase'])
+    ->middleware('auth')->name('submissions.test-case.run');
+Route::post('/exercises/{exerciseId}/test-cases/progress', [SubmissionController::class, 'testCaseProgress'])
+    ->middleware('auth')->name('submissions.test-case.progress');
+Route::post('/run', [SubmissionController::class, 'run'])->name('submissions.run');
+Route::post('/execute', [SubmissionController::class, 'execute'])->name('submissions.execute');
+// --- Exercise & Code Editor (Dinda) ---
+Route::get('/latihan', [ExerciseController::class, 'index'])->name('latihan.index');
+Route::get('/latihan/{slug}', [ExerciseController::class, 'show'])->name('latihan.show');
 
-    // Route lama /playground dipertahankan sebagai redirect supaya link lama di view
-    // teman tidak error "Route [playground] not defined". Hapus kalau sudah tidak dipakai.
-    Route::get('/playground', function () {
-        return redirect()->route('latihan.index');
-    })->name('playground');
-});
+// Route lama /playground dipertahankan sebagai redirect supaya link lama di view
+// teman tidak error "Route [playground] not defined". Hapus kalau sudah tidak dipakai.
+Route::get('/playground', function () {
+    return redirect()->route('latihan.index');
+})->name('playground');

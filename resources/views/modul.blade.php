@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modul Belajar Python - PyBeginner</title>
-
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <style>
-        body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
-        .font-mono-code { font-family: ui-monospace, 'Fira Code', 'Courier New', monospace; }
-    </style>
-</head>
-<body class="bg-gray-50 text-gray-900 antialiased">
-
-    <x-navbar-learner active="modul" />
+<x-layouts.app title="Modul Belajar Python - PyBeginner" active="modul">
 
     {{-- ===================== HEADER MODUL ===================== --}}
     <section class="relative overflow-hidden bg-gradient-to-b from-white via-emerald-50/70 to-emerald-50">
@@ -52,11 +35,11 @@
 
             {{-- Stat cards --}}
             @php
-                $totalModul   = 7;
-                $modulSelesai = 2;
-                $modulBerjalan = 1;
-                $modulBelum   = 4;
-                $persenSelesai = round($modulSelesai / $totalModul * 100); // 28%
+                $totalModul   = count($modulList ?? []);
+                $modulSelesai = collect($modulList ?? [])->where('status', 'selesai')->count();
+                $modulBerjalan = collect($modulList ?? [])->where('status', 'berjalan')->count();
+                $modulBelum   = collect($modulList ?? [])->where('status', 'belum')->count();
+                $persenSelesai = $totalModul > 0 ? (int) round($modulSelesai / $totalModul * 100) : 0;
             @endphp
             <div class="grid sm:grid-cols-2 gap-4 mb-6">
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
@@ -86,7 +69,7 @@
                     <span class="font-mono-code text-emerald-700 font-semibold">{{ $persenSelesai }}% Selesai</span>
                 </div>
                 <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div class="h-full bg-gradient-to-r from-emerald-500 to-yellow-400 rounded-full" style="width: {{ $persenSelesai }}%"></div>
+                    <div class="h-full bg-gradient-to-r from-emerald-500 to-yellow-400 rounded-full transition-all duration-500" style="width: {{ $persenSelesai }}%"></div>
                 </div>
             </div>
         </div>
@@ -95,6 +78,13 @@
     {{-- ===================== DAFTAR MODUL ===================== --}}
     <section class="bg-emerald-50 py-10">
         <div class="max-w-7xl mx-auto px-6 lg:px-10">
+
+            @if (session('status'))
+                <div class="mb-6 bg-emerald-100 border border-emerald-300 text-emerald-800 px-4 py-3 rounded-xl flex items-center gap-3">
+                    <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600 shrink-0"></i>
+                    <span class="font-medium text-sm">{{ session('status') }}</span>
+                </div>
+            @endif
 
             {{-- Search & filter --}}
             <div class="flex flex-col lg:flex-row lg:items-center gap-4 mb-8">
@@ -120,267 +110,95 @@
                 </div>
             </div>
 
-            {{-- Grid modul: 7 kartu modul --}}
+            {{-- Grid modul dinamis --}}
             <div id="grid-modul" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
 
-                {{-- ============ MODUL 01 — Selesai ============ --}}
-                <div class="modul-card bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col"
-                     data-status="selesai" data-no="1"
-                     data-title="dasar python & sintaks awal"
-                     data-search="dasar python & sintaks awal mengenal struktur program python fungsi print komentar kode aturan indentasi">
+                @foreach ($modulList as $modul)
+                    <div class="modul-card bg-white rounded-2xl {{ $modul['status'] === 'berjalan' ? 'border border-emerald-300 ring-1 ring-emerald-200' : 'border border-gray-100' }} shadow-sm p-6 flex flex-col"
+                         data-status="{{ $modul['status'] }}"
+                         data-no="{{ $modul['no'] }}"
+                         data-title="{{ Str::lower($modul['title']) }}"
+                         data-search="{{ Str::lower($modul['title'] . ' ' . $modul['desc'] . ' ' . $modul['search_keywords']) }}">
 
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">Pemula</span>
-                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
-                            <i data-lucide="check" class="w-3 h-3"></i> Selesai
-                        </span>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full {{ $modul['level'] === 'Pemula' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700' }}">
+                                {{ $modul['level'] }}
+                            </span>
+
+                            {{-- Notif status di pojok kanan kartu --}}
+                            @if ($modul['status'] === 'selesai')
+                                <span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
+                                    <i data-lucide="check" class="w-3 h-3"></i> Selesai
+                                </span>
+                            @elseif ($modul['status'] === 'berjalan')
+                                <span class="inline-flex items-center gap-1 text-xs font-semibold text-yellow-700 bg-yellow-50 px-2.5 py-1 rounded-full">
+                                    <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full"></span> Sedang Berjalan
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1 text-xs font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
+                                    <i data-lucide="lock" class="w-3 h-3"></i> Belum Mulai
+                                </span>
+                            @endif
+                        </div>
+
+                        <p class="text-xs font-mono-code text-gray-400 mb-1">
+                            MODUL {{ sprintf('%02d', $modul['no']) }}{{ $modul['status'] === 'berjalan' ? ' • MATERI AKTIF' : '' }}
+                        </p>
+                        <h3 class="font-bold text-gray-900 mb-2">{{ $modul['title'] }}</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed mb-4 flex-1">{!! $modul['desc_html'] !!}</p>
+
+                        @if ($modul['status'] === 'berjalan' && !empty($modul['materiAktif']))
+                            <div class="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 mb-4">
+                                <i data-lucide="play-circle" class="w-3.5 h-3.5 text-emerald-600"></i>
+                                {{ $modul['materiAktif'] }}
+                            </div>
+                        @endif
+
+                        <div class="flex items-center gap-4 text-xs text-gray-500 mb-2">
+                            <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> {{ $modul['materi'] }} Materi</span>
+                        </div>
+
+                        <div class="flex items-center justify-between text-xs mb-1.5">
+                            <span class="text-gray-500">
+                                @if ($modul['status'] === 'selesai')
+                                    {{ $modul['materi'] }} / {{ $modul['materi'] }} Materi Selesai
+                                @elseif ($modul['status'] === 'berjalan')
+                                    {{ $modul['selesaiCount'] }} / {{ $modul['materi'] }} Materi Selesai
+                                @else
+                                    0 / {{ $modul['materi'] }} Materi
+                                @endif
+                            </span>
+                            <span class="font-semibold text-gray-700">{{ $modul['progress'] }}%</span>
+                        </div>
+                        <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-4">
+                            @if ($modul['status'] === 'selesai')
+                                <div class="h-full rounded-full bg-emerald-500" style="width: 100%"></div>
+                            @elseif ($modul['status'] === 'berjalan')
+                                <div class="h-full rounded-full bg-gradient-to-r from-emerald-500 to-yellow-400" style="width: {{ $modul['progress'] }}%"></div>
+                            @else
+                                <div class="h-full rounded-full bg-gray-200" style="width: 0%"></div>
+                            @endif
+                        </div>
+
+                        {{-- Tampilan Button Dinamis Sesuai Status --}}
+                        @if ($modul['status'] === 'selesai')
+                            <a href="{{ $modul['url'] }}"
+                               class="w-full flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-sm py-2.5 rounded-lg transition-colors">
+                                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Tinjau Ulang
+                            </a>
+                        @elseif ($modul['status'] === 'berjalan')
+                            <a href="{{ $modul['url'] }}"
+                               class="w-full flex items-center justify-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-sm py-2.5 rounded-lg transition-colors">
+                                Lanjutkan Belajar <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </a>
+                        @else
+                            <a href="{{ $modul['url'] }}"
+                               class="w-full flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold text-sm py-2.5 rounded-lg transition-colors">
+                                Mulai Modul
+                            </a>
+                        @endif
                     </div>
-
-                    <p class="text-xs font-mono-code text-gray-400 mb-1">MODUL 01</p>
-                    <h3 class="font-bold text-gray-900 mb-2">Dasar Python & Sintaks Awal</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed mb-4 flex-1">Mengenal struktur program Python, fungsi <code class="bg-gray-100 px-1 rounded text-xs">print()</code>, komentar kode, dan aturan indentasi yang menjadi ciri khas Python.</p>
-
-                    <div class="flex items-center gap-4 text-xs text-gray-500 mb-2">
-                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 5 Materi • 5 Latihan</span>
-                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 45 Menit</span>
-                    </div>
-
-                    <div class="flex items-center justify-between text-xs mb-1.5">
-                        <span class="text-gray-500">5 / 5 Materi Selesai</span>
-                        <span class="font-semibold text-gray-700">100%</span>
-                    </div>
-                    <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-4">
-                        <div class="h-full rounded-full bg-emerald-500" style="width: 100%"></div>
-                    </div>
-
-                    <a href="{{ route('modul.detail.01') }}"
-                       class="w-full flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-sm py-2.5 rounded-lg transition-colors">
-                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Tinjau Ulang
-                    </a>
-                </div>
-
-                {{-- ============ MODUL 02 — Selesai ============ --}}
-                <div class="modul-card bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col"
-                     data-status="selesai" data-no="2"
-                     data-title="variabel dan tipe data"
-                     data-search="variabel dan tipe data memahami cara menyimpan data integer float string boolean konversi tipe data dinamis">
-
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">Pemula</span>
-                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
-                            <i data-lucide="check" class="w-3 h-3"></i> Selesai
-                        </span>
-                    </div>
-
-                    <p class="text-xs font-mono-code text-gray-400 mb-1">MODUL 02</p>
-                    <h3 class="font-bold text-gray-900 mb-2">Variabel dan Tipe Data</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed mb-4 flex-1">Memahami cara menyimpan data ke dalam variabel, tipe data angka (integer & float), teks (string), boolean, serta konversi tipe data dinamis.</p>
-
-                    <div class="flex items-center gap-4 text-xs text-gray-500 mb-2">
-                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 6 Materi • 6 Latihan</span>
-                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 60 Menit</span>
-                    </div>
-
-                    <div class="flex items-center justify-between text-xs mb-1.5">
-                        <span class="text-gray-500">6 / 6 Materi Selesai</span>
-                        <span class="font-semibold text-gray-700">100%</span>
-                    </div>
-                    <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-4">
-                        <div class="h-full rounded-full bg-emerald-500" style="width: 100%"></div>
-                    </div>
-
-                    <a href="#"
-                       class="w-full flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-sm py-2.5 rounded-lg transition-colors">
-                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Tinjau Ulang
-                    </a>
-                </div>
-
-                {{-- ============ MODUL 03 — Sedang Berjalan ============ --}}
-                <div class="modul-card bg-white rounded-2xl border border-emerald-300 ring-1 ring-emerald-200 shadow-sm p-6 flex flex-col"
-                     data-status="berjalan" data-no="3"
-                     data-title="percabangan & logika kondisional"
-                     data-search="percabangan logika kondisional if elif else operator logika and or not">
-
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">Pemula</span>
-                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-yellow-700 bg-yellow-50 px-2.5 py-1 rounded-full">
-                            <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full"></span> Sedang Berjalan
-                        </span>
-                    </div>
-
-                    <p class="text-xs font-mono-code text-gray-400 mb-1">
-                        MODUL 03 • MATERI AKTIF
-                    </p>
-                    <h3 class="font-bold text-gray-900 mb-2">Percabangan & Logika Kondisional</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed mb-4 flex-1">Membangun logika keputusan menggunakan <code class="bg-gray-100 px-1 rounded text-xs">if</code>, <code class="bg-gray-100 px-1 rounded text-xs">elif</code>, dan <code class="bg-gray-100 px-1 rounded text-xs">else</code>. Menggunakan operator logika and, or, not.</p>
-
-                    <div class="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 mb-4">
-                        <i data-lucide="play-circle" class="w-3.5 h-3.5 text-emerald-600"></i>
-                        Materi: Latihan 03: Cek Bilangan Genap/Ganjil
-                    </div>
-
-                    <div class="flex items-center gap-4 text-xs text-gray-500 mb-2">
-                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 5 Materi • 5 Latihan</span>
-                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 50 Menit</span>
-                    </div>
-
-                    <div class="flex items-center justify-between text-xs mb-1.5">
-                        <span class="text-gray-500">3 / 5 Materi Selesai</span>
-                        <span class="font-semibold text-gray-700">60%</span>
-                    </div>
-                    <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-4">
-                        <div class="h-full rounded-full bg-gradient-to-r from-emerald-500 to-yellow-400" style="width: 60%"></div>
-                    </div>
-
-                    <a href="#"
-                       class="w-full flex items-center justify-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-sm py-2.5 rounded-lg transition-colors">
-                        Lanjutkan Belajar <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                    </a>
-                </div>
-
-                {{-- ============ MODUL 04 — Belum Mulai ============ --}}
-                <div class="modul-card bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col"
-                     data-status="belum" data-no="4"
-                     data-title="perulangan (loops)"
-                     data-search="perulangan loops otomatisasi for loop range while break continue">
-
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-100 text-purple-700">Menengah Bawah</span>
-                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
-                            <i data-lucide="lock" class="w-3 h-3"></i> Belum Mulai
-                        </span>
-                    </div>
-
-                    <p class="text-xs font-mono-code text-gray-400 mb-1">MODUL 04</p>
-                    <h3 class="font-bold text-gray-900 mb-2">Perulangan (Loops)</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed mb-4 flex-1">Otomatisasi tugas berulang dengan for loop, fungsi <code class="bg-gray-100 px-1 rounded text-xs">range()</code>, while loop, serta kontrol perulangan break dan continue.</p>
-
-                    <div class="flex items-center gap-4 text-xs text-gray-500 mb-2">
-                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 6 Materi • 6 Latihan</span>
-                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 65 Menit</span>
-                    </div>
-
-                    <div class="flex items-center justify-between text-xs mb-1.5">
-                        <span class="text-gray-500">0 / 6 Materi</span>
-                        <span class="font-semibold text-gray-700">0%</span>
-                    </div>
-                    <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-4">
-                        <div class="h-full rounded-full bg-gray-200" style="width: 0%"></div>
-                    </div>
-
-                    <a href="#"
-                       class="w-full flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold text-sm py-2.5 rounded-lg transition-colors">
-                        Mulai Modul
-                    </a>
-                </div>
-
-                {{-- ============ MODUL 05 — Belum Mulai ============ --}}
-                <div class="modul-card bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col"
-                     data-status="belum" data-no="5"
-                     data-title="fungsi & modularitas kode"
-                     data-search="fungsi modularitas kode def parameter argumen default return value local global scope">
-
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-100 text-purple-700">Menengah</span>
-                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
-                            <i data-lucide="lock" class="w-3 h-3"></i> Belum Mulai
-                        </span>
-                    </div>
-
-                    <p class="text-xs font-mono-code text-gray-400 mb-1">MODUL 05</p>
-                    <h3 class="font-bold text-gray-900 mb-2">Fungsi & Modularitas Kode</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed mb-4 flex-1">Membuat fungsi mandiri dengan <code class="bg-gray-100 px-1 rounded text-xs">def</code>, parameter, argumen default, return value, dan memahami konsep local vs global scope.</p>
-
-                    <div class="flex items-center gap-4 text-xs text-gray-500 mb-2">
-                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 7 Materi • 7 Latihan</span>
-                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 75 Menit</span>
-                    </div>
-
-                    <div class="flex items-center justify-between text-xs mb-1.5">
-                        <span class="text-gray-500">0 / 7 Materi</span>
-                        <span class="font-semibold text-gray-700">0%</span>
-                    </div>
-                    <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-4">
-                        <div class="h-full rounded-full bg-gray-200" style="width: 0%"></div>
-                    </div>
-
-                    <a href="#"
-                       class="w-full flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold text-sm py-2.5 rounded-lg transition-colors">
-                        Mulai Modul
-                    </a>
-                </div>
-
-                {{-- ============ MODUL 06 — Belum Mulai ============ --}}
-                <div class="modul-card bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col"
-                     data-status="belum" data-no="6"
-                     data-title="struktur data dasar"
-                     data-search="struktur data dasar list tuple dictionary set indexing slicing key value">
-
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-100 text-purple-700">Menengah</span>
-                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
-                            <i data-lucide="lock" class="w-3 h-3"></i> Belum Mulai
-                        </span>
-                    </div>
-
-                    <p class="text-xs font-mono-code text-gray-400 mb-1">MODUL 06</p>
-                    <h3 class="font-bold text-gray-900 mb-2">Struktur Data Dasar</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed mb-4 flex-1">Mengelola kumpulan data terstruktur: operasi indexing & slicing pada List, ketetapan Tuple, pasangan key-value Dictionary, dan keunikan Set.</p>
-
-                    <div class="flex items-center gap-4 text-xs text-gray-500 mb-2">
-                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 8 Materi • 8 Latihan</span>
-                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 90 Menit</span>
-                    </div>
-
-                    <div class="flex items-center justify-between text-xs mb-1.5">
-                        <span class="text-gray-500">0 / 8 Materi</span>
-                        <span class="font-semibold text-gray-700">0%</span>
-                    </div>
-                    <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-4">
-                        <div class="h-full rounded-full bg-gray-200" style="width: 0%"></div>
-                    </div>
-
-                    <a href="#"
-                       class="w-full flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold text-sm py-2.5 rounded-lg transition-colors">
-                        Mulai Modul
-                    </a>
-                </div>
-
-                {{-- ============ MODUL 07 — Belum Mulai ============ --}}
-                <div class="modul-card bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col"
-                     data-status="belum" data-no="7"
-                     data-title="pengantar pandas & numpy"
-                     data-search="pengantar pandas numpy analisis data array dataframe series manipulasi data">
-
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-100 text-purple-700">Menengah</span>
-                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
-                            <i data-lucide="lock" class="w-3 h-3"></i> Belum Mulai
-                        </span>
-                    </div>
-
-                    <p class="text-xs font-mono-code text-gray-400 mb-1">MODUL 07</p>
-                    <h3 class="font-bold text-gray-900 mb-2">Pengantar Pandas & NumPy</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed mb-4 flex-1">Pengenalan library analisis data Python: membuat dan memanipulasi array NumPy, serta bekerja dengan DataFrame dan Series pada Pandas.</p>
-
-                    <div class="flex items-center gap-4 text-xs text-gray-500 mb-2">
-                        <span class="flex items-center gap-1"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 6 Materi • 5 Latihan</span>
-                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 80 Menit</span>
-                    </div>
-
-                    <div class="flex items-center justify-between text-xs mb-1.5">
-                        <span class="text-gray-500">0 / 6 Materi</span>
-                        <span class="font-semibold text-gray-700">0%</span>
-                    </div>
-                    <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-4">
-                        <div class="h-full rounded-full bg-gray-200" style="width: 0%"></div>
-                    </div>
-
-                    <a href="#"
-                       class="w-full flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold text-sm py-2.5 rounded-lg transition-colors">
-                        Mulai Modul
-                    </a>
-                </div>
+                @endforeach
 
             </div>
 
@@ -391,42 +209,7 @@
         </div>
     </section>
 
-    {{-- ===================== FOOTER ===================== --}}
-    <footer class="border-t border-gray-100 py-14 bg-white">
-        <div class="max-w-7xl mx-auto px-6 lg:px-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
-            <div class="lg:col-span-2">
-                <div class="mb-4">
-                    <span class="text-lg font-bold text-gray-900">PyBeginner</span>
-                </div>
-                <p class="text-sm text-gray-600 max-w-xs leading-relaxed">
-                    Platform interaktif modern untuk menguasai pemrograman Python mulai dari nol secara terstruktur dan ramah pemula.
-                </p>
-            </div>
-
-            <div>
-                <h4 class="font-semibold text-gray-900 mb-4">Kurikulum</h4>
-                <ul class="space-y-2 text-sm text-gray-600">
-                    <li><a href="#" class="hover:text-emerald-600">Python Dasar</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">Struktur Data</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">Algoritma & Logika</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">OOP Python</a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h4 class="font-semibold text-gray-900 mb-4">Fitur Belajar</h4>
-                <ul class="space-y-2 text-sm text-gray-600">
-                    <li><a href="#" class="hover:text-emerald-600">Pembelajaran Interaktif</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">Kuis & Tantangan</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="max-w-7xl mx-auto px-6 lg:px-10 mt-10 pt-6 border-t border-gray-100 text-xs text-gray-500">
-            &copy; {{ date('Y') }} Tim PBL Kelompok 5 - SIB 3B
-        </div>
-    </footer>
-
+    @push('scripts')
     <script>
         lucide.createIcons();
 
@@ -485,5 +268,5 @@
             urut.addEventListener('change', terapkan);
         })();
     </script>
-</body>
-</html>
+    @endpush
+</x-layouts.app>
