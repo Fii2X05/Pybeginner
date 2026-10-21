@@ -29,12 +29,12 @@
                 </p>
 
                 <div class="flex flex-col gap-4 sm:flex-row">
-                    <a href="{{ route('modul.mulai') }}"
+                    <a href="{{ auth()->check() ? route('modul.index') : route('login') }}"
                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 font-semibold text-white shadow-sm transition hover:bg-emerald-700">
                         Mulai Belajar Sekarang
                         <i data-lucide="arrow-right" class="h-4 w-4"></i>
                     </a>
-                    <a href="{{ route('modul.index') }}"
+                    <a href="{{ auth()->check() ? route('modul.index') : route('login') }}"
                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-slate-800 shadow-sm ring-1 ring-emerald-100 transition hover:ring-emerald-300">
                         Lihat Modul Pembelajaran
                     </a>
@@ -189,13 +189,13 @@
                     </p>
 
                     <div class="flex flex-col justify-center gap-4 sm:flex-row">
-                        <a href="{{ route('register') }}"
+                        <a href="{{ auth()->check() ? route('modul.index') : route('login') }}"
                            class="inline-flex items-center justify-center gap-2 rounded-xl bg-yellow-400 px-6 py-3.5 font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
                             Mulai Belajar Gratis <i data-lucide="rocket" class="h-4 w-4"></i>
                         </a>
-                        <a href="{{ route('latihan.index') }}"
+                        <a href="{{ auth()->check() ? route('latihan.index') : route('login') }}"
                            class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-slate-900 transition hover:bg-emerald-50">
-                            Coba Latihan Coding
+                            Coba Mulai Coding
                         </a>
                     </div>
                 </div>
