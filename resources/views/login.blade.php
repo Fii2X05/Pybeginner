@@ -37,10 +37,6 @@
                 <a href="{{ route('register') }}" class="text-sm font-medium text-gray-700 hover:text-emerald-700 transition-colors">
                     Daftar
                 </a>
-                <span class="hidden sm:block w-px h-5 bg-gray-200"></span>
-                <a href="{{ route('profile') }}" class="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center text-white hover:bg-emerald-700 transition-colors">
-                    <i data-lucide="user" class="w-4 h-4"></i>
-                </a>
             </div>
         </nav>
     </header>
@@ -66,15 +62,15 @@
              class="hidden lg:block absolute bottom-0 left-6 xl:left-14 z-0 w-[22rem] xl:w-[26rem] max-h-[72vh] object-contain pointer-events-none select-none">
 
         {{-- Kartu Login di tengah --}}
-        <div class="relative z-10 w-full max-w-[380px] bg-white rounded-3xl p-6 sm:p-7 shadow-xl shadow-emerald-950/5 border border-gray-100/90">
+        <div class="relative z-10 w-full max-w-[400px] bg-white rounded-3xl p-6 sm:p-7 shadow-xl shadow-emerald-950/5 border border-gray-100/90">
 
             {{-- Logo brand --}}
             <div class="flex items-center gap-2 mb-1.5">
                 <img src="{{ asset('images/logo-pybeginner.png') }}" alt="PyBeginner" class="h-7 w-auto">
             </div>
 
-            <h1 class="text-xl font-bold text-gray-900 mb-1.5">Selamat Datang Kembali</h1>
-            <p class="text-xs text-gray-500 mb-5 leading-relaxed">
+            <h1 class="text-xl font-bold text-gray-900 mb-1">Selamat Datang Kembali</h1>
+            <p class="text-xs text-gray-500 mb-4 leading-relaxed">
                 Masuk ke akun PyBeginner kamu untuk melanjutkan pembelajaran.
             </p>
 
@@ -104,6 +100,81 @@
             {{-- Divider --}}
             <div class="flex items-center gap-2.5 my-3.5">
                 <div class="flex-1 h-px bg-gray-200"></div>
+                <span class="text-[11px] text-gray-400 uppercase tracking-wider">Atau masuk dengan email</span>
+                <div class="flex-1 h-px bg-gray-200"></div>
+            </div>
+
+            {{-- Form Login --}}
+            <form method="POST" action="{{ route('login.store') }}" class="space-y-3">
+                @csrf
+
+                {{-- Email --}}
+                <div>
+                    <label for="email" class="block text-xs font-medium text-gray-700 mb-1">Alamat Email</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                            <i data-lucide="mail" class="w-4 h-4"></i>
+                        </span>
+                        <input
+                            id="email"
+                            type="email"
+                            name="email"
+                            value="{{ old('email') }}"
+                            required
+                            autocomplete="email"
+                            placeholder="nama@email.com"
+                            class="w-full pl-9 pr-3 py-2.5 text-sm border @error('email') border-red-400 bg-red-50 @else border-gray-200 @enderror rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
+                        >
+                    </div>
+                    @error('email')
+                        <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Password --}}
+                <div>
+                    <label for="password" class="block text-xs font-medium text-gray-700 mb-1">Kata Sandi</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                            <i data-lucide="lock" class="w-4 h-4"></i>
+                        </span>
+                        <input
+                            id="password"
+                            type="password"
+                            name="password"
+                            required
+                            autocomplete="current-password"
+                            placeholder="Kata sandi kamu"
+                            class="w-full pl-9 pr-10 py-2.5 text-sm border @error('password') border-red-400 bg-red-50 @else border-gray-200 @enderror rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
+                        >
+                        <button type="button" id="toggle-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    @error('password')
+                        <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Remember me --}}
+                <div class="flex items-center gap-2">
+                    <input id="remember" type="checkbox" name="remember" class="w-3.5 h-3.5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-400">
+                    <label for="remember" class="text-xs text-gray-600">Ingat saya</label>
+                </div>
+
+                {{-- Submit --}}
+                <button
+                    type="submit"
+                    class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 sm:py-3 rounded-xl text-sm transition-colors shadow-sm shadow-emerald-600/20 flex items-center justify-center gap-2"
+                >
+                    <i data-lucide="log-in" class="w-4 h-4"></i>
+                    Masuk Sekarang
+                </button>
+            </form>
+
+            {{-- Divider --}}
+            <div class="flex items-center gap-2.5 my-3.5">
+                <div class="flex-1 h-px bg-gray-200"></div>
                 <span class="text-[11px] text-gray-400 uppercase tracking-wider">Atau</span>
                 <div class="flex-1 h-px bg-gray-200"></div>
             </div>
@@ -118,6 +189,20 @@
 
     <script>
         lucide.createIcons();
+
+        // Toggle show/hide password
+        const toggleBtn = document.getElementById('toggle-password');
+        const passwordInput = document.getElementById('password');
+        if (toggleBtn && passwordInput) {
+            toggleBtn.addEventListener('click', () => {
+                const isPassword = passwordInput.type === 'password';
+                passwordInput.type = isPassword ? 'text' : 'password';
+                toggleBtn.innerHTML = isPassword
+                    ? '<i data-lucide="eye-off" class="w-4 h-4"></i>'
+                    : '<i data-lucide="eye" class="w-4 h-4"></i>';
+                lucide.createIcons();
+            });
+        }
     </script>
 </body>
 </html>
