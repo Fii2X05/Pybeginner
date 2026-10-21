@@ -95,9 +95,18 @@ class SubmissionGradingTest extends TestCase
         ]);
 
         $user = User::factory()->create();
+        $sourceCode = "def jumlah(a, b):\n    return a + b";
+
+        $this->actingAs($user)->postJson(route('submissions.test-case.run', [
+            'exerciseId' => $exerciseId,
+            'testCaseId' => DB::table('test_cases')->where('is_hidden', false)->value('id'),
+        ]), [
+            'source_code' => $sourceCode,
+        ])->assertOk()->assertJsonPath('is_passed', true);
+
         $response = $this->actingAs($user)->postJson(route('submissions.submit'), [
             'exercise_id' => $exerciseId,
-            'source_code' => "def jumlah(a, b):\n    return a + b",
+            'source_code' => $sourceCode,
         ]);
 
         $response->assertOk()
@@ -124,6 +133,125 @@ class SubmissionGradingTest extends TestCase
 
         $this->assertNull($hiddenResult->actual_output);
         $this->assertSame('Test case tersembunyi gagal.', $hiddenResult->error_message);
+    }
+
+    public function test_test_case_progress_is_isolated_per_user_and_saved_per_case(): void
+    {
+        Http::fake(fn (ClientRequest $request) => Http::response([
+            'status' => ['id' => 3, 'description' => 'Accepted'],
+            'stdout' => $request->data()['stdin'] === "2\n3" ? "5\n" : "6\n",
+            'time' => '0.01',
+        ]));
+        $exerciseId = $this->createExercise([
+            [
+                'input' => "2\n3",
+                'expected_output' => '5',
+                'assertion_code' => null,
+                'is_hidden' => false,
+            ],
+            [
+                'input' => "10\n-4",
+                'expected_output' => '6',
+                'assertion_code' => null,
+                'is_hidden' => false,
+            ],
+        ]);
+        $testCaseIds = DB::table('test_cases')
+            ->where('exercise_id', $exerciseId)
+            ->orderBy('sort_order')
+            ->pluck('id');
+        $sourceCode = "a = int(input())\nb = int(input())\nprint(a + b)";
+        $userA = User::factory()->create();
+        $userB = User::factory()->create();
+
+        $this->actingAs($userA)
+            ->postJson(route('submissions.test-case.run', [
+                'exerciseId' => $exerciseId,
+                'testCaseId' => $testCaseIds[0],
+            ]), ['source_code' => $sourceCode])
+            ->assertOk()
+            ->assertJsonPath('is_passed', true)
+            ->assertJsonPath('passed_tests', 1)
+            ->assertJsonPath('total_tests', 2);
+
+        $this->assertDatabaseHas('test_case_progress', [
+            'user_id' => $userA->id,
+            'exercise_id' => $exerciseId,
+            'test_case_id' => $testCaseIds[0],
+            'code_hash' => hash('sha256', $sourceCode),
+            'status' => 'passed',
+        ]);
+
+        $this->actingAs($userB)
+            ->postJson(route('submissions.test-case.progress', ['exerciseId' => $exerciseId]), [
+                'source_code' => $sourceCode,
+            ])
+            ->assertOk()
+            ->assertJsonPath('passed_tests', 0)
+            ->assertJsonPath('total_tests', 2);
+    }
+
+    public function test_submit_requires_each_visible_case_to_pass_for_the_current_code(): void
+    {
+        Http::fake(fn (ClientRequest $request) => Http::response([
+            'status' => ['id' => 3, 'description' => 'Accepted'],
+            'stdout' => $request->data()['stdin'] === "2\n3" ? "5\n" : "6\n",
+            'time' => '0.01',
+        ]));
+        $exerciseId = $this->createExercise([
+            [
+                'input' => "2\n3",
+                'expected_output' => '5',
+                'assertion_code' => null,
+                'is_hidden' => false,
+            ],
+            [
+                'input' => "10\n-4",
+                'expected_output' => '6',
+                'assertion_code' => null,
+                'is_hidden' => false,
+            ],
+        ]);
+        $testCaseIds = DB::table('test_cases')
+            ->where('exercise_id', $exerciseId)
+            ->orderBy('sort_order')
+            ->pluck('id');
+        $user = User::factory()->create();
+        $sourceCode = "a = int(input())\nb = int(input())\nprint(a + b)";
+
+        $this->actingAs($user)
+            ->postJson(route('submissions.test-case.run', [
+                'exerciseId' => $exerciseId,
+                'testCaseId' => $testCaseIds[0],
+            ]), ['source_code' => $sourceCode])
+            ->assertOk();
+
+        $this->postJson(route('submissions.submit'), [
+            'exercise_id' => $exerciseId,
+            'source_code' => $sourceCode,
+        ])->assertUnprocessable()
+            ->assertJsonPath('passed_tests', 1)
+            ->assertJsonPath('total_tests', 2);
+
+        $this->postJson(route('submissions.submit'), [
+            'exercise_id' => $exerciseId,
+            'source_code' => $sourceCode."\n# changed",
+        ])->assertUnprocessable()
+            ->assertJsonPath('passed_tests', 0);
+
+        $this->postJson(route('submissions.test-case.run', [
+            'exerciseId' => $exerciseId,
+            'testCaseId' => $testCaseIds[1],
+        ]), ['source_code' => $sourceCode])->assertOk();
+
+        $this->postJson(route('submissions.submit'), [
+            'exercise_id' => $exerciseId,
+            'source_code' => $sourceCode,
+        ])->assertOk()
+            ->assertJsonPath('passed_tests', 2)
+            ->assertJsonPath('total_tests', 2);
+
+        $this->assertDatabaseCount('submissions', 1);
     }
 
     public function test_run_keeps_supporting_stdin_and_expected_output_test_cases(): void
@@ -223,10 +351,12 @@ class SubmissionGradingTest extends TestCase
             ],
         ]);
 
-        $this->get(route('latihan.show', 'jumlah'))
+        $this->actingAs(User::factory()->create())
+            ->get(route('latihan.show', 'jumlah'))
             ->assertOk()
             ->assertSee('id="editor"', false)
             ->assertSee('placeholder="Masukkan input : "', false)
+            ->assertSee('Uji test case ini')
             ->assertSee('assert jumlah(2, 3) == 5')
             ->assertSee('const RUN_URL =', false);
     }
@@ -235,18 +365,22 @@ class SubmissionGradingTest extends TestCase
     {
         $exerciseId = $this->createExercise([
             [
-                'input' => '4',
-                'expected_output' => 'Genap',
+                'input' => "2\n3",
+                'expected_output' => '5',
                 'assertion_code' => null,
                 'is_hidden' => false,
             ],
+        ]);
+        DB::table('exercises')->where('id', $exerciseId)->update([
+            'title' => 'Jumlah Dua Bilangan',
+            'slug' => 'jumlah-dua-bilangan',
         ]);
         $user = User::factory()->create();
         $now = now();
         $submissionId = DB::table('submissions')->insertGetId([
             'user_id' => $user->id,
             'exercise_id' => $exerciseId,
-            'source_code' => 'print("Genap")',
+            'source_code' => "a = int(input())\nb = int(input())\nprint(a + b)",
             'status' => 'accepted',
             'score' => 100,
             'passed_tests' => 1,
@@ -264,7 +398,7 @@ class SubmissionGradingTest extends TestCase
             'submission_id' => $submissionId,
             'test_case_id' => $testCaseId,
             'status' => 'passed',
-            'actual_output' => "Genap\n",
+            'actual_output' => "5\n",
             'execution_time_ms' => 34,
             'created_at' => $now,
             'updated_at' => $now,
@@ -273,9 +407,60 @@ class SubmissionGradingTest extends TestCase
         $this->actingAs($user)
             ->get(route('submissions.history', ['selected' => $submissionId]))
             ->assertOk()
+            ->assertSee('border-emerald-600 font-semibold text-slate-900')
+            ->assertSee('Jumlah Dua Bilangan')
+            ->assertSee('print(a + b)')
+            ->assertSee("2\n3")
+            ->assertSee('"5"')
             ->assertSee('Test Case 1: Input Sesuai Ekspektasi')
             ->assertSee('Lolos • 34ms')
-            ->assertDontSee('Output Tidak Cocok');
+            ->assertDontSee('Output Tidak Cocok')
+            ->assertDontSee('Cek Bilangan Genap atau Ganjil')
+            ->assertDontSee('"Genap"');
+    }
+
+    public function test_history_paginates_submissions_five_per_page_and_keeps_global_statistics(): void
+    {
+        $exerciseId = $this->createExercise([
+            [
+                'assertion_code' => 'assert True',
+                'is_hidden' => false,
+            ],
+        ]);
+        $user = User::factory()->create();
+        $submissionIds = [];
+        $now = now();
+
+        foreach (range(1, 7) as $number) {
+            $submissionIds[] = DB::table('submissions')->insertGetId([
+                'user_id' => $user->id,
+                'exercise_id' => $exerciseId,
+                'source_code' => "submission-code-{$number}",
+                'status' => 'accepted',
+                'score' => 100,
+                'passed_tests' => 1,
+                'total_tests' => 1,
+                'execution_time_ms' => 34,
+                'submitted_at' => $now->copy()->addSeconds($number),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+        }
+
+        $this->actingAs($user)
+            ->get(route('submissions.history'))
+            ->assertOk()
+            ->assertSee('1–5 dari 7')
+            ->assertSee('submission-code-7')
+            ->assertSee(route('submissions.history', ['selected' => $submissionIds[2], 'page' => 1]))
+            ->assertDontSee(route('submissions.history', ['selected' => $submissionIds[1], 'page' => 1]));
+
+        $this->get(route('submissions.history', ['page' => 2]))
+            ->assertOk()
+            ->assertSee('6–7 dari 7')
+            ->assertSee('submission-code-2')
+            ->assertSee(route('submissions.history', ['selected' => $submissionIds[0], 'page' => 2]))
+            ->assertDontSee(route('submissions.history', ['selected' => $submissionIds[2], 'page' => 2]));
     }
 
     /**

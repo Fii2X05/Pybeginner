@@ -36,9 +36,23 @@
                             <p class="whitespace-pre-line"><span class="text-slate-400">Input &nbsp;:</span> {{ $s->input }}</p>
                             <p class="mt-1"><span class="text-slate-400">Output :</span> {{ $s->expected_output }}</p>
                         @endif
+                        @auth
+                            <div class="mt-3 flex items-center justify-between gap-3 border-t border-emerald-100 pt-3">
+                                <span class="test-case-progress text-[11px] text-slate-500" data-test-case-progress="{{ $s->id }}">Belum diuji</span>
+                                <button type="button"
+                                        class="btn-test-case rounded-lg border border-emerald-300 px-3 py-1.5 font-sans text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
+                                        data-test-case-id="{{ $s->id }}"
+                                        data-test-case-url="{{ route('submissions.test-case.run', ['exerciseId' => $exercise->id, 'testCaseId' => $s->id]) }}">
+                                    Uji test case ini
+                                </button>
+                            </div>
+                        @endauth
                     </div>
                 @endforeach
             </div>
+            @auth
+                <p id="test-case-summary" class="mt-3 text-xs text-slate-500">Uji semua test case yang terlihat dengan kode yang sama sebelum mengirim jawaban.</p>
+            @endauth
         </section>
 
         {{-- KANAN: EDITOR + HASIL + MATERI --}}
@@ -65,7 +79,8 @@
                     </button>
                     @auth
                         <button id="btn-submit"
-                                class="rounded-xl bg-yellow-400 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
+                                class="rounded-xl bg-yellow-400 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-50"
+                                disabled>
                             Kirim &amp; Nilai Jawaban
                         </button>
                     @else
@@ -106,7 +121,9 @@
         const URL_LIST = @json(route('latihan.index', ['level' => $exercise->difficulty]));
         const RUN_URL = @json(route('submissions.execute'));
         const SUBMIT_URL = @json(route('submissions.submit'));
+        const TEST_CASE_PROGRESS_URL = @json(route('submissions.test-case.progress', ['exerciseId' => $exercise->id]));
         let editor;
+        const testCaseProgress = new Map();
 
         require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } });
         require(['vs/editor/editor.main'], function () {
@@ -114,6 +131,8 @@
                 value: STARTER, language: 'python', theme: 'vs-dark',
                 fontSize: 14, minimap: { enabled: false }, automaticLayout: true,
             });
+            editor.onDidChangeModelContent(() => renderTestCaseProgress());
+            loadTestCaseProgress();
         });
 
         const hasilEl  = document.getElementById('hasil');
@@ -122,6 +141,111 @@
 
         function esc(t) {
             return String(t ?? '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+        }
+
+        function renderTestCaseProgress(progress = null) {
+            const currentCode = editor?.getValue() ?? '';
+            if (progress) {
+                testCaseProgress.clear();
+                Object.entries(progress).forEach(([testCaseId, status]) => {
+                    testCaseProgress.set(String(testCaseId), { code: currentCode, status });
+                });
+            }
+
+            document.querySelectorAll('[data-test-case-progress]').forEach((element) => {
+                const state = testCaseProgress.get(element.dataset.testCaseProgress);
+                const isCurrentCode = state?.code === currentCode;
+                const status = isCurrentCode ? state.status : 'Belum diuji';
+                element.textContent = status === 'passed' ? 'Lolos' : status === 'failed' ? 'Belum lolos' : 'Belum diuji';
+                element.className = `test-case-progress text-[11px] ${status === 'passed' ? 'font-semibold text-emerald-700' : status === 'failed' ? 'font-semibold text-red-600' : 'text-slate-500'}`;
+            });
+
+            const total = document.querySelectorAll('[data-test-case-progress]').length;
+            const passed = [...testCaseProgress.entries()].filter(([testCaseId, state]) =>
+                state.code === currentCode && state.status === 'passed'
+            ).length;
+            const summary = document.getElementById('test-case-summary');
+            if (summary) {
+                summary.textContent = `${passed}/${total} test case terlihat lolos untuk kode saat ini. Test case tersembunyi akan diperiksa saat pengiriman akhir.`;
+            }
+            const submitButton = document.getElementById('btn-submit');
+            if (submitButton) {
+                submitButton.disabled = passed < total;
+            }
+        }
+
+        async function loadTestCaseProgress() {
+            if (!editor || !document.getElementById('test-case-summary')) return;
+
+            try {
+                const res = await fetch(TEST_CASE_PROGRESS_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: JSON.stringify({ source_code: editor.getValue() }),
+                });
+                const data = await res.json();
+                if (res.ok && data.success) renderTestCaseProgress(data.progress);
+            } catch (e) {
+                const summary = document.getElementById('test-case-summary');
+                if (summary) summary.textContent = 'Progress test case tidak dapat dimuat. Coba muat ulang halaman.';
+            }
+        }
+
+        async function jalankanTestCase(button) {
+            if (!editor) {
+                hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Editor belum siap. Muat ulang halaman dan coba lagi.</p>';
+                return;
+            }
+
+            const testCaseId = button.dataset.testCaseId;
+            const sourceCode = editor.getValue();
+            const progressLabel = document.querySelector(`[data-test-case-progress="${testCaseId}"]`);
+            button.disabled = true;
+            button.textContent = 'Menguji...';
+            if (progressLabel) progressLabel.textContent = 'Sedang diuji...';
+            hasilEl.innerHTML = '<p class="text-sm text-slate-500">Menguji kode pada test case terpilih...</p>';
+
+            try {
+                const res = await fetch(button.dataset.testCaseUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: JSON.stringify({ source_code: sourceCode }),
+                });
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    hasilEl.innerHTML = `<p class="text-sm text-yellow-800">${esc(data.message || 'Test case tidak dapat dijalankan.')}</p>`;
+                    return;
+                }
+
+                testCaseProgress.set(String(testCaseId), {
+                    code: sourceCode,
+                    status: data.is_passed ? 'passed' : 'failed',
+                });
+                renderTestCaseProgress();
+                const resultStyle = data.is_passed
+                    ? { card: 'border-emerald-200 bg-emerald-50', title: 'text-emerald-800' }
+                    : { card: 'border-red-200 bg-red-50', title: 'text-red-800' };
+                hasilEl.innerHTML = `<div class="rounded-xl border p-4 text-sm ${resultStyle.card}">
+                    <p class="font-semibold ${resultStyle.title}">Test case ${data.is_passed ? 'lolos' : 'belum lolos'}</p>
+                    <p class="mt-2 whitespace-pre-wrap font-mono text-xs text-slate-700">Input: ${esc(data.input)}\nDiharapkan: ${esc(data.expected)}\nKeluaran: ${esc(data.actual)}</p>
+                    ${data.error ? `<p class="mt-2 whitespace-pre-wrap font-mono text-xs text-red-700">${esc(data.error)}</p>` : ''}
+                    <p class="mt-2 text-xs text-slate-500">${data.passed_tests}/${data.total_tests} test case terlihat lolos.</p>
+                </div>`;
+            } catch (e) {
+                hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Gagal terhubung ke server.</p>';
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Uji test case ini';
+                renderTestCaseProgress();
+            }
         }
 
         function tampilkanHasil(data, isSubmit) {
@@ -256,6 +380,9 @@
         }
 
         document.getElementById('btn-run').addEventListener('click', jalankanKode);
+        document.querySelectorAll('.btn-test-case').forEach((button) => {
+            button.addEventListener('click', () => jalankanTestCase(button));
+        });
         const submitButton = document.getElementById('btn-submit');
         if (submitButton) {
             submitButton.addEventListener('click', () => kirim(SUBMIT_URL, true));

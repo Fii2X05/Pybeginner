@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Exercise;
 use App\Models\Submission;
 use App\Models\TestCase;
+use App\Models\TestCaseProgress;
 use App\Services\Judge0Service;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -18,18 +19,22 @@ class SubmissionController extends Controller
 
     public function history(Request $request)
     {
-        $submissions = Submission::with('results')
-            ->where('user_id', Auth::id())
-            ->latest('submitted_at')
-            ->get();
+        $userSubmissions = Submission::where('user_id', Auth::id());
+        $totalSubmissions = (clone $userSubmissions)->count();
+        $perfectScores = (clone $userSubmissions)->where('score', 100)->count();
+        $needsImprovement = (clone $userSubmissions)->where('score', '<', 100)->count();
+        $averageScore = round((float) ((clone $userSubmissions)->avg('score') ?? 0), 1);
 
-        $totalSubmissions = $submissions->count();
-        $perfectScores = $submissions->where('score', 100)->count();
-        $needsImprovement = $submissions->where('score', '<', 100)->count();
-        $averageScore = $totalSubmissions > 0 ? round($submissions->avg('score'), 1) : 0;
+        $submissions = (clone $userSubmissions)
+            ->with(['exercise.lesson.module', 'results.testCase'])
+            ->latest('submitted_at')
+            ->paginate(5)
+            ->withQueryString();
 
         $selectedSubmissionId = (int) $request->query('selected', $submissions->first()?->id);
-        $selectedSubmission = $submissions->firstWhere('id', $selectedSubmissionId) ?? $submissions->first();
+        $selectedSubmission = (clone $userSubmissions)
+            ->with(['exercise.lesson.module', 'results.testCase'])
+            ->find($selectedSubmissionId) ?? $submissions->first();
 
         return view('history', compact(
             'submissions',
@@ -105,6 +110,99 @@ class SubmissionController extends Controller
         ]);
     }
 
+    public function runTestCase(Request $request, int $exerciseId, int $testCaseId)
+    {
+        $data = $request->validate([
+            'source_code' => 'required|string|max:50000',
+        ]);
+        $exercise = Exercise::where('is_published', true)->findOrFail($exerciseId);
+        $testCase = $exercise->publicTestCases()->whereKey($testCaseId)->firstOrFail();
+        $isAssertionTest = is_string($testCase->assertion_code) && trim($testCase->assertion_code) !== '';
+        $code = $isAssertionTest
+            ? rtrim($data['source_code'])."\n\n".$testCase->assertion_code."\n"
+            : $data['source_code'];
+
+        try {
+            $execution = $this->judge0->evaluateCode(
+                $code,
+                $isAssertionTest ? null : $testCase->expected_output,
+                $isAssertionTest ? null : $testCase->input,
+                min(5, max(1, $exercise->time_limit_ms / 1000)),
+                min(256000, max(16384, $exercise->memory_limit_mb * 1024)),
+            );
+        } catch (Throwable $e) {
+            report($e);
+
+            return response()->json(['success' => false, 'message' => 'Layanan penilai (Judge0) tidak dapat dihubungi.'], 502);
+        }
+
+        $isPassed = (int) $execution['status']['id'] === 3;
+        $output = (string) ($execution['stdout'] ?? '');
+        $error = trim(implode("\n", array_filter([
+            $execution['stderr'] ?? null,
+            $execution['compile_output'] ?? null,
+            $execution['message'] ?? null,
+        ])));
+        $codeHash = hash('sha256', $data['source_code']);
+
+        TestCaseProgress::updateOrCreate(
+            [
+                'user_id' => Auth::id(),
+                'exercise_id' => $exercise->id,
+                'test_case_id' => $testCase->id,
+            ],
+            [
+                'code_hash' => $codeHash,
+                'status' => $isPassed ? 'passed' : 'failed',
+                'actual_output' => $output,
+                'error_message' => $error !== '' ? $error : null,
+                'execution_time_ms' => (int) round(((float) ($execution['time'] ?? 0)) * 1000),
+            ],
+        );
+
+        $publicTestCaseIds = $exercise->publicTestCases()->pluck('test_cases.id');
+        $passedTests = TestCaseProgress::where('user_id', Auth::id())
+            ->where('exercise_id', $exercise->id)
+            ->where('code_hash', $codeHash)
+            ->where('status', 'passed')
+            ->whereIn('test_case_id', $publicTestCaseIds)
+            ->count();
+
+        return response()->json([
+            'success' => true,
+            'test_case_id' => $testCase->id,
+            'is_passed' => $isPassed,
+            'input' => $testCase->input,
+            'expected' => $isAssertionTest ? 'Semua assertion harus lolos' : $testCase->expected_output,
+            'actual' => $isAssertionTest ? ($isPassed ? 'Semua assertion lolos' : $output) : $output,
+            'error' => $error !== '' ? $error : null,
+            'passed_tests' => $passedTests,
+            'total_tests' => $publicTestCaseIds->count(),
+        ]);
+    }
+
+    public function testCaseProgress(Request $request, int $exerciseId)
+    {
+        $data = $request->validate([
+            'source_code' => 'required|string|max:50000',
+        ]);
+        $exercise = Exercise::where('is_published', true)->findOrFail($exerciseId);
+        $publicTestCaseIds = $exercise->publicTestCases()->pluck('test_cases.id');
+        $progress = TestCaseProgress::where('user_id', Auth::id())
+            ->where('exercise_id', $exercise->id)
+            ->where('code_hash', hash('sha256', $data['source_code']))
+            ->whereIn('test_case_id', $publicTestCaseIds)
+            ->get(['test_case_id', 'status'])
+            ->keyBy('test_case_id');
+
+        return response()->json([
+            'success' => true,
+            'progress' => $progress->map(fn (TestCaseProgress $testCaseProgress): string => $testCaseProgress->status),
+            'passed_tests' => $progress->where('status', 'passed')->count(),
+            'total_tests' => $publicTestCaseIds->count(),
+        ]);
+    }
+
     public function submit(Request $request)
     {
         $data = $request->validate([
@@ -116,6 +214,24 @@ class SubmissionController extends Controller
 
         if ($testCases->isEmpty()) {
             return response()->json(['success' => false, 'message' => 'Soal ini belum memiliki test case aktif.'], 404);
+        }
+
+        $publicTestCaseIds = $exercise->publicTestCases()->pluck('test_cases.id');
+        $codeHash = hash('sha256', $data['source_code']);
+        $passedTestCases = TestCaseProgress::where('user_id', Auth::id())
+            ->where('exercise_id', $exercise->id)
+            ->where('code_hash', $codeHash)
+            ->where('status', 'passed')
+            ->whereIn('test_case_id', $publicTestCaseIds)
+            ->count();
+
+        if ($passedTestCases < $publicTestCaseIds->count()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Uji semua test case yang terlihat dengan kode saat ini sebelum mengirim jawaban.',
+                'passed_tests' => $passedTestCases,
+                'total_tests' => $publicTestCaseIds->count(),
+            ], 422);
         }
 
         try {
