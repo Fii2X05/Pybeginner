@@ -1,4 +1,4 @@
-<x-layouts.app title="Riwayat Submission" active="history">
+<x-layouts.app title="Riwayat Submission" active="riwayat">
 
     {{-- ===================== HEADER SECTION ===================== --}}
     <section class="relative overflow-hidden bg-gradient-to-b from-white via-emerald-50/70 to-emerald-50">
@@ -118,7 +118,14 @@
                 <!-- KIRI: Daftar Submission -->
                 <div class="lg:col-span-1 flex flex-col h-full">
                     <div class="flex justify-between items-center mb-4 px-1">
-                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">5 SUBMISSION TERKINI</p>
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                            DAFTAR SUBMISSION
+                            @if ($submissions->total() > 0)
+                                <span class="font-medium normal-case tracking-normal">
+                                    ({{ $submissions->firstItem() }}–{{ $submissions->lastItem() }} dari {{ $submissions->total() }})
+                                </span>
+                            @endif
+                        </p>
                         <p class="text-[10px] font-bold text-brand-600 flex items-center gap-1">
                             <span class="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse"></span> Realtime
                         </p>
@@ -127,7 +134,7 @@
                     <div class="space-y-4 flex-grow">
                         @forelse($submissions as $sub)
                             @php $isActive = $selectedSubmission && $selectedSubmission->id === $sub->id; @endphp
-                            <a href="{{ route('submissions.history', ['selected' => $sub->id]) }}" 
+                            <a href="{{ route('submissions.history', ['selected' => $sub->id, 'page' => $submissions->currentPage()]) }}" 
                                class="block group relative overflow-hidden bg-white rounded-3xl p-6 shadow-sm ring-1 transition duration-200 hover:-translate-y-1 hover:shadow-md hover:ring-emerald-300 z-10 {{ $isActive ? 'ring-emerald-400 shadow-md bg-emerald-50/20' : 'ring-emerald-100' }}">
                                 
                                 <!-- Hover Blob untuk item list -->
@@ -147,8 +154,8 @@
                                         @endif
                                     </div>
                                     
-                                    <h3 class="font-bold text-gray-900 text-sm mb-1">Latihan {{ sprintf('%02d', $sub->exercise_id) }} — Cek Bilangan Genap atau Ganjil</h3>
-                                    <p class="text-xs text-gray-500 mb-5">Modul 03: Percabangan Python</p>
+                                    <h3 class="font-bold text-gray-900 text-sm mb-1">{{ $sub->exercise?->title ?? 'Latihan tidak tersedia' }}</h3>
+                                    <p class="text-xs text-gray-500 mb-5">{{ $sub->exercise?->lesson?->module?->title ?? 'Modul tidak tersedia' }}</p>
                                     
                                     <div class="flex justify-between items-center text-xs pt-4 border-t border-gray-100">
                                         <span class="flex items-center gap-1.5 text-gray-500 font-medium">
@@ -169,16 +176,11 @@
                         @endforelse
                     </div>
 
-                    <!-- Pagination -->
-                    <div class="flex justify-between items-center mt-6 px-2 text-xs font-medium text-gray-500">
-                        <span class="cursor-pointer hover:text-gray-800 transition">Sebelumnya</span>
-                        <div class="flex space-x-2">
-                            <span class="w-8 h-8 flex items-center justify-center bg-brand-600 text-white rounded-xl shadow-sm cursor-pointer">1</span>
-                            <span class="w-8 h-8 flex items-center justify-center bg-white border border-gray-200 hover:border-emerald-300 hover:text-emerald-700 rounded-xl transition cursor-pointer">2</span>
-                            <span class="w-8 h-8 flex items-center justify-center bg-white border border-gray-200 hover:border-emerald-300 hover:text-emerald-700 rounded-xl transition cursor-pointer">3</span>
+                    @if ($submissions->hasPages())
+                        <div class="mt-6">
+                            {{ $submissions->onEachSide(1)->links() }}
                         </div>
-                        <span class="cursor-pointer hover:text-brand-800 text-brand-600 font-semibold transition">Berikutnya</span>
-                    </div>
+                    @endif
                 </div>
 
                 <!-- KANAN: Detail Submission Terpilih -->
@@ -201,9 +203,9 @@
                                             </span>
                                         @endif
                                     </div>
-                                    <h2 class="text-xl sm:text-2xl font-extrabold text-gray-900">Cek Bilangan Genap atau Ganjil</h2>
+                                    <h2 class="text-xl sm:text-2xl font-extrabold text-gray-900">{{ $selectedSubmission->exercise?->title ?? 'Latihan tidak tersedia' }}</h2>
                                 </div>
-                                <a href="/latihan" class="flex items-center gap-2 text-sm font-semibold text-gray-700 bg-gray-50 border border-gray-200 px-5 py-2.5 rounded-xl hover:bg-gray-100 hover:shadow-sm transition whitespace-nowrap">
+                                <a href="{{ $selectedSubmission->exercise ? route('latihan.show', $selectedSubmission->exercise->slug) : route('latihan.index') }}" class="flex items-center gap-2 text-sm font-semibold text-gray-700 bg-gray-50 border border-gray-200 px-5 py-2.5 rounded-xl hover:bg-gray-100 hover:shadow-sm transition whitespace-nowrap">
                                     <i data-lucide="external-link" class="w-4 h-4 text-gray-500"></i> Buka Editor
                                 </a>
                             </div>
@@ -222,13 +224,7 @@
                                     </button>
                                 </div>
                                 <div class="p-6 text-sm font-mono-code overflow-x-auto leading-relaxed">
-                                    <pre><code class="text-gray-300"><span class="text-gray-500"># Solusi Latihan dikirim oleh {{ auth()->user()->name ?? 'Sukma Ananda' }}</span>
-<span class="text-blue-400">angka</span> = <span class="text-emerald-400">int</span>(<span class="text-emerald-400">input</span>())
-
-<span class="text-purple-400">if</span> <span class="text-blue-400">angka</span> % <span class="text-orange-300">2</span> == <span class="text-orange-300">0</span>:
-    <span class="text-emerald-400">print</span>(<span class="text-yellow-300">"Genap"</span>)
-<span class="text-purple-400">else</span>:
-    <span class="text-emerald-400">print</span>(<span class="text-yellow-300">"Ganjil"</span>)</code></pre>
+                                    <pre><code class="text-gray-300">{{ $selectedSubmission->source_code }}</code></pre>
                                 </div>
                             </div>
 
@@ -262,11 +258,11 @@
                                         <div class="flex flex-col gap-3 text-xs font-mono-code mt-2">
                                             <div class="flex flex-col sm:flex-row sm:gap-4 border-b border-gray-50 pb-3">
                                                 <span class="w-20 text-gray-400 mb-1 sm:mb-0">Input:</span>
-                                                <span class="text-gray-800 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">{{ $result->testCase->stdin ?? '4' }}</span>
+                                                <span class="text-gray-800 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">{{ $result->testCase?->is_hidden ? 'Tersembunyi' : ($result->testCase?->input ?? '—') }}</span>
                                             </div>
                                             <div class="flex flex-col sm:flex-row sm:gap-4 pt-1">
                                                 <span class="w-20 text-gray-400 mb-1 sm:mb-0">Output:</span>
-                                                <span class="text-gray-800 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">"{{ trim($result->actual_output ?? 'Genap') }}"</span>
+                                                <span class="text-gray-800 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">{{ $result->testCase?->is_hidden ? 'Tersembunyi' : '"'.trim($result->actual_output ?? '').'"' }}</span>
                                             </div>
                                         </div>
                                     </div>

@@ -56,6 +56,10 @@ Route::get('/profile', function () {
 
 Route::get('/riwayat-submission', [SubmissionController::class, 'history'])->middleware('auth')->name('submissions.history');
 Route::post('/submissions', [SubmissionController::class, 'submit'])->middleware('auth')->name('submissions.submit');
+Route::post('/exercises/{exerciseId}/test-cases/{testCaseId}/run', [SubmissionController::class, 'runTestCase'])
+    ->middleware('auth')->name('submissions.test-case.run');
+Route::post('/exercises/{exerciseId}/test-cases/progress', [SubmissionController::class, 'testCaseProgress'])
+    ->middleware('auth')->name('submissions.test-case.progress');
 Route::post('/run', [SubmissionController::class, 'run'])->name('submissions.run');
 Route::post('/execute', [SubmissionController::class, 'execute'])->name('submissions.execute');
 // --- Exercise & Code Editor (Dinda) ---

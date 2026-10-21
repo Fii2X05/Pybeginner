@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SubmissionResult extends Model
 {
@@ -12,11 +13,16 @@ class SubmissionResult extends Model
         'status',
         'actual_output',
         'error_message',
-        'execution_time_ms'
+        'execution_time_ms',
     ];
 
-    public function submission()
+    public function submission(): BelongsTo
     {
         return $this->belongsTo(Submission::class);
+    }
+
+    public function testCase(): BelongsTo
+    {
+        return $this->belongsTo(TestCase::class);
     }
 }

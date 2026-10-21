@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Exercise extends Model
 {
@@ -13,9 +15,14 @@ class Exercise extends Model
     ];
 
     // Semua test case aktif soal ini
-    public function testCases()
+    public function lesson(): BelongsTo
     {
-        return $this->hasMany(\App\Models\TestCase::class, 'exercise_id')
+        return $this->belongsTo(Lesson::class);
+    }
+
+    public function testCases(): HasMany
+    {
+        return $this->hasMany(TestCase::class, 'exercise_id')
             ->where('is_active', true)
             ->orderBy('sort_order');
     }
