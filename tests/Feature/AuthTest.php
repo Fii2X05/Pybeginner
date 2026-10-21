@@ -21,6 +21,8 @@ class AuthTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Selamat Datang Kembali');
+        $response->assertSee('Masuk dengan Google');
+        $response->assertSee('Belum memiliki akun?');
     }
 
     public function test_registration_screen_can_be_rendered(): void
@@ -28,7 +30,8 @@ class AuthTest extends TestCase
         $response = $this->get('/register');
 
         $response->assertStatus(200);
-        $response->assertSee('Buat Akun Sekarang');
+        $response->assertSee('Daftar Cepat dengan Google');
+        $response->assertSee('Sudah memiliki akun?');
     }
 
     public function test_users_can_register_and_be_saved_to_database(): void
