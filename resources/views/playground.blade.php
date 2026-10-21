@@ -51,7 +51,7 @@
                 @endforeach
             </div>
             @auth
-                <p id="test-case-summary" class="mt-3 text-xs text-slate-500">Uji semua test case yang terlihat dengan kode yang sama sebelum mengirim jawaban.</p>
+                <p id="test-case-summary" class="mt-3 text-xs text-slate-500">Status test case memakai input acuan yang ditampilkan di kartu ini. Input Program hanya dipakai oleh Jalankan Kode dan tidak mengubah status test case.</p>
             @endauth
         </section>
 
@@ -68,7 +68,8 @@
                 </div>
                 <div id="editor" style="height: 320px;"></div>
                 <div class="bg-slate-800 px-5 pb-4">
-                    <label for="custom-stdin" class="mb-2 block text-xs font-semibold text-slate-300">Input Program</label>
+                    <label for="custom-stdin" class="mb-1 block text-xs font-semibold text-slate-300">Input Program (Jalankan Kode)</label>
+                    <p class="mb-2 text-[11px] text-slate-400">Untuk menguji input manual. Penilaian test case menggunakan input acuan di kartu sebelah kiri.</p>
                     <textarea id="custom-stdin" rows="4" placeholder="Masukkan input : "
                               class="w-full resize-y rounded-xl border border-slate-600 bg-slate-900 p-3 font-mono text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"></textarea>
                 </div>
@@ -166,7 +167,7 @@
             ).length;
             const summary = document.getElementById('test-case-summary');
             if (summary) {
-                summary.textContent = `${passed}/${total} test case terlihat lolos untuk kode saat ini. Test case tersembunyi akan diperiksa saat pengiriman akhir.`;
+                summary.textContent = `${passed}/${total} test case terlihat lolos untuk kode saat ini. Status memakai input acuan di kartu; Input Program hanya untuk Jalankan Kode dan tidak mengubah status. Test case tersembunyi diperiksa saat pengiriman akhir.`;
             }
             const submitButton = document.getElementById('btn-submit');
             if (submitButton) {
@@ -292,7 +293,7 @@
             }
         }
 
-        function tampilkanHasilEksekusi(data) {
+        function tampilkanHasilEksekusi(data, stdin) {
             const status = data.status?.description || 'Status tidak diketahui';
             const berhasil = Number(data.status?.id) === 3;
             const keluaran = data.stdout || '';
@@ -302,7 +303,8 @@
                     <h2 class="text-sm font-bold text-slate-800">Hasil Eksekusi</h2>
                     <span class="rounded-lg px-2.5 py-1 text-xs font-bold ${berhasil ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}">${esc(status)}</span>
                 </div>
-                <p class="mt-1 text-xs text-slate-500">Waktu: ${esc(data.time ?? '-')}s</p>
+            <p class="mt-2 text-xs text-slate-500">Input manual: <span class="font-mono text-slate-700">${esc(stdin || '(kosong)')}</span>. Hasil ini terpisah dari test case acuan.</p>
+            <p class="mt-1 text-xs text-slate-500">Waktu: ${esc(data.time ?? '-')}s</p>
                 <div class="mt-4">
                     <p class="mb-1 text-xs font-semibold text-slate-500">stdout</p>
                     <pre class="overflow-x-auto whitespace-pre-wrap rounded-xl bg-slate-900 p-3 font-mono text-sm text-slate-100">${esc(keluaran || '(tidak ada output)')}</pre>
@@ -321,6 +323,7 @@
             }
 
             try {
+                const stdin = document.getElementById('custom-stdin').value;
                 const res = await fetch(RUN_URL, {
                     method: 'POST',
                     headers: {
@@ -330,7 +333,7 @@
                     },
                     body: JSON.stringify({
                         source_code: editor.getValue(),
-                        stdin: document.getElementById('custom-stdin').value,
+                        stdin,
                         exercise_id: EXERCISE_ID,
                     }),
                 });
@@ -341,7 +344,7 @@
                     return;
                 }
 
-                tampilkanHasilEksekusi(data);
+                tampilkanHasilEksekusi(data, stdin);
             } catch (e) {
                 hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Gagal terhubung ke server.</p>';
             }
