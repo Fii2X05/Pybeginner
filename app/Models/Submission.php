@@ -25,7 +25,11 @@ class Submission extends Model
         'submitted_at' => 'datetime',
     ];
 
-    // Relasi ke tabel submission_results
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function exercise(): BelongsTo
     {
         return $this->belongsTo(Exercise::class);
