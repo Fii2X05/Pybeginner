@@ -35,6 +35,10 @@ class AuthController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
+            if (Auth::user()->role === 'admin') {
+                return redirect()->intended(route('admin.dashboard'))->with('status', 'Selamat datang di Panel Admin PyBeginner!');
+            }
+
             return redirect()->intended(route('beranda'))->with('status', 'Berhasil masuk ke PyBeginner!');
         }
 

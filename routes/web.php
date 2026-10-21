@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\ModulController;
 use App\Http\Controllers\SubmissionController;
@@ -8,8 +10,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('landing');
 })->name('beranda');
-
-use App\Http\Controllers\AuthController;
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -71,4 +71,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/playground', function () {
         return redirect()->route('latihan.index');
     })->name('playground');
+});
+
+// --- Panel Admin ---
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminController::class, 'dashboard'])->name('index');
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/materi', [AdminController::class, 'materi'])->name('materi');
+    Route::get('/latihan', [AdminController::class, 'latihan'])->name('latihan');
+    Route::get('/siswa', [AdminController::class, 'siswa'])->name('siswa');
+    Route::get('/penilaian', [AdminController::class, 'penilaian'])->name('penilaian');
+    Route::get('/pengaturan', [AdminController::class, 'pengaturan'])->name('pengaturan');
+    Route::put('/pengaturan/profile', [AdminController::class, 'updateProfile'])->name('pengaturan.profile');
+    Route::put('/pengaturan/password', [AdminController::class, 'updatePassword'])->name('pengaturan.password');
 });
