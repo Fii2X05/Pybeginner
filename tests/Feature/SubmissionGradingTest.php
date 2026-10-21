@@ -152,6 +152,68 @@ class SubmissionGradingTest extends TestCase
             && $request->data()['expected_output'] === 'Halo, Budi!');
     }
 
+    public function test_execute_sends_custom_stdin_to_judge0_and_returns_execution_output(): void
+    {
+        Http::fake(fn () => Http::response([
+            'status' => ['id' => 3, 'description' => 'Accepted'],
+            'stdout' => "Genap\n",
+            'stderr' => null,
+            'compile_output' => null,
+            'time' => '0.01',
+        ]));
+
+        $exerciseId = $this->createExercise([
+            [
+                'input' => '4',
+                'expected_output' => 'Genap',
+                'assertion_code' => null,
+                'is_hidden' => false,
+            ],
+        ]);
+
+        $this->postJson(route('submissions.execute'), [
+            'exercise_id' => $exerciseId,
+            'source_code' => 'angka = int(input()); print("Genap" if angka % 2 == 0 else "Ganjil")',
+            'stdin' => '4',
+        ])->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('status.description', 'Accepted')
+            ->assertJsonPath('stdout', "Genap\n")
+            ->assertJsonPath('stderr', null);
+
+        Http::assertSent(fn (ClientRequest $request): bool => $request->data()['source_code'] === 'angka = int(input()); print("Genap" if angka % 2 == 0 else "Ganjil")'
+            && $request->data()['stdin'] === '4'
+            && ! array_key_exists('expected_output', $request->data())
+            && $request->data()['language_id'] === 10);
+    }
+
+    public function test_execute_returns_judge0_errors_for_display(): void
+    {
+        Http::fake(fn () => Http::response([
+            'status' => ['id' => 11, 'description' => 'Runtime Error'],
+            'stdout' => '',
+            'stderr' => 'ValueError: invalid input',
+            'compile_output' => null,
+            'time' => '0.02',
+        ]));
+
+        $exerciseId = $this->createExercise([
+            [
+                'assertion_code' => 'assert True',
+                'is_hidden' => false,
+            ],
+        ]);
+
+        $this->postJson(route('submissions.execute'), [
+            'exercise_id' => $exerciseId,
+            'source_code' => 'raise ValueError("invalid input")',
+            'stdin' => '',
+        ])->assertOk()
+            ->assertJsonPath('status.id', 11)
+            ->assertJsonPath('status.description', 'Runtime Error')
+            ->assertJsonPath('stderr', 'ValueError: invalid input');
+    }
+
     public function test_editor_displays_public_assertions_and_uses_the_grading_route(): void
     {
         $this->createExercise([
@@ -164,8 +226,56 @@ class SubmissionGradingTest extends TestCase
         $this->get(route('latihan.show', 'jumlah'))
             ->assertOk()
             ->assertSee('id="editor"', false)
+            ->assertSee('placeholder="Masukkan input : "', false)
             ->assertSee('assert jumlah(2, 3) == 5')
             ->assertSee('const RUN_URL =', false);
+    }
+
+    public function test_history_displays_passed_test_results_as_successful(): void
+    {
+        $exerciseId = $this->createExercise([
+            [
+                'input' => '4',
+                'expected_output' => 'Genap',
+                'assertion_code' => null,
+                'is_hidden' => false,
+            ],
+        ]);
+        $user = User::factory()->create();
+        $now = now();
+        $submissionId = DB::table('submissions')->insertGetId([
+            'user_id' => $user->id,
+            'exercise_id' => $exerciseId,
+            'source_code' => 'print("Genap")',
+            'status' => 'accepted',
+            'score' => 100,
+            'passed_tests' => 1,
+            'total_tests' => 1,
+            'execution_time_ms' => 34,
+            'submitted_at' => $now,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        $testCaseId = DB::table('test_cases')
+            ->where('exercise_id', $exerciseId)
+            ->value('id');
+
+        DB::table('submission_results')->insert([
+            'submission_id' => $submissionId,
+            'test_case_id' => $testCaseId,
+            'status' => 'passed',
+            'actual_output' => "Genap\n",
+            'execution_time_ms' => 34,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('submissions.history', ['selected' => $submissionId]))
+            ->assertOk()
+            ->assertSee('Test Case 1: Input Sesuai Ekspektasi')
+            ->assertSee('Lolos • 34ms')
+            ->assertDontSee('Output Tidak Cocok');
     }
 
     /**

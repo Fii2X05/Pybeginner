@@ -243,7 +243,7 @@
                             <!-- Test Case List -->
                             <div class="space-y-4 mb-8">
                                 @forelse($selectedSubmission->results as $index => $result)
-                                    @php $isPassed = strtolower($result->status) === 'accepted'; @endphp
+                                    @php $isPassed = in_array(strtolower($result->status), ['accepted', 'passed'], true); @endphp
                                     <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm {{ $isPassed ? 'border-l-4 border-l-emerald-400' : 'border-l-4 border-l-red-400' }}">
                                         <div class="flex justify-between items-center mb-4">
                                             <span class="text-sm font-bold flex items-center gap-2.5 text-gray-900">

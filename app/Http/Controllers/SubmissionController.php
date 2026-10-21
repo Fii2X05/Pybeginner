@@ -71,6 +71,40 @@ class SubmissionController extends Controller
         ]);
     }
 
+    public function execute(Request $request)
+    {
+        $data = $request->validate([
+            'source_code' => 'required|string|max:50000',
+            'stdin' => 'nullable|string|max:50000',
+            'exercise_id' => 'required|integer',
+        ]);
+        $exercise = Exercise::where('is_published', true)->findOrFail($data['exercise_id']);
+
+        try {
+            $execution = $this->judge0->evaluateCode(
+                $data['source_code'],
+                null,
+                $data['stdin'] ?? '',
+                min(5, max(1, $exercise->time_limit_ms / 1000)),
+                min(256000, max(16384, $exercise->memory_limit_mb * 1024)),
+            );
+        } catch (Throwable $e) {
+            report($e);
+
+            return response()->json(['success' => false, 'message' => 'Layanan penilai (Judge0) tidak dapat dihubungi.'], 502);
+        }
+
+        return response()->json([
+            'success' => true,
+            'status' => $execution['status'],
+            'stdout' => $execution['stdout'] ?? null,
+            'stderr' => $execution['stderr'] ?? null,
+            'compile_output' => $execution['compile_output'] ?? null,
+            'message' => $execution['message'] ?? null,
+            'time' => $execution['time'] ?? null,
+        ]);
+    }
+
     public function submit(Request $request)
     {
         $data = $request->validate([
