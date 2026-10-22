@@ -35,8 +35,12 @@
                         <tr class="hover:bg-slate-50/50 transition">
                             <td class="py-4 px-6">
                                 <div class="flex items-center gap-3">
-                                    @if ($student->avatar)
-                                        <img src="{{ $student->avatar }}" alt="{{ $student->name }}" class="w-9 h-9 rounded-full object-cover">
+                                    @if ($student->avatar_url)
+                                        <img src="{{ $student->avatar_url }}" alt="{{ $student->name }}" class="w-9 h-9 rounded-full object-cover"
+                                             onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+                                        <div class="hidden w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 items-center justify-center font-bold text-sm shrink-0">
+                                            {{ strtoupper(substr($student->name, 0, 1)) }}
+                                        </div>
                                     @else
                                         <div class="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm shrink-0">
                                             {{ strtoupper(substr($student->name, 0, 1)) }}
