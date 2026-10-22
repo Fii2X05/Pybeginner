@@ -42,28 +42,6 @@ class AdminController extends Controller
             }
         }
 
-        // Jika data submission masih sedikit atau kosong, gabungkan dengan default aktivitas seperti di mockup
-        if (count($recentActivities) < 3) {
-            $defaultActivities = [
-                [
-                    'name' => 'Budi Santoso',
-                    'action' => 'Menyelesaikan Latihan 04',
-                    'time' => '5 menit lalu',
-                ],
-                [
-                    'name' => 'Siti Rahma',
-                    'action' => 'Mengumpulkan Solusi Latihan 05',
-                    'time' => '12 menit lalu',
-                ],
-                [
-                    'name' => 'Dewi Lestari',
-                    'action' => 'Membuka Materi 03. Percabangan',
-                    'time' => '25 menit lalu',
-                ],
-            ];
-            $recentActivities = array_merge($recentActivities, array_slice($defaultActivities, count($recentActivities)));
-        }
-
         return view('admin.dashboard', compact(
             'totalModul',
             'totalLatihan',

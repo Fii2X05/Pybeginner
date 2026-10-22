@@ -24,35 +24,5 @@ class AdminSeeder extends Seeder
             ]
         );
 
-        // Siswa Contoh (sesuai aktivitas di mockup)
-        User::updateOrCreate(
-            ['email' => 'budi@gmail.com'],
-            [
-                'name' => 'Budi Santoso',
-                'password' => Hash::make('password123'),
-                'role' => 'learner',
-                'email_verified_at' => now(),
-            ]
-        );
-
-        User::updateOrCreate(
-            ['email' => 'siti@gmail.com'],
-            [
-                'name' => 'Siti Rahma',
-                'password' => Hash::make('password123'),
-                'role' => 'learner',
-                'email_verified_at' => now(),
-            ]
-        );
-
-        User::updateOrCreate(
-            ['email' => 'dewi@gmail.com'],
-            [
-                'name' => 'Dewi Lestari',
-                'password' => Hash::make('password123'),
-                'role' => 'learner',
-                'email_verified_at' => now(),
-            ]
-        );
     }
 }
