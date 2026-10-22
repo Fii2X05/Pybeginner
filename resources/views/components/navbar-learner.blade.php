@@ -35,10 +35,14 @@
             @auth
                 <span class="hidden text-base font-medium text-slate-900 sm:inline">{{ auth()->user()->name }}</span>
 
-                <a href="{{ route('profile') }}" title="Profil" class="shrink-0">
-                    @if (auth()->user()->avatar)
-                        <img src="{{ auth()->user()->avatar }}" alt="{{ auth()->user()->name }}"
-                             class="h-10 w-10 rounded-full object-cover ring-2 ring-emerald-500 hover:ring-4 transition">
+                <a href="{{ route('profile') }}" title="Profil" class="shrink-0 flex items-center">
+                    @if (auth()->user()->avatar_url)
+                        <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}"
+                             class="h-10 w-10 rounded-full object-cover ring-2 ring-emerald-500 hover:ring-4 transition"
+                             onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+                        <div class="hidden h-10 w-10 items-center justify-center rounded-full bg-emerald-600 text-white font-bold text-sm shadow-sm hover:bg-emerald-500 transition">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        </div>
                     @else
                         <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600 text-white font-bold text-sm shadow-sm hover:bg-emerald-500 transition">
                             {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}

@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\ModulController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SubmissionController;
 use Illuminate\Support\Facades\Route;
 
@@ -48,9 +49,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/modul/{course:slug}/{module:slug}/{lesson:slug}/selesai', [ModulController::class, 'complete'])
         ->scopeBindings()->name('lesson.complete');
 
-    Route::get('/profile', function () {
-        return 'Halaman Profile (belum dibuat)';
-    })->name('profile');
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+    Route::put('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
 
     Route::get('/riwayat-submission', [SubmissionController::class, 'history'])->name('submissions.history');
     Route::post('/submissions', [SubmissionController::class, 'submit'])->name('submissions.submit');
