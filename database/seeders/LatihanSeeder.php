@@ -12,60 +12,85 @@ class LatihanSeeder extends Seeder
     {
         $now = now();
 
-        if (DB::table('courses')->where('slug', 'python-dasar')->exists()) {
+        if (DB::table('exercises')->exists()) {
             return;
         }
 
-        if (!DB::table('users')->where('id', 1)->exists()) {
+        if (! DB::table('users')->where('id', 1)->exists()) {
             DB::table('users')->insert([
-                'id' => 1, 'name' => 'Sukma Ananda', 'email' => 'learner@pybeginner.test',
-                'password' => Hash::make('password'), 'role' => 'learner',
-                'created_at' => $now, 'updated_at' => $now,
+                'id' => 1,
+                'name' => 'Sukma Ananda',
+                'email' => 'learner@pybeginner.test',
+                'password' => Hash::make('password'),
+                'role' => 'learner',
+                'created_at' => $now,
+                'updated_at' => $now,
             ]);
             DB::statement("SELECT setval(pg_get_serial_sequence('users','id'), (SELECT MAX(id) FROM users))");
         }
 
-        $courseId = DB::table('courses')->insertGetId([
-            'title' => 'Python Dasar', 'slug' => 'python-dasar', 'description' => 'Belajar Python dari nol.',
-            'level' => 'beginner', 'is_published' => true, 'sort_order' => 1,
-            'created_at' => $now, 'updated_at' => $now,
-        ]);
+        $course = DB::table('courses')->where('slug', 'python-dasar')->first();
+        if (! $course) {
+            $courseId = DB::table('courses')->insertGetId([
+                'title' => 'Python Dasar',
+                'slug' => 'python-dasar',
+                'description' => 'Belajar Python dari nol.',
+                'level' => 'beginner',
+                'is_published' => true,
+                'sort_order' => 1,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+        } else {
+            $courseId = $course->id;
+        }
 
-        $moduleId = DB::table('modules')->insertGetId([
-            'course_id' => $courseId, 'title' => 'Dasar Pemrograman Python', 'slug' => 'dasar-python',
-            'description' => 'Dari input-output sampai logika dasar.', 'sort_order' => 1, 'is_published' => true,
-            'created_at' => $now, 'updated_at' => $now,
-        ]);
+        $module = DB::table('modules')->where('slug', 'dasar-python')->first();
+        if (! $module) {
+            $moduleId = DB::table('modules')->insertGetId([
+                'course_id' => $courseId,
+                'title' => 'Dasar Pemrograman Python',
+                'slug' => 'dasar-python',
+                'description' => 'Dari input-output sampai logika dasar.',
+                'sort_order' => 1,
+                'is_published' => true,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+        } else {
+            $moduleId = $module->id;
+        }
 
         $lessons = [
             'easy' => [
                 'title' => 'Input, Output, dan Percabangan', 'slug' => 'input-output-percabangan',
                 'content' => "Fungsi print() menampilkan teks ke layar, sedangkan input() membaca satu baris ketikan pengguna sebagai teks (string).\n"
-                    . "Untuk mengubah teks menjadi bilangan bulat gunakan int(), misalnya angka = int(input()).\n"
-                    . "Percabangan memakai if, elif, dan else untuk memilih kode mana yang dijalankan berdasarkan suatu kondisi.\n"
-                    . "Operator % menghasilkan sisa bagi, misalnya 7 % 2 hasilnya 1.\n\n"
-                    . "Referensi lanjutan:\nhttps://www.w3schools.com/python/python_variables.asp\nhttps://www.w3schools.com/python/python_conditions.asp",
+                    ."Untuk mengubah teks menjadi bilangan bulat gunakan int(), misalnya angka = int(input()).\n"
+                    ."Percabangan memakai if, elif, dan else untuk memilih kode mana yang dijalankan berdasarkan suatu kondisi.\n"
+                    ."Operator % menghasilkan sisa bagi, misalnya 7 % 2 hasilnya 1.\n\n"
+                    ."Referensi lanjutan:\nhttps://www.w3schools.com/python/python_variables.asp\nhttps://www.w3schools.com/python/python_conditions.asp",
             ],
             'medium' => [
                 'title' => 'Perulangan dan String', 'slug' => 'perulangan-string',
                 'content' => "Perulangan for mengulang kode untuk setiap nilai dalam suatu rangkaian, misalnya for i in range(1, 6) mengulang dari 1 sampai 5.\n"
-                    . "Fungsi range(a, b) menghasilkan bilangan dari a sampai b dikurangi 1.\n"
-                    . "String bisa diakses per karakter dan diiris. Irisan teks[::-1] menghasilkan teks yang dibalik.\n\n"
-                    . "Referensi lanjutan:\nhttps://www.w3schools.com/python/python_for_loops.asp\nhttps://www.w3schools.com/python/python_strings.asp",
+                    ."Fungsi range(a, b) menghasilkan bilangan dari a sampai b dikurangi 1.\n"
+                    ."String bisa diakses per karakter dan diiris. Irisan teks[::-1] menghasilkan teks yang dibalik.\n\n"
+                    ."Referensi lanjutan:\nhttps://www.w3schools.com/python/python_for_loops.asp\nhttps://www.w3schools.com/python/python_strings.asp",
             ],
             'hard' => [
                 'title' => 'Logika Algoritma Dasar', 'slug' => 'logika-algoritma',
                 'content' => "Perulangan while berjalan selama kondisinya benar, cocok untuk proses yang jumlah ulangannya tidak pasti.\n"
-                    . "Bilangan prima adalah bilangan lebih dari 1 yang hanya habis dibagi 1 dan dirinya sendiri. Cukup periksa pembagi sampai akar kuadratnya.\n"
-                    . "Deret Fibonacci: dua suku pertama bernilai 1, lalu setiap suku adalah jumlah dua suku sebelumnya.\n\n"
-                    . "Referensi lanjutan:\nhttps://www.w3schools.com/python/python_while_loops.asp\nhttps://www.w3schools.com/python/python_functions.asp",
+                    ."Bilangan prima adalah bilangan lebih dari 1 yang hanya habis dibagi 1 dan dirinya sendiri. Cukup periksa pembagi sampai akar kuadratnya.\n"
+                    ."Deret Fibonacci: dua suku pertama bernilai 1, lalu setiap suku adalah jumlah dua suku sebelumnya.\n\n"
+                    ."Referensi lanjutan:\nhttps://www.w3schools.com/python/python_while_loops.asp\nhttps://www.w3schools.com/python/python_functions.asp",
             ],
         ];
 
         $lessonIds = [];
         $order = 1;
         foreach ($lessons as $level => $l) {
-            $lessonIds[$level] = DB::table('lessons')->insertGetId([
+            $existingLesson = DB::table('lessons')->where('module_id', $moduleId)->where('slug', $l['slug'])->first();
+            $lessonIds[$level] = $existingLesson ? $existingLesson->id : DB::table('lessons')->insertGetId([
                 'module_id' => $moduleId, 'title' => $l['title'], 'slug' => $l['slug'],
                 'content' => $l['content'], 'sort_order' => $order++, 'is_published' => true,
                 'created_at' => $now, 'updated_at' => $now,
