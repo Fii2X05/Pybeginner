@@ -14,7 +14,7 @@ class Modul6Seeder extends Seeder
      */
     public function run(): void
     {
-        $course = Course::updateOrCreate(['slug' => 'python-dasar'], [
+        $course = Course::firstOrCreate(['slug' => 'python-dasar'], [
             'title' => 'Python Dasar',
             'description' => 'Belajar Python dari nol: sintaks, variabel, percabangan, perulangan, fungsi, sampai struktur data.',
             'level' => 'beginner',
@@ -24,7 +24,7 @@ class Modul6Seeder extends Seeder
 
         $m = $this->module();
 
-        $module = $course->modules()->updateOrCreate(['slug' => $m['slug']], [
+        $module = $course->modules()->firstOrCreate(['slug' => $m['slug']], [
             'title' => $m['title'],
             'description' => $m['description'],
             'sort_order' => 6,
@@ -32,7 +32,7 @@ class Modul6Seeder extends Seeder
         ]);
 
         foreach ($m['lessons'] as $li => $l) {
-            $module->lessons()->updateOrCreate(['slug' => $l['slug']], [
+            $module->lessons()->firstOrCreate(['slug' => $l['slug']], [
                 'title' => $l['title'],
                 'content' => $l['content'],
                 'sort_order' => $li + 1,
