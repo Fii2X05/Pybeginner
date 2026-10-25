@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -38,25 +37,6 @@ class ProfileController extends Controller
         $user->update($validated);
 
         return back()->with('status', 'Profil berhasil diperbarui!');
-    }
-
-    /**
-     * Perbarui kata sandi pengguna.
-     */
-    public function updatePassword(Request $request): RedirectResponse
-    {
-        $user = Auth::user();
-
-        $validated = $request->validate([
-            'current_password' => ['required', 'current_password'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
-
-        $user->update([
-            'password' => Hash::make($validated['password']),
-        ]);
-
-        return back()->with('password_status', 'Kata sandi berhasil diubah!');
     }
 
     /**
