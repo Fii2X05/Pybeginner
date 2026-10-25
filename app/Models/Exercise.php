@@ -32,4 +32,17 @@ class Exercise extends Model
     {
         return $this->testCases()->where('is_hidden', false);
     }
+
+    // Semua test case soal ini, termasuk yang nonaktif. Untuk panel admin;
+    // penilaian tetap memakai testCases() yang hanya memuat test case aktif.
+    public function allTestCases(): HasMany
+    {
+        return $this->hasMany(TestCase::class, 'exercise_id')
+            ->orderBy('sort_order');
+    }
+
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(Submission::class, 'exercise_id');
+    }
 }
