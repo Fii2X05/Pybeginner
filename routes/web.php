@@ -101,6 +101,20 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('/pelajaran/{lesson}', [AdminController::class, 'destroyLesson'])->name('lessons.destroy');
 
     Route::get('/latihan', [AdminController::class, 'latihan'])->name('latihan');
+    Route::get('/latihan/tambah', [AdminController::class, 'createExercise'])->name('latihan.create');
+    Route::post('/latihan', [AdminController::class, 'storeExercise'])->name('latihan.store');
+    Route::get('/latihan/{exercise}/edit', [AdminController::class, 'editExercise'])->name('latihan.edit');
+    Route::put('/latihan/{exercise}', [AdminController::class, 'updateExercise'])->name('latihan.update');
+    Route::put('/latihan/{exercise}/status', [AdminController::class, 'updateExerciseStatus'])->name('latihan.status.update');
+    Route::delete('/latihan/{exercise}', [AdminController::class, 'destroyExercise'])->name('latihan.destroy');
+
+    // Test case milik latihan
+    Route::get('/latihan/{exercise}/test-case', [AdminController::class, 'testCases'])->name('latihan.test-cases');
+    Route::get('/latihan/{exercise}/test-case/tambah', [AdminController::class, 'createTestCase'])->name('latihan.test-cases.create');
+    Route::post('/latihan/{exercise}/test-case', [AdminController::class, 'storeTestCase'])->name('latihan.test-cases.store');
+    Route::get('/test-case/{testCase}/edit', [AdminController::class, 'editTestCase'])->name('test-cases.edit');
+    Route::put('/test-case/{testCase}', [AdminController::class, 'updateTestCase'])->name('test-cases.update');
+    Route::delete('/test-case/{testCase}', [AdminController::class, 'destroyTestCase'])->name('test-cases.destroy');
     Route::get('/siswa', [AdminController::class, 'siswa'])->name('siswa');
     Route::get('/penilaian', [AdminController::class, 'penilaian'])->name('penilaian');
     Route::get('/pengaturan', [AdminController::class, 'pengaturan'])->name('pengaturan');
