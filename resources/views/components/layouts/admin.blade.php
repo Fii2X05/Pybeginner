@@ -128,12 +128,13 @@
                     </a>
 
                     <!-- Admin Profile Capsule -->
-                    <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-slate-200 text-slate-700 text-sm font-semibold shadow-2xs">
+                    <a href="{{ route('admin.pengaturan') }}" aria-label="Buka profil admin" title="Profil admin"
+                       class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-slate-200 text-slate-700 text-sm font-semibold shadow-2xs transition hover:border-emerald-200 hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
                         <div class="w-6 h-6 rounded-full bg-emerald-800 text-white flex items-center justify-center shrink-0">
                             <i data-lucide="user" class="w-3.5 h-3.5"></i>
                         </div>
                         <span class="text-xs">Admin</span>
-                    </div>
+                    </a>
                 </div>
             </header>
 

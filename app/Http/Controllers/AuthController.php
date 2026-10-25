@@ -34,6 +34,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+            Auth::user()->forceFill(['last_login_at' => now()])->save();
 
             if (Auth::user()->role === 'admin') {
                 return redirect()->intended(route('admin.dashboard'))->with('status', 'Selamat datang di Panel Admin PyBeginner!');
@@ -74,6 +75,7 @@ class AuthController extends Controller
         ]);
 
         Auth::login($user);
+        $user->forceFill(['last_login_at' => now()])->save();
 
         $request->session()->regenerate();
 
@@ -135,6 +137,7 @@ class AuthController extends Controller
                 ]);
             }
 
+            $user->forceFill(['last_login_at' => now()])->save();
             Auth::login($user, true);
 
             $request->session()->regenerate();
