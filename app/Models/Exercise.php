@@ -45,4 +45,11 @@ class Exercise extends Model
     {
         return $this->hasMany(Submission::class, 'exercise_id');
     }
+
+    protected function casts(): array
+    {
+        return [
+            'is_published' => 'boolean',
+        ];
+    }
 }
