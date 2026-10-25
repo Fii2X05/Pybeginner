@@ -161,9 +161,9 @@
                         <div class="flex items-center justify-between text-xs mb-1.5">
                             <span class="text-gray-500">
                                 @if ($modul['status'] === 'selesai')
-                                    {{ $modul['materi'] }} / {{ $modul['materi'] }} Materi Selesai
+                                    {{ $modul['materi'] }} / {{ $modul['materi'] }} Materi Dibaca
                                 @elseif ($modul['status'] === 'berjalan')
-                                    {{ $modul['selesaiCount'] }} / {{ $modul['materi'] }} Materi Selesai
+                                    {{ $modul['selesaiCount'] }} / {{ $modul['materi'] }} Materi Dibaca
                                 @else
                                     0 / {{ $modul['materi'] }} Materi
                                 @endif
@@ -211,6 +211,12 @@
 
     @push('scripts')
     <script>
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted) {
+                window.location.reload();
+            }
+        });
+
         lucide.createIcons();
 
         // Filter status, pencarian, dan pengurutan kartu modul (di sisi browser)

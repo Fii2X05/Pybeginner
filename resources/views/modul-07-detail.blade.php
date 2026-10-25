@@ -114,19 +114,18 @@
                 <div class="flex items-center gap-3 shrink-0">
                     <div class="text-right mr-3">
                         <p class="text-xs text-gray-500 mb-1">Kemajuan Modul</p>
-                        <p class="text-lg font-extrabold text-emerald-700">{{ $selesaiCount ?? 0 }}/{{ $totalMateri ?? 6 }} Materi</p>
+                        <p data-module-read-count data-total-lessons="{{ $totalMateri ?? 6 }}" class="text-lg font-extrabold text-emerald-700">{{ $selesaiCount ?? 0 }}/{{ $totalMateri ?? 6 }} Materi Dibaca</p>
                     </div>
                     <div class="w-14 h-14 rounded-full border-4 {{ ($status ?? 'belum') === 'selesai' ? 'border-emerald-500' : (($status ?? 'belum') === 'berjalan' ? 'border-yellow-400' : 'border-gray-200') }} flex items-center justify-center">
-                        <span class="text-sm font-extrabold {{ ($status ?? 'belum') === 'selesai' ? 'text-emerald-700' : (($status ?? 'belum') === 'berjalan' ? 'text-yellow-600' : 'text-gray-400') }}">{{ $progress ?? 0 }}%</span>
+                        <span data-module-progress class="text-sm font-extrabold {{ ($status ?? 'belum') === 'selesai' ? 'text-emerald-700' : (($status ?? 'belum') === 'berjalan' ? 'text-yellow-600' : 'text-gray-400') }}">{{ $progress ?? 0 }}%</span>
                     </div>
                 </div>
             </div>
 
             {{-- Stat mini --}}
             <div class="flex items-center gap-6 mt-6 text-xs text-gray-500">
-                <span class="flex items-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 6 Materi</span>
+                <span class="flex items-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> {{ $totalMateri ?? 6 }} Materi</span>
                 <span class="flex items-center gap-1.5"><i data-lucide="code" class="w-3.5 h-3.5"></i> Data Science</span>
-                <span class="flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> ±60 Menit</span>
                 <span class="flex items-center gap-1.5"><i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i> Level: Menengah</span>
             </div>
         </div>
@@ -135,14 +134,14 @@
     {{-- ===================== KONTEN UTAMA ===================== --}}
     <section class="bg-gray-50 py-10">
         <div class="max-w-[1440px] mx-auto px-6 lg:px-10">
-            <div class="flex flex-col lg:flex-row gap-6">
+            <div class="flex flex-col md:flex-row-reverse gap-6">
 
                 {{-- ===== SIDEBAR: Daftar Materi ===== --}}
-                <aside class="lg:w-60 shrink-0">
-                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden sticky top-24">
+                <aside class="md:w-60 shrink-0">
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden md:sticky md:top-24">
                         <div class="px-5 py-4 border-b border-gray-100">
                             <h2 class="font-bold text-sm text-gray-900">Daftar Materi</h2>
-                            <p class="text-xs text-gray-400 mt-0.5">6 materi dalam modul ini</p>
+                            <p class="text-xs text-gray-400 mt-0.5">{{ $totalMateri ?? 6 }} materi dalam modul ini</p>
                         </div>
                         <nav class="py-2">
                             <a href="#materi-1" class="sidebar-link active block px-5 py-3 text-sm transition-all">
@@ -212,6 +211,7 @@
                                 </div>
                             </a>
                         </nav>
+                        @include('components.module-extra-lessons-nav')
 
                         <div class="px-5 py-4 border-t border-gray-100">
                             <a href="{{ route('modul.index') }}" class="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-emerald-700 transition-colors">
@@ -225,7 +225,7 @@
                 <main class="flex-1 min-w-0">
 
                     {{-- ========== MATERI 1: Apa itu NumPy? ========== --}}
-                    <article id="materi-1" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
+                    <article id="materi-1" data-progress-url="{{ $lessonProgressUrls[1] ?? '' }}" data-progress-percent="{{ $lessonProgressValues[1] ?? 0 }}" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
                         <div class="flex items-center gap-3 mb-6">
                             <span class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">1</span>
                             <div>
@@ -261,7 +261,7 @@ arr2d = np.array([[<span class="number">1</span>, <span class="number">2</span>,
                     </article>
 
                     {{-- ========== MATERI 2: Membuat & Memanipulasi Array ========== --}}
-                    <article id="materi-2" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
+                    <article id="materi-2" data-progress-url="{{ $lessonProgressUrls[2] ?? '' }}" data-progress-percent="{{ $lessonProgressValues[2] ?? 0 }}" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
                         <div class="flex items-center gap-3 mb-6">
                             <span class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">2</span>
                             <div>
@@ -297,7 +297,7 @@ data = np.arange(<span class="number">12</span>).reshape(<span class="number">3<
                     </article>
 
                     {{-- ========== MATERI 3: Operasi Array NumPy ========== --}}
-                    <article id="materi-3" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
+                    <article id="materi-3" data-progress-url="{{ $lessonProgressUrls[3] ?? '' }}" data-progress-percent="{{ $lessonProgressValues[3] ?? 0 }}" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
                         <div class="flex items-center gap-3 mb-6">
                             <span class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">3</span>
                             <div>
@@ -333,7 +333,7 @@ lulus = nilai[nilai >= <span class="number">75</span>]
                     </article>
 
                     {{-- ========== MATERI 4: Series Pandas ========== --}}
-                    <article id="materi-4" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
+                    <article id="materi-4" data-progress-url="{{ $lessonProgressUrls[4] ?? '' }}" data-progress-percent="{{ $lessonProgressValues[4] ?? 0 }}" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
                         <div class="flex items-center gap-3 mb-6">
                             <span class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">4</span>
                             <div>
@@ -363,7 +363,7 @@ nilai = pd.Series([<span class="number">85</span>, <span class="number">92</span
                     </article>
 
                     {{-- ========== MATERI 5: DataFrame Pandas ========== --}}
-                    <article id="materi-5" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
+                    <article id="materi-5" data-progress-url="{{ $lessonProgressUrls[5] ?? '' }}" data-progress-percent="{{ $lessonProgressValues[5] ?? 0 }}" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
                         <div class="flex items-center gap-3 mb-6">
                             <span class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">5</span>
                             <div>
@@ -398,7 +398,7 @@ df = pd.DataFrame(data)
                     </article>
 
                     {{-- ========== MATERI 6: Membaca & Memfilter Data ========== --}}
-                    <article id="materi-6" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
+                    <article id="materi-6" data-progress-url="{{ $lessonProgressUrls[6] ?? '' }}" data-progress-percent="{{ $lessonProgressValues[6] ?? 0 }}" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
                         <div class="flex items-center gap-3 mb-6">
                             <span class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">6</span>
                             <div>
@@ -444,6 +444,8 @@ statistik = df.groupby(<span class="string">"kelas"</span>)[<span class="string"
                             </ul>
                         </div>
                     </article>
+
+                    @include('components.module-extra-lessons-content')
 
                     {{-- ========== NAVIGASI BAWAH ========== --}}
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
@@ -556,5 +558,6 @@ statistik = df.groupby(<span class="string">"kelas"</span>)[<span class="string"
             observer.observe(section);
         });
     </script>
+@include('components.module-edited-lessons-script')
 </body>
 </html>

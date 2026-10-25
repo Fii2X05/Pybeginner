@@ -45,12 +45,13 @@ class LatihanSeeder extends Seeder
             $courseId = $course->id;
         }
 
-        $module = DB::table('modules')->where('slug', 'dasar-python')->first();
+        $module = DB::table('modules')->where('slug', 'dasar-python-sintaks-awal')->first()
+            ?? DB::table('modules')->where('slug', 'dasar-python')->first();
         if (! $module) {
             $moduleId = DB::table('modules')->insertGetId([
                 'course_id' => $courseId,
-                'title' => 'Dasar Pemrograman Python',
-                'slug' => 'dasar-python',
+                'title' => 'Dasar Python & Sintaks Awal',
+                'slug' => 'dasar-python-sintaks-awal',
                 'description' => 'Dari input-output sampai logika dasar.',
                 'sort_order' => 1,
                 'is_published' => true,

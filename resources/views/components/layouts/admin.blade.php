@@ -140,7 +140,7 @@
             <!-- Page Body -->
             <main class="flex-1 p-6 lg:p-10 max-w-7xl w-full">
                 @if (session('status'))
-                    <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl text-sm flex items-center gap-2">
+                    <div id="admin-status-toast" role="status" class="fixed right-6 top-6 z-[100] flex max-w-md items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 shadow-lg transition duration-300">
                         <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 shrink-0"></i>
                         <span>{{ session('status') }}</span>
                     </div>
@@ -164,6 +164,16 @@
 
     @stack('scripts')
     <script>
+        const adminStatusToast = document.getElementById('admin-status-toast');
+        if (adminStatusToast) {
+            window.setTimeout(function () {
+                adminStatusToast.classList.add('pointer-events-none', 'opacity-0', '-translate-y-2');
+                window.setTimeout(function () {
+                    adminStatusToast.remove();
+                }, 300);
+            }, 4000);
+        }
+
         if (window.lucide) {
             lucide.createIcons();
         }

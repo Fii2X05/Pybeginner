@@ -43,11 +43,19 @@ Route::middleware('auth')->group(function () {
     Route::post('/modul/{nomor}/toggle-selesai', [ModulController::class, 'toggleComplete'])
         ->name('modul.toggle-complete');
 
+    Route::get('/modul/{course:slug}/{module:slug}', [ModulController::class, 'showModule'])
+        ->scopeBindings()->name('module.show');
+    Route::post('/modul/{course:slug}/{module:slug}/toggle-selesai', [ModulController::class, 'toggleModuleCompletion'])
+        ->scopeBindings()->name('module.toggle-complete');
+
+    // URL pelajaran lama diarahkan ke halaman modul lengkap.
     Route::get('/modul/{course:slug}/{module:slug}/{lesson:slug}', [ModulController::class, 'show'])
         ->scopeBindings()->name('lesson.show');
 
     Route::post('/modul/{course:slug}/{module:slug}/{lesson:slug}/selesai', [ModulController::class, 'complete'])
         ->scopeBindings()->name('lesson.complete');
+    Route::post('/pelajaran/{lesson}/progress', [ModulController::class, 'recordLessonReadingProgress'])
+        ->name('lesson.progress');
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::put('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
@@ -80,6 +88,19 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/', [AdminController::class, 'dashboard'])->name('index');
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/materi', [AdminController::class, 'materi'])->name('materi');
+    Route::post('/materi', [AdminController::class, 'storeModule'])->name('materi.store');
+    Route::put('/materi/{module}', [AdminController::class, 'updateModule'])->name('materi.update');
+    Route::put('/materi/{module}/tingkat-kesulitan', [AdminController::class, 'updateModuleLevel'])->name('materi.level.update');
+    Route::delete('/materi/{module}', [AdminController::class, 'destroyModule'])->name('materi.destroy');
+
+    // Pelajaran / Lessons di dalam Modul
+    Route::get('/materi/{module}/pelajaran', [AdminController::class, 'moduleLessons'])->name('materi.lessons');
+    Route::post('/materi/{module}/pelajaran', [AdminController::class, 'storeLesson'])->name('materi.lessons.store');
+    Route::get('/pelajaran/{lesson}/edit', [AdminController::class, 'editLesson'])->name('lessons.edit');
+    Route::put('/pelajaran/{lesson}', [AdminController::class, 'updateLesson'])->name('lessons.update');
+    Route::put('/pelajaran/{lesson}/status', [AdminController::class, 'updateLessonStatus'])->name('lessons.status.update');
+    Route::delete('/pelajaran/{lesson}', [AdminController::class, 'destroyLesson'])->name('lessons.destroy');
+
     Route::get('/latihan', [AdminController::class, 'latihan'])->name('latihan');
     Route::get('/siswa', [AdminController::class, 'siswa'])->name('siswa');
     Route::get('/penilaian', [AdminController::class, 'penilaian'])->name('penilaian');

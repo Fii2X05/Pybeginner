@@ -11,12 +11,12 @@ class Module extends Model
 {
     use HasFactory;
 
-
     protected $fillable = [
         'course_id',
         'title',
         'slug',
         'description',
+        'level',
         'sort_order',
         'is_published',
     ];
