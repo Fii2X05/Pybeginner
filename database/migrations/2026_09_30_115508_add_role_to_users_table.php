@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('role')
-                ->default('learner')
-                ->after('password');
+        if (! Schema::hasColumn('users', 'role')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('role')
+                    ->default('learner')
+                    ->after('password');
 
-            $table->index('role');
-        });
+                $table->index('role');
+            });
+        }
     }
 
     /**
