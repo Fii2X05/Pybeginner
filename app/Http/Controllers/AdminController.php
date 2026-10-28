@@ -9,17 +9,25 @@ use App\Models\Module;
 use App\Models\Submission;
 use App\Models\TestCase;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
+use App\Services\Judge0Service;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Throwable;
 
 class AdminController extends Controller
 {
+    private const PUBLISH_BLOCKED = 'Soal belum bisa diterbitkan. Tambahkan minimal satu test case aktif yang terlihat oleh siswa terlebih dahulu.';
+
+    private const LAST_VISIBLE_BLOCKED = 'Soal ini sedang terbit dan test case ini satu-satunya yang aktif dan terlihat oleh siswa, jadi tidak boleh dihapus, dinonaktifkan, atau disembunyikan. Tarik soal ke draft dulu, atau tambahkan test case terlihat lainnya.';
+
+    public function __construct(private Judge0Service $judge0) {}
+
     /**
      * Tampilkan Halaman Dashboard Admin
      */
@@ -298,11 +306,18 @@ class AdminController extends Controller
             ->orderBy('sort_order')
             ->get();
 
-        $testCaseCounts = TestCase::selectRaw('exercise_id, count(*) as total')
+        $testCaseCounts = TestCase::where('is_active', true)
+            ->selectRaw('exercise_id, count(*) as total')
             ->groupBy('exercise_id')
             ->pluck('total', 'exercise_id');
 
-        return view('admin.latihan', compact('exercises', 'testCaseCounts'));
+        $visibleTestCaseCounts = TestCase::where('is_active', true)
+            ->where('is_hidden', false)
+            ->selectRaw('exercise_id, count(*) as total')
+            ->groupBy('exercise_id')
+            ->pluck('total', 'exercise_id');
+
+        return view('admin.latihan', compact('exercises', 'testCaseCounts', 'visibleTestCaseCounts'));
     }
 
     /**
@@ -316,11 +331,12 @@ class AdminController extends Controller
             'action' => route('admin.latihan.store'),
             'method' => 'POST',
             'heading' => 'Tambah Latihan',
+            'canPublish' => false,
         ]);
     }
 
     /**
-     * Simpan Latihan Baru (default draft, bisa langsung diterbitkan)
+     * Simpan Latihan Baru. Selalu draft: soal baru belum punya test case, jadi belum valid untuk diterbitkan.
      */
     public function storeExercise(Request $request): RedirectResponse
     {
@@ -339,16 +355,12 @@ class AdminController extends Controller
             'time_limit_ms' => $validated['time_limit_ms'],
             'memory_limit_mb' => $validated['memory_limit_mb'],
             'sort_order' => $validated['sort_order'] ?? ((Exercise::max('sort_order') ?? 0) + 1),
-            'is_published' => $request->boolean('is_published'),
+            'is_published' => false,
         ]);
 
-        $message = $exercise->is_published
-            ? "Latihan \"{$exercise->title}\" berhasil disimpan dan sudah tampil untuk siswa."
-            : "Latihan \"{$exercise->title}\" berhasil disimpan sebagai draft. Siswa belum bisa melihatnya.";
-
         return redirect()
-            ->route('admin.latihan')
-            ->with('status', $message.$this->missingTestCaseNote($exercise));
+            ->route('admin.latihan.test-cases', $exercise)
+            ->with('status', "Latihan \"{$exercise->title}\" disimpan sebagai draft. Langkah berikutnya: tambahkan test case, lalu terbitkan soalnya.");
     }
 
     /**
@@ -362,6 +374,7 @@ class AdminController extends Controller
             'action' => route('admin.latihan.update', $exercise),
             'method' => 'PUT',
             'heading' => 'Edit Latihan',
+            'canPublish' => $this->canPublishExercise($exercise),
         ]);
     }
 
@@ -371,6 +384,15 @@ class AdminController extends Controller
     public function updateExercise(Request $request, Exercise $exercise): RedirectResponse
     {
         $validated = $this->validateExercise($request, $exercise);
+
+        // Minta terbit tapi belum punya test case terlihat: simpan perubahan sebagai draft,
+        // lalu arahkan ke halaman test case supaya admin melengkapinya dulu.
+        $publish = $request->boolean('is_published');
+        $needsTestCase = $publish && ! $this->canPublishExercise($exercise);
+
+        if ($needsTestCase) {
+            $publish = false;
+        }
 
         $slug = $exercise->slug;
         if (! empty($validated['slug'])) {
@@ -388,16 +410,22 @@ class AdminController extends Controller
             'time_limit_ms' => $validated['time_limit_ms'],
             'memory_limit_mb' => $validated['memory_limit_mb'],
             'sort_order' => $validated['sort_order'] ?? $exercise->sort_order,
-            'is_published' => $request->boolean('is_published'),
+            'is_published' => $publish,
         ]);
+
+        if ($needsTestCase) {
+            return redirect()
+                ->route('admin.latihan.test-cases', $exercise)
+                ->with('status', "Perubahan disimpan sebagai draft. Soal belum bisa diterbitkan: tambahkan minimal satu test case yang terlihat siswa dulu, lalu klik Terbitkan Soal.");
+        }
 
         return redirect()
             ->route('admin.latihan')
-            ->with('status', "Latihan \"{$exercise->title}\" berhasil diperbarui.".$this->missingTestCaseNote($exercise));
+            ->with('status', "Latihan \"{$exercise->title}\" berhasil diperbarui.");
     }
 
     /**
-     * Terbit / tarik latihan langsung dari daftar.
+     * Terbit / tarik latihan langsung dari daftar. Terbit hanya bila soal valid.
      */
     public function updateExerciseStatus(Request $request, Exercise $exercise): RedirectResponse
     {
@@ -405,13 +433,17 @@ class AdminController extends Controller
             'is_published' => ['required', 'boolean'],
         ]);
 
-        $exercise->update(['is_published' => (bool) $validated['is_published']]);
+        $publish = (bool) $validated['is_published'];
 
-        $message = $exercise->is_published
+        if ($publish && ! $this->canPublishExercise($exercise)) {
+            return back()->withErrors(['is_published' => self::PUBLISH_BLOCKED]);
+        }
+
+        $exercise->update(['is_published' => $publish]);
+
+        return back()->with('status', $publish
             ? "Latihan \"{$exercise->title}\" sekarang tampil untuk siswa."
-            : "Latihan \"{$exercise->title}\" ditarik menjadi draft.";
-
-        return back()->with('status', $message.$this->missingTestCaseNote($exercise));
+            : "Latihan \"{$exercise->title}\" ditarik menjadi draft.");
     }
 
     /**
@@ -437,7 +469,18 @@ class AdminController extends Controller
             ->orderBy('id')
             ->get();
 
-        return view('admin.test-cases', compact('exercise', 'testCases'));
+        $ids = $testCases->pluck('id');
+        $withResults = DB::table('submission_results')->whereIn('test_case_id', $ids)->pluck('test_case_id')
+            ->merge(DB::table('test_case_progress')->whereIn('test_case_id', $ids)->pluck('test_case_id'))
+            ->unique()
+            ->values();
+
+        return view('admin.test-cases', [
+            'exercise' => $exercise,
+            'testCases' => $testCases,
+            'withResults' => $withResults,
+            'canPublish' => $this->canPublishExercise($exercise),
+        ]);
     }
 
     /**
@@ -461,13 +504,8 @@ class AdminController extends Controller
     {
         $validated = $this->validateTestCase($request);
 
-        TestCase::create([
+        TestCase::create($this->testCaseAttributes($validated, $request) + [
             'exercise_id' => $exercise->id,
-            'input' => $this->normalizeText($validated['input'] ?? null),
-            'expected_output' => $this->normalizeText($validated['expected_output'] ?? null) ?? '',
-            'assertion_code' => $this->normalizeText($validated['assertion_code'] ?? null),
-            'weight' => $validated['weight'],
-            'is_hidden' => $request->boolean('is_hidden'),
             'is_active' => true,
             'sort_order' => $validated['sort_order']
                 ?? ((TestCase::where('exercise_id', $exercise->id)->max('sort_order') ?? 0) + 1),
@@ -499,12 +537,11 @@ class AdminController extends Controller
     {
         $validated = $this->validateTestCase($request);
 
-        $testCase->update([
-            'input' => $this->normalizeText($validated['input'] ?? null),
-            'expected_output' => $this->normalizeText($validated['expected_output'] ?? null) ?? '',
-            'assertion_code' => $this->normalizeText($validated['assertion_code'] ?? null),
-            'weight' => $validated['weight'],
-            'is_hidden' => $request->boolean('is_hidden'),
+        if ($request->boolean('is_hidden') && $this->isLastVisibleTestCaseOfPublishedExercise($testCase)) {
+            return back()->withInput()->withErrors(['is_hidden' => self::LAST_VISIBLE_BLOCKED]);
+        }
+
+        $testCase->update($this->testCaseAttributes($validated, $request) + [
             'sort_order' => $validated['sort_order'] ?? $testCase->sort_order,
         ]);
 
@@ -514,10 +551,40 @@ class AdminController extends Controller
     }
 
     /**
-     * Hapus Test Case (hasil pengerjaan siswa untuk test case ini ikut terhapus)
+     * Aktifkan / nonaktifkan test case. Test case nonaktif tidak tampil dan tidak dipakai menilai.
+     */
+    public function updateTestCaseActive(Request $request, TestCase $testCase): RedirectResponse
+    {
+        $validated = $request->validate([
+            'is_active' => ['required', 'boolean'],
+        ]);
+
+        $active = (bool) $validated['is_active'];
+
+        if (! $active && $this->isLastVisibleTestCaseOfPublishedExercise($testCase)) {
+            return back()->withErrors(['is_active' => self::LAST_VISIBLE_BLOCKED]);
+        }
+
+        $testCase->update(['is_active' => $active]);
+
+        return back()->with('status', $active
+            ? 'Test case diaktifkan kembali.'
+            : 'Test case dinonaktifkan. Siswa tidak lagi melihat atau dinilai dengan test case ini.');
+    }
+
+    /**
+     * Hapus Test Case. Yang sudah punya hasil pengerjaan siswa hanya boleh dinonaktifkan.
      */
     public function destroyTestCase(TestCase $testCase): RedirectResponse
     {
+        if ($this->testCaseHasStudentResults($testCase)) {
+            return back()->withErrors(['test_case' => 'Test case ini sudah punya hasil pengerjaan siswa, jadi tidak bisa dihapus. Nonaktifkan saja agar riwayat siswa tetap utuh.']);
+        }
+
+        if ($this->isLastVisibleTestCaseOfPublishedExercise($testCase)) {
+            return back()->withErrors(['test_case' => self::LAST_VISIBLE_BLOCKED]);
+        }
+
         $exerciseId = $testCase->exercise_id;
         $testCase->delete();
 
@@ -527,18 +594,164 @@ class AdminController extends Controller
     }
 
     /**
+     * Halaman Uji Kunci Jawaban
+     */
+    public function answerKey(Exercise $exercise): View
+    {
+        return view('admin.answer-key', [
+            'exercise' => $exercise,
+            'sourceCode' => $exercise->starter_code ?? '',
+            'results' => null,
+            'error' => null,
+        ]);
+    }
+
+    /**
+     * Jalankan solusi admin ke semua test case aktif (termasuk yang tersembunyi) lewat Judge0.
+     */
+    public function runAnswerKey(Request $request, Exercise $exercise): View
+    {
+        $validated = $request->validate([
+            'source_code' => ['required', 'string', 'max:50000'],
+        ]);
+
+        $sourceCode = str_replace(["\r\n", "\r"], "\n", $validated['source_code']);
+
+        $testCases = TestCase::where('exercise_id', $exercise->id)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+
+        $results = [];
+        $error = null;
+
+        if ($testCases->isEmpty()) {
+            $error = 'Soal ini belum punya test case aktif untuk diuji.';
+        } else {
+            try {
+                foreach ($testCases as $testCase) {
+                    $results[] = $this->runTestCaseAgainstSolution($exercise, $testCase, $sourceCode);
+                }
+            } catch (Throwable $exception) {
+                $results = [];
+                $error = 'Tidak dapat menjalankan kode lewat Judge0. Pastikan Judge0 aktif dan URL-nya benar. ('.$exception->getMessage().')';
+            }
+        }
+
+        return view('admin.answer-key', [
+            'exercise' => $exercise,
+            'sourceCode' => $sourceCode,
+            'results' => $results,
+            'error' => $error,
+        ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function runTestCaseAgainstSolution(Exercise $exercise, TestCase $testCase, string $sourceCode): array
+    {
+        $isAssertion = is_string($testCase->assertion_code) && trim($testCase->assertion_code) !== '';
+        $code = $isAssertion ? rtrim($sourceCode)."\n\n".$testCase->assertion_code."\n" : $sourceCode;
+
+        $execution = $this->judge0->evaluateCode(
+            $code,
+            $isAssertion ? null : $testCase->expected_output,
+            $isAssertion ? null : $testCase->input,
+            min(5, max(1, $exercise->time_limit_ms / 1000)),
+            min(256000, max(16384, $exercise->memory_limit_mb * 1024)),
+        );
+
+        $statusId = (int) $execution['status']['id'];
+
+        return [
+            'test_case' => $testCase,
+            'is_assertion' => $isAssertion,
+            'passed' => $statusId === 3,
+            'status' => (string) ($execution['status']['description'] ?? ''),
+            'actual' => (string) ($execution['stdout'] ?? ''),
+            'error' => trim(implode("\n", array_filter([
+                $execution['stderr'] ?? null,
+                $execution['compile_output'] ?? null,
+                $execution['message'] ?? null,
+            ]))),
+            'time_ms' => (int) round(((float) ($execution['time'] ?? 0)) * 1000),
+        ];
+    }
+
+    /**
+     * Soal boleh terbit bila punya minimal satu test case aktif yang terlihat oleh siswa.
+     */
+    private function canPublishExercise(Exercise $exercise): bool
+    {
+        return TestCase::where('exercise_id', $exercise->id)
+            ->where('is_active', true)
+            ->where('is_hidden', false)
+            ->exists();
+    }
+
+    /**
+     * True bila test case ini satu-satunya yang aktif dan terlihat pada soal yang sedang terbit.
+     */
+    private function isLastVisibleTestCaseOfPublishedExercise(TestCase $testCase): bool
+    {
+        if (! $testCase->is_active || $testCase->is_hidden) {
+            return false;
+        }
+
+        $exercise = $testCase->exercise;
+
+        if (! $exercise || ! $exercise->is_published) {
+            return false;
+        }
+
+        return ! TestCase::where('exercise_id', $testCase->exercise_id)
+            ->where('id', '!=', $testCase->id)
+            ->where('is_active', true)
+            ->where('is_hidden', false)
+            ->exists();
+    }
+
+    private function testCaseHasStudentResults(TestCase $testCase): bool
+    {
+        return DB::table('submission_results')->where('test_case_id', $testCase->id)->exists()
+            || DB::table('test_case_progress')->where('test_case_id', $testCase->id)->exists();
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function validateTestCase(Request $request): array
     {
         return $request->validate([
+            'jenis' => ['required', Rule::in(['io', 'assertion'])],
             'input' => ['nullable', 'string', 'max:10000'],
-            'expected_output' => ['required_without:assertion_code', 'nullable', 'string', 'max:10000'],
-            'assertion_code' => ['nullable', 'string', 'max:10000'],
+            'expected_output' => ['required_if:jenis,io', 'nullable', 'string', 'max:10000'],
+            'assertion_code' => ['required_if:jenis,assertion', 'nullable', 'string', 'max:10000'],
             'weight' => ['required', 'integer', 'between:1,100'],
             'is_hidden' => ['nullable', 'boolean'],
             'sort_order' => ['nullable', 'integer', 'min:1'],
         ]);
+    }
+
+    /**
+     * Satu test case hanya boleh satu jenis: input/output atau assertion.
+     *
+     * @param  array<string, mixed>  $validated
+     * @return array<string, mixed>
+     */
+    private function testCaseAttributes(array $validated, Request $request): array
+    {
+        $isAssertion = $validated['jenis'] === 'assertion';
+
+        return [
+            'input' => $isAssertion ? null : $this->normalizeText($validated['input'] ?? null),
+            'expected_output' => $isAssertion ? '' : ($this->normalizeText($validated['expected_output'] ?? null) ?? ''),
+            'assertion_code' => $isAssertion ? $this->normalizeText($validated['assertion_code'] ?? null) : null,
+            'weight' => $validated['weight'],
+            'is_hidden' => $request->boolean('is_hidden'),
+        ];
     }
 
     /**
@@ -577,23 +790,11 @@ class AdminController extends Controller
     }
 
     /**
-     * @return Collection<int, Lesson>
+     * @return \Illuminate\Database\Eloquent\Collection<int, Lesson>
      */
     private function lessonOptions()
     {
         return Lesson::with('module')->orderBy('module_id')->orderBy('sort_order')->get();
-    }
-
-    /**
-     * Catatan tambahan bila latihan terbit tetapi belum punya test case.
-     */
-    private function missingTestCaseNote(Exercise $exercise): string
-    {
-        if (! $exercise->is_published || $exercise->testCases()->exists()) {
-            return '';
-        }
-
-        return ' Catatan: soal ini belum punya test case, jadi jawaban siswa belum bisa dinilai otomatis.';
     }
 
     private function normalizeStarterCode(?string $code): ?string

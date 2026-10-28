@@ -114,7 +114,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/latihan/{exercise}/test-case', [AdminController::class, 'storeTestCase'])->name('latihan.test-cases.store');
     Route::get('/test-case/{testCase}/edit', [AdminController::class, 'editTestCase'])->name('test-cases.edit');
     Route::put('/test-case/{testCase}', [AdminController::class, 'updateTestCase'])->name('test-cases.update');
+    Route::put('/test-case/{testCase}/aktif', [AdminController::class, 'updateTestCaseActive'])->name('test-cases.active.update');
     Route::delete('/test-case/{testCase}', [AdminController::class, 'destroyTestCase'])->name('test-cases.destroy');
+    Route::get('/latihan/{exercise}/uji-kunci', [AdminController::class, 'answerKey'])->name('latihan.answer-key');
+    Route::post('/latihan/{exercise}/uji-kunci', [AdminController::class, 'runAnswerKey'])->name('latihan.answer-key.run');
     Route::get('/siswa', [AdminController::class, 'siswa'])->name('siswa');
     Route::get('/penilaian', [AdminController::class, 'penilaian'])->name('penilaian');
     Route::get('/pengaturan', [AdminController::class, 'pengaturan'])->name('pengaturan');
