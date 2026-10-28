@@ -1,16 +1,17 @@
 <?php
 
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\ModulController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PuzzleCaptchaController;
 use App\Http\Controllers\SubmissionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('landing');
 })->name('beranda');
-
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\PuzzleCaptchaController;
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -28,7 +29,7 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
-// Modul & Pelajaran (Tugas Adelia)
+// Modul & Pelajaran
 Route::get('/modul', [ModulController::class, 'index'])->name('modul.index');
 Route::get('/modul/mulai', function () {
     return redirect()->route('modul.index');
@@ -44,8 +45,7 @@ Route::get('/modul/{course:slug}/{module:slug}/{lesson:slug}', [ModulController:
 Route::post('/modul/{course:slug}/{module:slug}/{lesson:slug}/selesai', [ModulController::class, 'complete'])
     ->scopeBindings()->middleware('auth')->name('lesson.complete');
 
-// Latihan & Playground (Tugas Dinda)
-
+// Latihan, Submission & Editor
 Route::get('/profile', function () {
     return 'Halaman Profile (belum dibuat)';
 })->name('profile');
@@ -53,12 +53,25 @@ Route::get('/profile', function () {
 Route::get('/riwayat-submission', [SubmissionController::class, 'history'])->name('submissions.history');
 Route::post('/submissions', [SubmissionController::class, 'submit'])->name('submissions.submit');
 Route::post('/run', [SubmissionController::class, 'run'])->name('submissions.run');
-// --- Exercise & Code Editor (Dinda) ---
+
+Route::post('/exercises/{exerciseId}/test-cases/{testCaseId}/run', [SubmissionController::class, 'runTestCase'])
+    ->name('submissions.test-case.run');
+Route::post('/exercises/{exerciseId}/test-cases/progress', [SubmissionController::class, 'testCaseProgress'])
+    ->name('submissions.test-case.progress');
+
 Route::get('/latihan', [ExerciseController::class, 'index'])->name('latihan.index');
 Route::get('/latihan/{slug}', [ExerciseController::class, 'show'])->name('latihan.show');
 
-// Route lama /playground dipertahankan sebagai redirect supaya link lama di view
-// teman tidak error "Route [playground] not defined". Hapus kalau sudah tidak dipakai.
+// Redirect playground lama
 Route::get('/playground', function () {
     return redirect()->route('latihan.index');
 })->name('playground');
+
+// Panel Admin
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminController::class, 'dashboard'])->name('index');
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/materi', [AdminController::class, 'materi'])->name('materi');
+    Route::post('/materi', [AdminController::class, 'storeModule'])->name('materi.store');
+    Route::put('/materi/{module}', [AdminController::class, 'updateModule'])->name('materi.update');
+});
