@@ -2,6 +2,8 @@
     $exercise = $exercise ?? null;
     $method = $method ?? 'POST';
     $heading = $heading ?? 'Tambah Latihan';
+    $isCreate = $exercise === null;
+    $canPublish = $canPublish ?? false;
     $lessonGroups = $lessons->groupBy(fn ($lesson) => $lesson->module->title ?? 'Tanpa Modul');
     $inputClass = 'w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500';
 @endphp
@@ -16,7 +18,13 @@
 
     <div class="mb-6">
         <h1 class="text-xl font-black text-slate-900">{{ $heading }}</h1>
-        <p class="text-sm text-slate-500 mt-0.5">Simpan sebagai Draft bila soal belum siap, atau Simpan &amp; Terbitkan agar langsung tampil untuk siswa.</p>
+        <p class="text-sm text-slate-500 mt-0.5">
+            @if ($isCreate)
+                Soal baru disimpan sebagai draft. Setelah itu tambahkan test case, lalu terbitkan agar tampil untuk siswa.
+            @else
+                Simpan sebagai draft, atau terbitkan bila soal sudah punya test case yang terlihat oleh siswa.
+            @endif
+        </p>
     </div>
 
     @if ($lessons->isEmpty())
@@ -106,21 +114,34 @@
             </div>
 
 
-            <p class="text-[11px] text-slate-400 text-right pt-1">Soal tanpa test case tetap tampil bila diterbitkan, tetapi jawaban siswa belum bisa dinilai otomatis.</p>
+            @unless ($isCreate || $canPublish)
+                <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3.5 py-2.5">
+                    Soal ini belum bisa diterbitkan karena belum punya test case aktif yang terlihat.
+                    Jika kamu klik Simpan &amp; Terbitkan, perubahan disimpan sebagai draft lalu kamu diarahkan ke
+                    <a href="{{ route('admin.latihan.test-cases', $exercise) }}" class="font-bold underline">halaman test case</a>.
+                </p>
+            @endunless
 
-            <div class="flex items-center justify-end gap-2">
+            <div class="flex items-center justify-end gap-2 pt-2">
                 <a href="{{ route('admin.latihan') }}"
                    class="inline-flex items-center gap-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm px-4 py-2.5 rounded-xl transition">
                     Batal
                 </a>
-                <button type="submit" name="is_published" value="0"
-                        class="inline-flex items-center gap-2 border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold text-sm px-5 py-2.5 rounded-xl transition">
-                    <i data-lucide="file-edit" class="w-4 h-4"></i> Simpan sebagai Draft
-                </button>
-                <button type="submit" name="is_published" value="1"
-                        class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition">
-                    <i data-lucide="save" class="w-4 h-4"></i> Simpan &amp; Terbitkan
-                </button>
+                @if ($isCreate)
+                    <button type="submit"
+                            class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition">
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i> Simpan &amp; Lanjut ke Test Case
+                    </button>
+                @else
+                    <button type="submit" name="is_published" value="0"
+                            class="inline-flex items-center gap-2 border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold text-sm px-5 py-2.5 rounded-xl transition">
+                        <i data-lucide="file-edit" class="w-4 h-4"></i> Simpan sebagai Draft
+                    </button>
+                    <button type="submit" name="is_published" value="1"
+                            class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition">
+                        <i data-lucide="save" class="w-4 h-4"></i> Simpan &amp; Terbitkan
+                    </button>
+                @endif
             </div>
         </form>
     @endif
