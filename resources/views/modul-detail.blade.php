@@ -1,17 +1,10 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modul 01: Dasar Python & Sintaks Awal - PyBeginner</title>
+<x-layouts.app title="Modul 01: Dasar Python & Sintaks Awal - PyBeginner" active="modul">
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://unpkg.com/lucide@latest"></script>
+    @push('styles')
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
         .font-mono-code { font-family: 'Fira Code', ui-monospace, 'Courier New', monospace; }
         pre code { font-family: 'Fira Code', ui-monospace, monospace; font-size: 0.85rem; line-height: 1.7; }
         .prose code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-family: 'Fira Code', monospace; color: #0f766e; }
@@ -33,34 +26,7 @@
         .number { color: #fbbf24; }
         .builtin { color: #f472b6; }
     </style>
-</head>
-<body class="bg-gray-50 text-gray-900 antialiased">
-
-    {{-- ===================== NAVBAR ===================== --}}
-    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100">
-        <nav class="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-10">
-                <a href="{{ url('/') }}" class="flex items-center">
-                    <img src="{{ asset('images/logo-pybeginner.png') }}" alt="PyBeginner" class="h-8 w-auto">
-                </a>
-                <ul class="hidden md:flex items-center gap-7 text-sm font-medium text-gray-600">
-                    <li><a href="{{ route('beranda') }}" class="hover:text-emerald-600 transition-colors">Beranda</a></li>
-                    <li><a href="{{ route('modul.index') }}" class="text-gray-900 border-b-2 border-gray-900 pb-1 font-semibold">Modul Belajar</a></li>
-                    <li><a href="{{ route('latihan.index') }}" class="hover:text-emerald-600 transition-colors">Latihan Coding</a></li>
-                    <li><a href="#" class="hover:text-emerald-600 transition-colors">Riwayat Submission</a></li>
-                </ul>
-            </div>
-            <div class="flex items-center gap-5">
-                <button type="button" class="relative text-gray-500 hover:text-gray-700">
-                    <i data-lucide="bell" class="w-5 h-5"></i>
-                </button>
-                <span class="hidden sm:inline text-sm font-medium text-gray-700">{{ auth()->user()->name ?? 'Sukma Ananda' }}</span>
-                <span class="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center text-white">
-                    <i data-lucide="user" class="w-4 h-4"></i>
-                </span>
-            </div>
-        </nav>
-    </header>
+    @endpush
 
     {{-- ===================== BREADCRUMB & HEADER ===================== --}}
     <section class="relative overflow-hidden bg-gradient-to-b from-white via-emerald-50/70 to-emerald-50 border-b border-gray-100">
@@ -76,13 +42,33 @@
                 <span class="text-gray-900 font-semibold">Modul 01</span>
             </nav>
 
+            @if (session('status'))
+                <div class="mb-6 bg-emerald-100 border border-emerald-300 text-emerald-800 px-4 py-3 rounded-xl flex items-center gap-3">
+                    <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600 shrink-0"></i>
+                    <span class="font-medium text-sm">{{ session('status') }}</span>
+                </div>
+            @endif
+
             <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                 <div class="flex-1">
                     <div class="flex items-center gap-3 mb-3">
                         <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">Pemula</span>
-                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
-                            <i data-lucide="check" class="w-3 h-3"></i> Selesai
-                        </span>
+
+                        {{-- Notif status di pojok kanan header --}}
+                        @if (($status ?? 'belum') === 'selesai')
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
+                                <i data-lucide="check" class="w-3 h-3"></i> Selesai
+                            </span>
+                        @elseif (($status ?? 'belum') === 'berjalan')
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold text-yellow-700 bg-yellow-50 px-2.5 py-1 rounded-full">
+                                <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full"></span> Sedang Berjalan
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1 text-xs font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
+                                <i data-lucide="lock" class="w-3 h-3"></i> Belum Mulai
+                            </span>
+                        @endif
+
                         <span class="text-xs text-gray-400 font-mono-code">MODUL 01</span>
                     </div>
                     <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-3">Dasar Python & Sintaks Awal</h1>
@@ -94,19 +80,17 @@
                 <div class="flex items-center gap-3 shrink-0">
                     <div class="text-right mr-3">
                         <p class="text-xs text-gray-500 mb-1">Kemajuan Modul</p>
-                        <p class="text-lg font-extrabold text-emerald-700">5/5 Materi</p>
+                        <p data-module-read-count data-total-lessons="{{ $totalMateri ?? 5 }}" class="text-lg font-extrabold text-emerald-700">{{ $selesaiCount ?? 0 }}/{{ $totalMateri ?? 5 }} Materi Dibaca</p>
                     </div>
-                    <div class="w-14 h-14 rounded-full border-4 border-emerald-500 flex items-center justify-center">
-                        <span class="text-sm font-extrabold text-emerald-700">100%</span>
+                    <div class="w-14 h-14 rounded-full border-4 {{ ($status ?? 'belum') === 'selesai' ? 'border-emerald-500' : (($status ?? 'belum') === 'berjalan' ? 'border-yellow-400' : 'border-gray-200') }} flex items-center justify-center">
+                        <span data-module-progress class="text-sm font-extrabold {{ ($status ?? 'belum') === 'selesai' ? 'text-emerald-700' : (($status ?? 'belum') === 'berjalan' ? 'text-yellow-600' : 'text-gray-400') }}">{{ $progress ?? 0 }}%</span>
                     </div>
                 </div>
             </div>
 
             {{-- Stat mini --}}
             <div class="flex items-center gap-6 mt-6 text-xs text-gray-500">
-                <span class="flex items-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 5 Materi</span>
-                <span class="flex items-center gap-1.5"><i data-lucide="code" class="w-3.5 h-3.5"></i> 5 Latihan</span>
-                <span class="flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> ±45 Menit</span>
+                <span class="flex items-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> {{ $totalMateri ?? 5 }} Materi</span>
                 <span class="flex items-center gap-1.5"><i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i> Level: Pemula</span>
             </div>
         </div>
@@ -115,14 +99,14 @@
     {{-- ===================== KONTEN UTAMA ===================== --}}
     <section class="bg-gray-50 py-10">
         <div class="max-w-[1440px] mx-auto px-6 lg:px-10">
-            <div class="flex flex-col lg:flex-row gap-6">
+            <div class="flex flex-col md:flex-row-reverse gap-6">
 
                 {{-- ===== SIDEBAR: Daftar Materi ===== --}}
-                <aside class="lg:w-60 shrink-0">
-                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden sticky top-24">
+                <aside class="md:w-60 shrink-0">
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden md:sticky md:top-24">
                         <div class="px-5 py-4 border-b border-gray-100">
                             <h2 class="font-bold text-sm text-gray-900">Daftar Materi</h2>
-                            <p class="text-xs text-gray-400 mt-0.5">5 materi dalam modul ini</p>
+                            <p class="text-xs text-gray-400 mt-0.5">{{ $totalMateri ?? 5 }} materi dalam modul ini</p>
                         </div>
                         <nav class="py-2">
                             <a href="#materi-1" class="sidebar-link active block px-5 py-3 text-sm transition-all">
@@ -181,6 +165,7 @@
                                 </div>
                             </a>
                         </nav>
+                        @include('components.module-extra-lessons-nav')
 
                         <div class="px-5 py-4 border-t border-gray-100">
                             <a href="{{ route('modul.index') }}" class="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-emerald-700 transition-colors">
@@ -194,7 +179,7 @@
                 <main class="flex-1 min-w-0">
 
                     {{-- ========== MATERI 1: Apa itu Python? ========== --}}
-                    <article id="materi-1" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
+                    <article id="materi-1" data-progress-url="{{ $lessonProgressUrls[1] ?? '' }}" data-progress-percent="{{ $lessonProgressValues[1] ?? 0 }}" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
                         <div class="flex items-center gap-3 mb-6">
                             <span class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">1</span>
                             <div>
@@ -283,7 +268,7 @@
                     </article>
 
                     {{-- ========== MATERI 2: Program Pertamamu ========== --}}
-                    <article id="materi-2" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
+                    <article id="materi-2" data-progress-url="{{ $lessonProgressUrls[2] ?? '' }}" data-progress-percent="{{ $lessonProgressValues[2] ?? 0 }}" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
                         <div class="flex items-center gap-3 mb-6">
                             <span class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">2</span>
                             <div>
@@ -366,7 +351,7 @@
                     </article>
 
                     {{-- ========== MATERI 3: Input dari Pengguna ========== --}}
-                    <article id="materi-3" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
+                    <article id="materi-3" data-progress-url="{{ $lessonProgressUrls[3] ?? '' }}" data-progress-percent="{{ $lessonProgressValues[3] ?? 0 }}" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
                         <div class="flex items-center gap-3 mb-6">
                             <span class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">3</span>
                             <div>
@@ -427,7 +412,7 @@ umur = <span class="function">int</span>(<span class="function">input</span>(<sp
                     </article>
 
                     {{-- ========== MATERI 4: Komentar Kode ========== --}}
-                    <article id="materi-4" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
+                    <article id="materi-4" data-progress-url="{{ $lessonProgressUrls[4] ?? '' }}" data-progress-percent="{{ $lessonProgressValues[4] ?? 0 }}" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
                         <div class="flex items-center gap-3 mb-6">
                             <span class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">4</span>
                             <div>
@@ -487,7 +472,7 @@ total = harga_satuan * jumlah
                     </article>
 
                     {{-- ========== MATERI 5: Aturan Indentasi ========== --}}
-                    <article id="materi-5" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
+                    <article id="materi-5" data-progress-url="{{ $lessonProgressUrls[5] ?? '' }}" data-progress-percent="{{ $lessonProgressValues[5] ?? 0 }}" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-6 prose max-w-none">
                         <div class="flex items-center gap-3 mb-6">
                             <span class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-sm">5</span>
                             <div>
@@ -550,15 +535,35 @@ total = harga_satuan * jumlah
                         </div>
                     </article>
 
+                    @include('components.module-extra-lessons-content')
+
                     {{-- ========== NAVIGASI BAWAH ========== --}}
-                    <div class="flex items-center justify-between pt-4">
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
                         <a href="{{ route('modul.index') }}"
-                           class="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-emerald-700 bg-white border border-gray-200 px-5 py-2.5 rounded-xl transition-colors">
+                           class="w-full sm:w-auto flex items-center justify-center gap-2 text-sm font-semibold text-gray-600 hover:text-emerald-700 bg-white border border-gray-200 px-5 py-2.5 rounded-xl transition-colors">
                             <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali ke Modul
                         </a>
-                        <a href="#"
-                           class="flex items-center gap-2 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-800 px-5 py-2.5 rounded-xl transition-colors">
-                            Modul Selanjutnya <i data-lucide="arrow-right" class="w-4 h-4"></i>
+
+                        @auth
+                            <form action="{{ route('modul.toggle-complete', 1) }}" method="POST" class="w-full sm:w-auto">
+                                @csrf
+                                @if (($status ?? 'belum') === 'selesai')
+                                    <button type="submit"
+                                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-5 py-2.5 rounded-xl transition-colors">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i> Modul Selesai (Klik untuk Ulangi)
+                                    </button>
+                                @else
+                                    <button type="submit"
+                                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 rounded-xl transition-colors shadow-sm">
+                                        <i data-lucide="check" class="w-4 h-4"></i> Tandai Modul Selesai
+                                    </button>
+                                @endif
+                            </form>
+                        @endauth
+
+                        <a href="{{ route('modul.detail.02') }}"
+                           class="w-full sm:w-auto flex items-center justify-center gap-2 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-800 px-5 py-2.5 rounded-xl transition-colors">
+                            Modul Selanjutnya (Modul 02) <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </a>
                     </div>
 
@@ -567,42 +572,7 @@ total = harga_satuan * jumlah
         </div>
     </section>
 
-    {{-- ===================== FOOTER ===================== --}}
-    <footer class="border-t border-gray-100 py-14 bg-white">
-        <div class="max-w-7xl mx-auto px-6 lg:px-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
-            <div class="lg:col-span-2">
-                <div class="mb-4">
-                    <span class="text-lg font-bold text-gray-900">PyBeginner</span>
-                </div>
-                <p class="text-sm text-gray-600 max-w-xs leading-relaxed">
-                    Platform interaktif modern untuk menguasai pemrograman Python mulai dari nol secara terstruktur dan ramah pemula.
-                </p>
-            </div>
-
-            <div>
-                <h4 class="font-semibold text-gray-900 mb-4">Kurikulum</h4>
-                <ul class="space-y-2 text-sm text-gray-600">
-                    <li><a href="#" class="hover:text-emerald-600">Python Dasar</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">Struktur Data</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">Algoritma & Logika</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">OOP Python</a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h4 class="font-semibold text-gray-900 mb-4">Fitur Belajar</h4>
-                <ul class="space-y-2 text-sm text-gray-600">
-                    <li><a href="#" class="hover:text-emerald-600">Pembelajaran Interaktif</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">Kuis & Tantangan</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="max-w-7xl mx-auto px-6 lg:px-10 mt-10 pt-6 border-t border-gray-100 text-xs text-gray-500">
-            &copy; {{ date('Y') }} Tim PBL Kelompok 5 - SIB 3B
-        </div>
-    </footer>
-
+    @push('scripts')
     <script>
         lucide.createIcons();
 
@@ -644,5 +614,6 @@ total = harga_satuan * jumlah
             observer.observe(section);
         });
     </script>
-</body>
-</html>
+    @endpush
+    @include('components.module-edited-lessons-script')
+</x-layouts.app>

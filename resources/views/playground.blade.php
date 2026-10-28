@@ -30,11 +30,29 @@
                 @foreach ($samples as $i => $s)
                     <div class="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 font-mono text-xs text-slate-700">
                         <p class="mb-2 font-sans text-xs font-semibold text-emerald-700">Contoh {{ $i + 1 }}</p>
-                        <p class="whitespace-pre-line"><span class="text-slate-400">Input &nbsp;:</span> {{ $s->input }}</p>
-                        <p class="mt-1"><span class="text-slate-400">Output :</span> {{ $s->expected_output }}</p>
+                        @if ($s->assertion_code)
+                            <pre class="whitespace-pre-wrap">{{ $s->assertion_code }}</pre>
+                        @else
+                            <p class="whitespace-pre-line"><span class="text-slate-400">Input &nbsp;:</span> {{ $s->input }}</p>
+                            <p class="mt-1"><span class="text-slate-400">Output :</span> {{ $s->expected_output }}</p>
+                        @endif
+                        @auth
+                            <div class="mt-3 flex items-center justify-between gap-3 border-t border-emerald-100 pt-3">
+                                <span class="test-case-progress text-[11px] text-slate-500" data-test-case-progress="{{ $s->id }}">Belum diuji</span>
+                                <button type="button"
+                                        class="btn-test-case rounded-lg border border-emerald-300 px-3 py-1.5 font-sans text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
+                                        data-test-case-id="{{ $s->id }}"
+                                        data-test-case-url="{{ route('submissions.test-case.run', ['exerciseId' => $exercise->id, 'testCaseId' => $s->id]) }}">
+                                    Uji test case ini
+                                </button>
+                            </div>
+                        @endauth
                     </div>
                 @endforeach
             </div>
+            @auth
+                <p id="test-case-summary" class="mt-3 text-xs text-slate-500">Status test case memakai input acuan yang ditampilkan di kartu ini. Input Program hanya dipakai oleh Jalankan Kode dan tidak mengubah status test case.</p>
+            @endauth
         </section>
 
         {{-- KANAN: EDITOR + HASIL + MATERI --}}
@@ -49,15 +67,29 @@
                     <span>Python 3</span>
                 </div>
                 <div id="editor" style="height: 320px;"></div>
+                <div class="bg-slate-800 px-5 pb-4">
+                    <label for="custom-stdin" class="mb-1 block text-xs font-semibold text-slate-300">Input Program (Jalankan Kode)</label>
+                    <p class="mb-2 text-[11px] text-slate-400">Untuk menguji input manual. Penilaian test case menggunakan input acuan di kartu sebelah kiri.</p>
+                    <textarea id="custom-stdin" rows="4" placeholder="Masukkan input : "
+                              class="w-full resize-y rounded-xl border border-slate-600 bg-slate-900 p-3 font-mono text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"></textarea>
+                </div>
                 <div class="flex justify-end gap-3 bg-slate-800 px-5 py-3">
                     <button id="btn-run"
                             class="rounded-xl border border-emerald-400/60 px-4 py-2 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-400/10">
                         Jalankan Kode
                     </button>
-                    <button id="btn-submit"
-                            class="rounded-xl bg-yellow-400 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
-                        Kirim &amp; Nilai Jawaban
-                    </button>
+                    @auth
+                        <button id="btn-submit"
+                                class="rounded-xl bg-yellow-400 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-50"
+                                disabled>
+                            Kirim &amp; Nilai Jawaban
+                        </button>
+                    @else
+                        <a href="{{ route('login') }}"
+                           class="rounded-xl bg-yellow-400 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
+                            Masuk untuk Mengirim
+                        </a>
+                    @endauth
                 </div>
             </div>
 
@@ -88,8 +120,11 @@
         const EXERCISE_ID = {{ $exercise->id }};
         const STARTER = @json($exercise->starter_code ?? '');
         const URL_LIST = @json(route('latihan.index', ['level' => $exercise->difficulty]));
-        const USE_MOCK = true; // ganti false setelah backend teman siap
+        const RUN_URL = @json(route('submissions.execute'));
+        const SUBMIT_URL = @json(route('submissions.submit'));
+        const TEST_CASE_PROGRESS_URL = @json(route('submissions.test-case.progress', ['exerciseId' => $exercise->id]));
         let editor;
+        const testCaseProgress = new Map();
 
         require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } });
         require(['vs/editor/editor.main'], function () {
@@ -97,6 +132,8 @@
                 value: STARTER, language: 'python', theme: 'vs-dark',
                 fontSize: 14, minimap: { enabled: false }, automaticLayout: true,
             });
+            editor.onDidChangeModelContent(() => renderTestCaseProgress());
+            loadTestCaseProgress();
         });
 
         const hasilEl  = document.getElementById('hasil');
@@ -105,6 +142,111 @@
 
         function esc(t) {
             return String(t ?? '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+        }
+
+        function renderTestCaseProgress(progress = null) {
+            const currentCode = editor?.getValue() ?? '';
+            if (progress) {
+                testCaseProgress.clear();
+                Object.entries(progress).forEach(([testCaseId, status]) => {
+                    testCaseProgress.set(String(testCaseId), { code: currentCode, status });
+                });
+            }
+
+            document.querySelectorAll('[data-test-case-progress]').forEach((element) => {
+                const state = testCaseProgress.get(element.dataset.testCaseProgress);
+                const isCurrentCode = state?.code === currentCode;
+                const status = isCurrentCode ? state.status : 'Belum diuji';
+                element.textContent = status === 'passed' ? 'Lolos' : status === 'failed' ? 'Belum lolos' : 'Belum diuji';
+                element.className = `test-case-progress text-[11px] ${status === 'passed' ? 'font-semibold text-emerald-700' : status === 'failed' ? 'font-semibold text-red-600' : 'text-slate-500'}`;
+            });
+
+            const total = document.querySelectorAll('[data-test-case-progress]').length;
+            const passed = [...testCaseProgress.entries()].filter(([testCaseId, state]) =>
+                state.code === currentCode && state.status === 'passed'
+            ).length;
+            const summary = document.getElementById('test-case-summary');
+            if (summary) {
+                summary.textContent = `${passed}/${total} test case terlihat lolos untuk kode saat ini. Status memakai input acuan di kartu; Input Program hanya untuk Jalankan Kode dan tidak mengubah status. Test case tersembunyi diperiksa saat pengiriman akhir.`;
+            }
+            const submitButton = document.getElementById('btn-submit');
+            if (submitButton) {
+                submitButton.disabled = passed < total;
+            }
+        }
+
+        async function loadTestCaseProgress() {
+            if (!editor || !document.getElementById('test-case-summary')) return;
+
+            try {
+                const res = await fetch(TEST_CASE_PROGRESS_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: JSON.stringify({ source_code: editor.getValue() }),
+                });
+                const data = await res.json();
+                if (res.ok && data.success) renderTestCaseProgress(data.progress);
+            } catch (e) {
+                const summary = document.getElementById('test-case-summary');
+                if (summary) summary.textContent = 'Progress test case tidak dapat dimuat. Coba muat ulang halaman.';
+            }
+        }
+
+        async function jalankanTestCase(button) {
+            if (!editor) {
+                hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Editor belum siap. Muat ulang halaman dan coba lagi.</p>';
+                return;
+            }
+
+            const testCaseId = button.dataset.testCaseId;
+            const sourceCode = editor.getValue();
+            const progressLabel = document.querySelector(`[data-test-case-progress="${testCaseId}"]`);
+            button.disabled = true;
+            button.textContent = 'Menguji...';
+            if (progressLabel) progressLabel.textContent = 'Sedang diuji...';
+            hasilEl.innerHTML = '<p class="text-sm text-slate-500">Menguji kode pada test case terpilih...</p>';
+
+            try {
+                const res = await fetch(button.dataset.testCaseUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: JSON.stringify({ source_code: sourceCode }),
+                });
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    hasilEl.innerHTML = `<p class="text-sm text-yellow-800">${esc(data.message || 'Test case tidak dapat dijalankan.')}</p>`;
+                    return;
+                }
+
+                testCaseProgress.set(String(testCaseId), {
+                    code: sourceCode,
+                    status: data.is_passed ? 'passed' : 'failed',
+                });
+                renderTestCaseProgress();
+                const resultStyle = data.is_passed
+                    ? { card: 'border-emerald-200 bg-emerald-50', title: 'text-emerald-800' }
+                    : { card: 'border-red-200 bg-red-50', title: 'text-red-800' };
+                hasilEl.innerHTML = `<div class="rounded-xl border p-4 text-sm ${resultStyle.card}">
+                    <p class="font-semibold ${resultStyle.title}">Test case ${data.is_passed ? 'lolos' : 'belum lolos'}</p>
+                    <p class="mt-2 whitespace-pre-wrap font-mono text-xs text-slate-700">Input: ${esc(data.input)}\nDiharapkan: ${esc(data.expected)}\nKeluaran: ${esc(data.actual)}</p>
+                    ${data.error ? `<p class="mt-2 whitespace-pre-wrap font-mono text-xs text-red-700">${esc(data.error)}</p>` : ''}
+                    <p class="mt-2 text-xs text-slate-500">${data.passed_tests}/${data.total_tests} test case terlihat lolos.</p>
+                </div>`;
+            } catch (e) {
+                hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Gagal terhubung ke server.</p>';
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Uji test case ini';
+                renderTestCaseProgress();
+            }
         }
 
         function tampilkanHasil(data, isSubmit) {
@@ -151,21 +293,72 @@
             }
         }
 
+        function tampilkanHasilEksekusi(data, stdin) {
+            const status = data.status?.description || 'Status tidak diketahui';
+            const berhasil = Number(data.status?.id) === 3;
+            const keluaran = data.stdout || '';
+            const error = [data.compile_output, data.stderr, data.message].filter(Boolean).join('\n');
+
+            hasilEl.innerHTML = `<div class="flex items-center justify-between">
+                    <h2 class="text-sm font-bold text-slate-800">Hasil Eksekusi</h2>
+                    <span class="rounded-lg px-2.5 py-1 text-xs font-bold ${berhasil ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}">${esc(status)}</span>
+                </div>
+            <p class="mt-2 text-xs text-slate-500">Input manual: <span class="font-mono text-slate-700">${esc(stdin || '(kosong)')}</span>. Hasil ini terpisah dari test case acuan.</p>
+            <p class="mt-1 text-xs text-slate-500">Waktu: ${esc(data.time ?? '-')}s</p>
+                <div class="mt-4">
+                    <p class="mb-1 text-xs font-semibold text-slate-500">stdout</p>
+                    <pre class="overflow-x-auto whitespace-pre-wrap rounded-xl bg-slate-900 p-3 font-mono text-sm text-slate-100">${esc(keluaran || '(tidak ada output)')}</pre>
+                </div>
+                ${error ? `<div class="mt-3"><p class="mb-1 text-xs font-semibold text-red-600">stderr / error</p><pre class="overflow-x-auto whitespace-pre-wrap rounded-xl bg-red-50 p-3 font-mono text-sm text-red-800">${esc(error)}</pre></div>` : ''}`;
+            if (materiEl) materiEl.classList.add('hidden');
+        }
+
+        async function jalankanKode() {
+            hasilEl.innerHTML = '<p class="text-sm text-slate-500">Menjalankan kode...</p>';
+            if (materiEl) materiEl.classList.add('hidden');
+
+            if (!editor) {
+                hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Editor belum siap. Muat ulang halaman dan coba lagi.</p>';
+                return;
+            }
+
+            try {
+                const stdin = document.getElementById('custom-stdin').value;
+                const res = await fetch(RUN_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: JSON.stringify({
+                        source_code: editor.getValue(),
+                        stdin,
+                        exercise_id: EXERCISE_ID,
+                    }),
+                });
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    hasilEl.innerHTML = `<p class="text-sm text-yellow-800">${esc(data.message || 'Permintaan tidak dapat diproses.')}</p>`;
+                    return;
+                }
+
+                tampilkanHasilEksekusi(data, stdin);
+            } catch (e) {
+                hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Gagal terhubung ke server.</p>';
+            }
+        }
+
         async function kirim(url, isSubmit) {
             hasilEl.innerHTML = '<p class="text-sm text-slate-500">Memproses...</p>';
             if (materiEl) materiEl.classList.add('hidden');
 
-            if (USE_MOCK) {
-                await new Promise(r => setTimeout(r, 600));
-                return tampilkanHasil({
-                    score: 66.67, passed_tests: 2, total_tests: 3,
-                    results: [
-                        { is_hidden: false, is_passed: true,  input: '4', expected: 'Genap',  actual: 'Genap' },
-                        { is_hidden: false, is_passed: true,  input: '7', expected: 'Ganjil', actual: 'Ganjil' },
-                        { is_hidden: true,  is_passed: false },
-                    ],
-                }, isSubmit);
+            if (!editor) {
+                hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Editor belum siap. Muat ulang halaman dan coba lagi.</p>';
+                return;
             }
+
             try {
                 const res = await fetch(url, {
                     method: 'POST',
@@ -176,14 +369,27 @@
                     },
                     body: JSON.stringify({ source_code: editor.getValue(), exercise_id: EXERCISE_ID }),
                 });
-                tampilkanHasil(await res.json(), isSubmit);
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    hasilEl.innerHTML = `<p class="text-sm text-yellow-800">${esc(data.message || 'Permintaan tidak dapat diproses.')}</p>`;
+                    return;
+                }
+
+                tampilkanHasil(data, isSubmit);
             } catch (e) {
                 hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Gagal terhubung ke server.</p>';
             }
         }
 
-        document.getElementById('btn-run').addEventListener('click', () => kirim('/run', false));
-        document.getElementById('btn-submit').addEventListener('click', () => kirim('{{ route('submissions.submit') }}', true));
+        document.getElementById('btn-run').addEventListener('click', jalankanKode);
+        document.querySelectorAll('.btn-test-case').forEach((button) => {
+            button.addEventListener('click', () => jalankanTestCase(button));
+        });
+        const submitButton = document.getElementById('btn-submit');
+        if (submitButton) {
+            submitButton.addEventListener('click', () => kirim(SUBMIT_URL, true));
+        }
 
         // "Coba lagi": sembunyikan materi, reset hasil, kembali ke editor (kode tetap)
         const btnUlang = document.getElementById('btn-ulang');
