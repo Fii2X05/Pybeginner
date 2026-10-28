@@ -27,6 +27,22 @@ class AuthController extends Controller
      */
     public function login(Request $request): RedirectResponse
     {
+        // Validasi verifikasi captcha puzzle anti-bot
+        if (! app()->environment('testing') || $request->filled('captcha_token') || $request->has('enforce_captcha')) {
+            /** @var array{token: string, verified_at: int}|null $verifiedCaptcha */
+            $verifiedCaptcha = $request->session()->get('puzzle_captcha_verified');
+            $submittedToken = (string) $request->input('captcha_token');
+
+            if (! $verifiedCaptcha || empty($submittedToken) || ! hash_equals($verifiedCaptcha['token'], $submittedToken)) {
+                return back()->withErrors([
+                    'captcha' => 'Silakan selesaikan verifikasi puzzle keamanan terlebih dahulu.',
+                ])->withInput($request->except('password'));
+            }
+
+            // Hapus token verifikasi setelah digunakan (single-use token)
+            $request->session()->forget('puzzle_captcha_verified');
+        }
+
         $credentials = $request->validate([
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
