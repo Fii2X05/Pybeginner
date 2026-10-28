@@ -101,6 +101,23 @@ class AuthTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
+    public function test_admin_user_is_redirected_to_admin_dashboard_after_login(): void
+    {
+        $admin = User::factory()->create([
+            'email' => 'admin@pybeginner.com',
+            'password' => Hash::make('admin123'),
+            'role' => 'admin',
+        ]);
+
+        $response = $this->post('/login', [
+            'email' => 'admin@pybeginner.com',
+            'password' => 'admin123',
+        ]);
+
+        $response->assertRedirect(route('admin.dashboard'));
+        $this->assertAuthenticatedAs($admin);
+    }
+
     public function test_users_cannot_authenticate_with_invalid_password(): void
     {
         User::factory()->create([

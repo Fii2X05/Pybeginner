@@ -97,8 +97,8 @@ class PuzzleCaptchaController extends Controller
             ], 422);
         }
 
-        // Pemeriksaan bot dasar: durasi geser manusiawi (minimal 200 milidetik)
-        if ($validated['duration'] < 200) {
+        // Pemeriksaan bot dasar: durasi geser manusiawi (minimal 80 milidetik)
+        if ($validated['duration'] < 80) {
             $challenge['attempts']++;
             $request->session()->put('puzzle_captcha_challenge', $challenge);
 
@@ -108,10 +108,10 @@ class PuzzleCaptchaController extends Controller
             ], 422);
         }
 
-        // Toleransi selisih posisi: maksimal 6 piksel
+        // Toleransi selisih posisi: maksimal 12 piksel (nyaman bagi manusia di layar monitor & sentuh)
         $diff = abs((float) $validated['position_x'] - (float) $challenge['target_x']);
 
-        if ($diff > 6.0) {
+        if ($diff > 12.0) {
             $challenge['attempts']++;
             $request->session()->put('puzzle_captcha_challenge', $challenge);
 
@@ -121,8 +121,13 @@ class PuzzleCaptchaController extends Controller
             ], 422);
         }
 
-        // Verifikasi sukses: buat token verifikasi sekali pakai
-        $verificationToken = Str::random(48);
+        // Verifikasi sukses: buat cryptographic HMAC signed token sekali pakai
+        $payload = base64_encode(json_encode([
+            'ts' => now()->timestamp,
+            'nonce' => Str::random(16),
+        ]));
+        $signature = hash_hmac('sha256', $payload, (string) config('app.key'));
+        $verificationToken = $payload.'.'.$signature;
 
         $request->session()->put('puzzle_captcha_verified', [
             'token' => $verificationToken,

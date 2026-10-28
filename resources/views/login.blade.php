@@ -371,6 +371,7 @@
 
             try {
                 const response = await fetch('{{ route("captcha.puzzle.challenge") }}', {
+                    credentials: 'same-origin',
                     headers: { 'Accept': 'application/json' }
                 });
                 if (!response.ok) throw new Error('Gagal memuat tantangan');
@@ -555,6 +556,7 @@
             try {
                 const response = await fetch('{{ route("captcha.puzzle.verify") }}', {
                     method: 'POST',
+                    credentials: 'same-origin',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': csrfToken,
@@ -574,16 +576,21 @@
                     // Sukses verifikasi!
                     isVerified = true;
                     captchaTokenInput.value = result.verification_token;
-                    showFeedback('✓ Verifikasi Berhasil!', 'success');
+                    showFeedback('✓ Verifikasi Berhasil! Memproses...', 'success');
 
                     setTimeout(() => {
                         closeModal();
                         if (pendingAction === 'google' && btnGoogleLogin) {
                             window.location.href = btnGoogleLogin.href;
                         } else if (pendingAction === 'email' && loginForm) {
+                            if (btnLoginSubmit) {
+                                btnLoginSubmit.disabled = true;
+                                btnLoginSubmit.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Sedang masuk...';
+                                lucide.createIcons();
+                            }
                             loginForm.submit();
                         }
-                    }, 650);
+                    }, 400);
                 } else {
                     // Gagal: goyang canvas dan muat ulang tantangan
                     showFeedback(result.message || 'Posisi belum pas, coba lagi.', 'error');

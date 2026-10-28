@@ -77,7 +77,7 @@ class PuzzleCaptchaTest extends TestCase
         $response = $this->postJson('/captcha/puzzle/verify', [
             'token' => $token,
             'position_x' => 150,
-            'duration' => 80, // Terlalu cepat (< 200ms)
+            'duration' => 40, // Terlalu cepat (< 80ms)
         ]);
 
         $response->assertStatus(422);
