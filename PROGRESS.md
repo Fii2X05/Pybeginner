@@ -28,6 +28,8 @@ Fitur inti MVP sudah tersedia dan validasi otomatis yang sebelumnya gagal kini l
 - Kartu statistik dan jumlah submission tujuh hari terakhir bersumber dari data aktual, bukan angka contoh.
 - Tombol salin kode berfungsi dan menampilkan status berhasil/gagal. Teks feedback, runtime, XP, serta label versi yang sebelumnya statis atau tidak sesuai data dihapus/diganti.
 - Tautan `#` pada navigasi/footer modul diganti dengan route yang tersedia; fitur OOP yang belum ada ditandai sebagai belum tersedia.
+- Semua tombol keluar akun pada navbar, profil, dan panel admin meminta konfirmasi modal sebelum mengakhiri sesi; pilihan batal mempertahankan sesi.
+- Modal keluar dipusatkan di viewport. Login Google meminta pemilihan akun, sementara cookie login persisten bersifat opt-in dan berakhir saat pengguna keluar.
 - Akun E2E learner diselaraskan dengan akun demo yang dibuat seeder.
 
 ### P3 — Setup dan data demo
@@ -38,7 +40,7 @@ Fitur inti MVP sudah tersedia dan validasi otomatis yang sebelumnya gagal kini l
 
 ## Validasi
 
-- `php artisan test --compact`: **127 tes; 126 lulus, 1 dilewati**. Tes yang dilewati adalah integrasi Judge0 live dan memang opt-in.
+- `php artisan test --compact`: **130 tes; 129 lulus, 1 dilewati**. Tes yang dilewati adalah integrasi Judge0 live dan memang opt-in.
 - Tes live khusus Laravel → Judge0: **1 lulus, 13 assertion**; mencakup test case, submission, progres, dan riwayat.
 - `npm run build`: berhasil. Ada peringatan opsional bahwa `fontaine` belum terpasang; build tidak terpengaruh.
 - `git diff --check`: tidak menemukan whitespace error.

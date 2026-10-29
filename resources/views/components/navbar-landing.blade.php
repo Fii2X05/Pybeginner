@@ -45,7 +45,7 @@
                     @endif
                 </a>
 
-                <form method="POST" action="{{ route('logout') }}" class="hidden sm:inline">
+                <form method="POST" action="{{ route('logout') }}" class="hidden sm:inline" data-confirm-logout>
                     @csrf
                     <button type="submit" title="Keluar"
                             class="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-600">
@@ -89,7 +89,7 @@
                     <div class="px-4 py-2 text-xs font-semibold text-slate-500">
                         Masuk sebagai <span class="font-bold text-slate-800">{{ auth()->user()->name }}</span>
                     </div>
-                    <form method="POST" action="{{ route('logout') }}">
+                    <form method="POST" action="{{ route('logout') }}" data-confirm-logout>
                         @csrf
                         <button type="submit"
                                 class="w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-red-600 transition hover:bg-red-50">

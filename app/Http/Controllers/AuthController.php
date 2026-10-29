@@ -140,7 +140,7 @@ class AuthController extends Controller
     /**
      * Redirect the user to the Google authentication page.
      */
-    public function redirectToGoogle(): RedirectResponse
+    public function redirectToGoogle(Request $request): RedirectResponse
     {
         if (blank(config('services.google.client_id')) || blank(config('services.google.client_secret'))) {
             return redirect()->route('login')->withErrors([
@@ -148,7 +148,12 @@ class AuthController extends Controller
             ]);
         }
 
-        return Socialite::driver('google')->stateless()->redirect();
+        $request->session()->put('remember_login', $request->boolean('remember'));
+
+        return Socialite::driver('google')
+            ->stateless()
+            ->with(['prompt' => 'select_account'])
+            ->redirect();
     }
 
     /**
@@ -180,7 +185,7 @@ class AuthController extends Controller
             }
 
             $user->forceFill(['last_login_at' => now()])->save();
-            Auth::login($user, true);
+            Auth::login($user, $request->session()->pull('remember_login', false));
 
             $request->session()->regenerate();
 

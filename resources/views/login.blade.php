@@ -166,9 +166,12 @@
                 </div>
 
                 {{-- Remember me --}}
-                <div class="flex items-center gap-2">
-                    <input id="remember" type="checkbox" name="remember" class="w-3.5 h-3.5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-400">
-                    <label for="remember" class="text-xs text-gray-600">Ingat saya</label>
+                <div class="flex items-start gap-2">
+                    <input id="remember" type="checkbox" name="remember" @checked(old('remember')) class="mt-0.5 w-3.5 h-3.5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-400">
+                    <div>
+                        <label for="remember" class="text-xs text-gray-600">Ingat saya di perangkat ini</label>
+                        <p class="text-[11px] text-gray-500">Tetap masuk sampai kamu keluar dari akun.</p>
+                    </div>
                 </div>
 
                 {{-- Captcha Error from Server --}}
@@ -581,7 +584,9 @@
                     setTimeout(() => {
                         closeModal();
                         if (pendingAction === 'google' && btnGoogleLogin) {
-                            window.location.href = btnGoogleLogin.href;
+                            const googleLoginUrl = new URL(btnGoogleLogin.href);
+                            googleLoginUrl.searchParams.set('remember', document.getElementById('remember').checked ? '1' : '0');
+                            window.location.href = googleLoginUrl.toString();
                         } else if (pendingAction === 'email' && loginForm) {
                             if (btnLoginSubmit) {
                                 btnLoginSubmit.disabled = true;

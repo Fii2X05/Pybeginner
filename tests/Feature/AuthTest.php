@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\GoogleProvider;
@@ -23,6 +25,8 @@ class AuthTest extends TestCase
         $response->assertSee('Selamat Datang Kembali');
         $response->assertSee('Masuk dengan Google');
         $response->assertSee('Belum memiliki akun?');
+        $response->assertSee('Ingat saya di perangkat ini');
+        $response->assertDontSee('name="remember" checked', false);
     }
 
     public function test_registration_screen_can_be_rendered(): void
@@ -101,6 +105,33 @@ class AuthTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
+    public function test_remember_me_keeps_users_signed_in_until_they_log_out(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'remember@example.com',
+            'password' => Hash::make('password123'),
+        ]);
+
+        $loginResponse = $this->post('/login', [
+            'email' => 'remember@example.com',
+            'password' => 'password123',
+            'remember' => 'on',
+        ]);
+
+        $loginResponse->assertRedirect(route('beranda'));
+        $recallerName = Auth::guard()->getRecallerName();
+        $loginResponse->assertCookieNotExpired($recallerName);
+        $this->assertAuthenticatedAs($user);
+
+        $logoutResponse = $this
+            ->withCookie($recallerName, $loginResponse->getCookie($recallerName)->getValue())
+            ->post('/logout');
+
+        $logoutResponse->assertRedirect(route('beranda'));
+        $logoutResponse->assertCookieExpired($recallerName);
+        $this->assertGuest();
+    }
+
     public function test_admin_user_is_redirected_to_admin_dashboard_after_login(): void
     {
         $admin = User::factory()->create([
@@ -144,6 +175,32 @@ class AuthTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_logout_confirmation_is_available_on_learner_and_admin_pages(): void
+    {
+        $learner = User::factory()->create(['role' => 'learner']);
+
+        $this->actingAs($learner)
+            ->get(route('beranda'))
+            ->assertOk()
+            ->assertSee('id="logout-confirmation"', false)
+            ->assertSee('data-confirm-logout', false)
+            ->assertSee('Keluar dari akun?');
+
+        $this->get(route('profile'))
+            ->assertOk()
+            ->assertSee('id="logout-confirmation"', false)
+            ->assertSee('data-confirm-logout', false);
+
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSee('id="logout-confirmation"', false)
+            ->assertSee('data-confirm-logout', false)
+            ->assertSee('Ya, Keluar');
+    }
+
     public function test_google_redirect_warns_when_not_configured(): void
     {
         config(['services.google.client_id' => '']);
@@ -153,6 +210,26 @@ class AuthTest extends TestCase
 
         $response->assertRedirect(route('login'));
         $response->assertSessionHasErrors(['google_error']);
+    }
+
+    public function test_google_redirect_requests_account_selection_and_remembers_opt_in_choice(): void
+    {
+        config(['services.google.client_id' => 'google-client-id']);
+        config(['services.google.client_secret' => 'google-client-secret']);
+
+        $provider = Mockery::mock(GoogleProvider::class);
+        $provider->shouldReceive('stateless')->once()->andReturnSelf();
+        $provider->shouldReceive('with')->once()->with(['prompt' => 'select_account'])->andReturnSelf();
+        $provider->shouldReceive('redirect')->once()->andReturn(
+            new RedirectResponse('https://accounts.google.test')
+        );
+
+        Socialite::shouldReceive('driver')->with('google')->andReturn($provider);
+
+        $response = $this->get('/auth/google?remember=1');
+
+        $response->assertRedirect('https://accounts.google.test');
+        $response->assertSessionHas('remember_login', true);
     }
 
     public function test_google_callback_creates_and_authenticates_new_user(): void
@@ -169,9 +246,10 @@ class AuthTest extends TestCase
 
         Socialite::shouldReceive('driver')->with('google')->andReturn($provider);
 
-        $response = $this->get('/auth/google/callback');
+        $response = $this->withSession(['remember_login' => true])->get('/auth/google/callback');
 
         $response->assertRedirect(route('beranda'));
+        $response->assertCookieNotExpired(Auth::guard()->getRecallerName());
         $this->assertAuthenticated();
 
         $this->assertDatabaseHas('users', [
