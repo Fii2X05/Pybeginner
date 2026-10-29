@@ -47,7 +47,7 @@
                     <li><a href="{{ route('beranda') }}" class="hover:text-emerald-600 transition-colors">Beranda</a></li>
                     <li><a href="{{ route('modul.index') }}" class="text-gray-900 border-b-2 border-gray-900 pb-1 font-semibold">Modul Belajar</a></li>
                     <li><a href="{{ route('latihan.index') }}" class="hover:text-emerald-600 transition-colors">Latihan Coding</a></li>
-                    <li><a href="#" class="hover:text-emerald-600 transition-colors">Riwayat Submission</a></li>
+                    <li><a href="{{ route('submissions.history') }}" class="hover:text-emerald-600 transition-colors">Riwayat Submission</a></li>
                 </ul>
             </div>
             <div class="flex items-center gap-5">
@@ -360,18 +360,18 @@ alamat = mahasiswa.get(<span class="string">"alamat"</span>, <span class="string
             <div>
                 <h4 class="font-semibold text-gray-900 mb-4">Kurikulum</h4>
                 <ul class="space-y-2 text-sm text-gray-600">
-                    <li><a href="#" class="hover:text-emerald-600">Python Dasar</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">Struktur Data</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">Algoritma & Logika</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">OOP Python</a></li>
+                    <li><a href="{{ route('modul.detail.01') }}" class="hover:text-emerald-600">Python Dasar</a></li>
+                    <li><a href="{{ route('modul.detail.06') }}" class="hover:text-emerald-600">Struktur Data</a></li>
+                    <li><a href="{{ route('modul.detail.03') }}" class="hover:text-emerald-600">Algoritma &amp; Logika</a></li>
+                    <li><span aria-disabled="true" class="text-slate-400" title="Belum tersedia">OOP Python (Belum tersedia)</span></li>
                 </ul>
             </div>
 
             <div>
                 <h4 class="font-semibold text-gray-900 mb-4">Fitur Belajar</h4>
                 <ul class="space-y-2 text-sm text-gray-600">
-                    <li><a href="#" class="hover:text-emerald-600">Pembelajaran Interaktif</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">Kuis & Tantangan</a></li>
+                    <li><a href="{{ route('modul.index') }}" class="hover:text-emerald-600">Pembelajaran Interaktif</a></li>
+                    <li><a href="{{ route('latihan.index') }}" class="hover:text-emerald-600">Latihan Coding</a></li>
                 </ul>
             </div>
         </div>

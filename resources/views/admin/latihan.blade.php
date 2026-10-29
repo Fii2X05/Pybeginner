@@ -137,7 +137,7 @@
                                    class="inline-flex items-center justify-center gap-1.5 rounded-lg border text-xs font-semibold transition {{ $canPublish ? 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200' : 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200' }}"
                                    style="height: 2.25rem; padding: 0 0.75rem; white-space: nowrap;">
                                     <i data-lucide="{{ $canPublish ? 'list-checks' : 'alert-triangle' }}" class="w-3.5 h-3.5"></i>
-                                    Test case ({{ $testCaseTotal }})
+                                    Test Case ({{ $testCaseTotal }})
                                 </a>
                             </td>
 
