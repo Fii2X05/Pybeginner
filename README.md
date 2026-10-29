@@ -1,58 +1,102 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# PyLearn CourseWeb
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Platform belajar Python berbahasa Indonesia dengan materi dan progres belajar, editor kode, penilaian otomatis Judge0, riwayat submission, serta panel admin.
 
-## About Laravel
+## Persyaratan
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP 8.3 atau lebih baru dan Composer
+- Node.js yang didukung Vite 8 (20.19+ atau 22.12+) dan npm
+- Docker Desktop dengan Docker Compose untuk menjalankan Judge0 secara lokal
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Menyiapkan aplikasi lokal
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Jalankan dari root repository di PowerShell:
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```powershell
+composer install
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+php artisan key:generate --no-interaction
+if (-not (Test-Path database\database.sqlite)) { New-Item -ItemType File database\database.sqlite }
+php artisan migrate --seed --no-interaction
+php artisan storage:link --no-interaction
+npm install
+npm run build
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Seeder membuat materi dan latihan demo beserta akun admin dan learner. Kredensial seed hanya untuk mesin lokal:
 
-## Contributing
+| Peran | Email | Kata sandi |
+|---|---|---|
+| Admin | `admin@pybeginner.com` | `admin123` |
+| Learner demo | `learner@pybeginner.test` | `password` |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Ganti kredensial demo sebelum aplikasi dipakai bersama atau dipublikasikan. Seeder tidak membuat ulang latihan jika tabel latihan sudah berisi data.
 
-## Code of Conduct
+## Menjalankan Judge0 lokal
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Judge0 versi 1.13.0 tersedia di `judge0-v1.13.0`. Jalankan Docker Desktop, lalu dari root repository:
 
-## Security Vulnerabilities
+```powershell
+docker compose -f judge0-v1.13.0\docker-compose.yml up -d
+Invoke-WebRequest http://127.0.0.1:2358/about
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Konfigurasi aplikasi ada di `.env`:
 
-## License
+| Variabel | Kegunaan |
+|---|---|
+| `JUDGE0_URL` | URL dasar API, default lokal `http://localhost:2358` |
+| `JUDGE0_LANGUAGE_ID` | ID bahasa Judge0; default `10` untuk Python 3.7.7 |
+| `JUDGE0_TOKEN` | Token API jika server Judge0 mengaktifkan autentikasi |
+| `JUDGE0_AUTH_HEADER` | Nama header token, default `X-Auth-Token` |
+| `JUDGE0_TIMEOUT` | Batas waktu permintaan ke Judge0 dalam detik |
+| `JUDGE0_CPU_TIME_LIMIT`, `JUDGE0_MEMORY_LIMIT` | Batas sumber daya permintaan |
+| `JUDGE0_MAX_PROCESSES_AND_OR_THREADS` | Batas proses/thread |
+| `JUDGE0_PER_PROCESS_TIME_LIMIT`, `JUDGE0_PER_PROCESS_MEMORY_LIMIT` | Aktifkan batas per proses/thread |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Jangan publikasikan token, file `.env`, atau konfigurasi berisi kata sandi. Compose Judge0 menjalankan worker dengan hak istimewa tinggi dan membuka API pada semua antarmuka host; gunakan hanya pada lingkungan demo yang dikendalikan, jangan mengekspos port `2358` ke internet, dan evaluasi ulang isolasi sebelum menjalankan kode pengguna yang tidak tepercaya.
+
+Hentikan layanan lokal setelah selesai:
+
+```powershell
+docker compose -f judge0-v1.13.0\docker-compose.yml down
+```
+
+## Menjalankan aplikasi
+
+Di terminal pertama:
+
+```powershell
+php artisan serve
+```
+
+Di terminal kedua, untuk kompilasi aset selama pengembangan:
+
+```powershell
+npm run dev
+```
+
+Buka `http://127.0.0.1:8000`. Login dan pendaftaran email tersedia secara lokal. Login Google bersifat opsional; isi `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, dan `GOOGLE_REDIRECT_URI` di `.env`, lalu daftarkan URI callback tersebut pada konfigurasi OAuth Google. Jangan memasukkan kredensial OAuth ke repository.
+
+Database default menggunakan SQLite, sesi menggunakan database, dan avatar disimpan pada disk publik Laravel. Migrasi menyiapkan tabel aplikasi dan sesi; `storage:link` membuat avatar dapat diakses melalui web.
+
+## Pemeriksaan
+
+```powershell
+php artisan test --no-interaction
+npm run build
+```
+
+Tes fitur memakai HTTP fake untuk Judge0 agar hasilnya deterministik. Untuk memverifikasi integrasi nyata, pastikan Judge0 lokal aktif dan jalankan alur login, latihan, uji kode, pengiriman jawaban, riwayat, serta progres di browser. Periksa juga respons saat Judge0 tidak tersedia dan jangan menganggap permintaan grading yang diproses berarti skor 100.
+
+Tes integrasi opsional berikut mengirim satu program Python aman ke Judge0 lokal melalui endpoint grading aplikasi:
+
+```powershell
+$env:RUN_JUDGE0_INTEGRATION_TESTS = '1'
+php artisan test --compact tests/Feature/SubmissionGradingTest.php --filter=test_live_judge0_grades_a_python_submission
+Remove-Item Env:RUN_JUDGE0_INTEGRATION_TESTS
+```
+
+## Catatan deployment
+
+Jangan gunakan akun seed atau `APP_DEBUG=true` di deployment. Atur `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL` HTTPS, kunci aplikasi dan kredensial layanan yang unik, database dan penyimpanan yang sesuai, serta pengamanan akses ke Judge0. Jangan mengekspos API Judge0 secara langsung kepada klien.

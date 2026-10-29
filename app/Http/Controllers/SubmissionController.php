@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Exercise;
+use App\Models\Module;
 use App\Models\Submission;
 use App\Models\TestCase;
 use App\Models\TestCaseProgress;
@@ -11,28 +12,71 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 use Throwable;
 
 class SubmissionController extends Controller
 {
     public function __construct(private Judge0Service $judge0) {}
 
-    public function history(Request $request)
+    public function history(Request $request): View
     {
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'status' => ['nullable', Rule::in(['perfect', 'improvement'])],
+            'module_id' => ['nullable', 'integer'],
+        ]);
         $userSubmissions = Submission::where('user_id', Auth::id());
         $totalSubmissions = (clone $userSubmissions)->count();
         $perfectScores = (clone $userSubmissions)->where('score', 100)->count();
         $needsImprovement = (clone $userSubmissions)->where('score', '<', 100)->count();
         $averageScore = round((float) ((clone $userSubmissions)->avg('score') ?? 0), 1);
+        $submissionsThisWeek = (clone $userSubmissions)
+            ->where('submitted_at', '>=', now()->subDays(7))
+            ->count();
 
-        $submissions = (clone $userSubmissions)
+        $filteredSubmissions = (clone $userSubmissions);
+
+        if (filled($filters['search'] ?? null)) {
+            $search = trim($filters['search']);
+            $filteredSubmissions->where(function ($query) use ($search): void {
+                if (ctype_digit($search)) {
+                    $query->where('id', (int) $search);
+                }
+
+                $query->orWhereHas('exercise', function ($exerciseQuery) use ($search): void {
+                    $exerciseQuery
+                        ->where('title', 'like', '%'.$search.'%')
+                        ->orWhere('slug', 'like', '%'.$search.'%');
+                });
+            });
+        }
+
+        if (($filters['status'] ?? null) === 'perfect') {
+            $filteredSubmissions->where('score', 100);
+        } elseif (($filters['status'] ?? null) === 'improvement') {
+            $filteredSubmissions->whereNotNull('score')->where('score', '<', 100);
+        }
+
+        if (filled($filters['module_id'] ?? null)) {
+            $filteredSubmissions->whereHas('exercise.lesson', fn ($query) => $query
+                ->where('module_id', $filters['module_id']));
+        }
+
+        $submissions = $filteredSubmissions
             ->with(['exercise.lesson.module', 'results.testCase'])
             ->latest('submitted_at')
             ->paginate(5)
             ->withQueryString();
 
+        $modules = Module::query()
+            ->whereHas('lessons.exercises.submissions', fn ($query) => $query->where('user_id', Auth::id()))
+            ->orderBy('sort_order')
+            ->get(['id', 'title']);
+
         $selectedSubmissionId = (int) $request->query('selected', $submissions->first()?->id);
-        $selectedSubmission = (clone $userSubmissions)
+        $selectedSubmission = (clone $filteredSubmissions)
             ->with(['exercise.lesson.module', 'results.testCase'])
             ->find($selectedSubmissionId) ?? $submissions->first();
 
@@ -42,6 +86,9 @@ class SubmissionController extends Controller
             'perfectScores',
             'needsImprovement',
             'averageScore',
+            'submissionsThisWeek',
+            'modules',
+            'filters',
             'selectedSubmission'
         ));
     }
@@ -138,11 +185,7 @@ class SubmissionController extends Controller
 
         $isPassed = (int) $execution['status']['id'] === 3;
         $output = (string) ($execution['stdout'] ?? '');
-        $error = trim(implode("\n", array_filter([
-            $execution['stderr'] ?? null,
-            $execution['compile_output'] ?? null,
-            $execution['message'] ?? null,
-        ])));
+        $error = $this->executionError($execution);
         $codeHash = hash('sha256', $data['source_code']);
 
         TestCaseProgress::updateOrCreate(
@@ -313,11 +356,7 @@ class SubmissionController extends Controller
             $weight = max(0, (int) $testCase->weight);
             $timeMs = (int) round(((float) ($execution['time'] ?? 0)) * 1000);
             $output = (string) ($execution['stdout'] ?? '');
-            $error = trim(implode("\n", array_filter([
-                $execution['stderr'] ?? null,
-                $execution['compile_output'] ?? null,
-                $execution['message'] ?? null,
-            ])));
+            $error = $this->executionError($execution);
 
             $passedCount += $isPassed ? 1 : 0;
             $passedWeight += $isPassed ? $weight : 0;
@@ -354,5 +393,27 @@ class SubmissionController extends Controller
             'results' => $results,
             'stored_results' => $storedResults,
         ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $execution
+     */
+    private function executionError(array $execution): ?string
+    {
+        $details = trim(implode("\n", array_filter([
+            $execution['stderr'] ?? null,
+            $execution['compile_output'] ?? null,
+            $execution['message'] ?? null,
+        ])));
+
+        if ($details !== '') {
+            return $details;
+        }
+
+        if ((int) $execution['status']['id'] === 3) {
+            return null;
+        }
+
+        return (string) ($execution['status']['description'] ?? 'Eksekusi gagal.');
     }
 }

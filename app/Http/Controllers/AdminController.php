@@ -10,6 +10,7 @@ use App\Models\Submission;
 use App\Models\TestCase;
 use App\Models\User;
 use App\Services\Judge0Service;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -387,7 +388,9 @@ class AdminController extends Controller
 
         // Minta terbit tapi belum punya test case terlihat: simpan perubahan sebagai draft,
         // lalu arahkan ke halaman test case supaya admin melengkapinya dulu.
-        $publish = $request->boolean('is_published');
+        $publish = $request->has('is_published')
+            ? $request->boolean('is_published')
+            : $exercise->is_published;
         $needsTestCase = $publish && ! $this->canPublishExercise($exercise);
 
         if ($needsTestCase) {
@@ -416,7 +419,7 @@ class AdminController extends Controller
         if ($needsTestCase) {
             return redirect()
                 ->route('admin.latihan.test-cases', $exercise)
-                ->with('status', "Perubahan disimpan sebagai draft. Soal belum bisa diterbitkan: tambahkan minimal satu test case yang terlihat siswa dulu, lalu klik Terbitkan Soal.");
+                ->with('status', 'Perubahan disimpan sebagai draft. Soal belum bisa diterbitkan: tambahkan minimal satu test case yang terlihat siswa dulu, lalu klik Terbitkan Soal.');
         }
 
         return redirect()
@@ -790,7 +793,7 @@ class AdminController extends Controller
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Collection<int, Lesson>
+     * @return Collection<int, Lesson>
      */
     private function lessonOptions()
     {
