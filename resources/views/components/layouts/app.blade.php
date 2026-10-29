@@ -31,6 +31,7 @@
     @endif
 
     <x-footer />
+    <x-logout-confirmation />
 
     @stack('scripts')
     <script>

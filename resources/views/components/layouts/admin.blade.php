@@ -95,7 +95,7 @@
                         </div>
                     </div>
 
-                    <form method="POST" action="{{ route('logout') }}" class="mt-3">
+                    <form method="POST" action="{{ route('logout') }}" class="mt-3" data-confirm-logout>
                         @csrf
                         <button type="submit" 
                                 class="w-full bg-white hover:bg-red-50 text-red-500 hover:text-red-600 border border-red-100 text-xs font-semibold py-2 px-3 rounded-xl flex items-center justify-center gap-2 transition shadow-xs">
@@ -162,6 +162,8 @@
             </main>
         </div>
     </div>
+
+    <x-logout-confirmation />
 
     @stack('scripts')
     <script>

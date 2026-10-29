@@ -169,7 +169,7 @@
                 <h3 class="text-lg font-bold text-red-600">Sesi Akun Pengguna</h3>
                 <p class="mt-0.5 text-xs text-gray-500">Keluar dari perangkat Anda atau hentikan menggunakan kerangka bersama.</p>
             </div>
-            <form method="POST" action="{{ route('logout') }}">
+            <form method="POST" action="{{ route('logout') }}" data-confirm-logout>
                 @csrf
                 <button type="submit"
                         class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-5 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100 active:scale-[.97]">
