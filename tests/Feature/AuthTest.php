@@ -3,8 +3,11 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
@@ -217,19 +220,14 @@ class AuthTest extends TestCase
         config(['services.google.client_id' => 'google-client-id']);
         config(['services.google.client_secret' => 'google-client-secret']);
 
-        $provider = Mockery::mock(GoogleProvider::class);
-        $provider->shouldReceive('stateless')->once()->andReturnSelf();
-        $provider->shouldReceive('with')->once()->with(['prompt' => 'select_account'])->andReturnSelf();
-        $provider->shouldReceive('redirect')->once()->andReturn(
-            new RedirectResponse('https://accounts.google.test')
-        );
-
-        Socialite::shouldReceive('driver')->with('google')->andReturn($provider);
-
         $response = $this->get('/auth/google?remember=1');
 
-        $response->assertRedirect('https://accounts.google.test');
+        $response->assertRedirect();
         $response->assertSessionHas('remember_login', true);
+        $redirectQuery = [];
+        parse_str((string) parse_url($response->headers->get('Location'), PHP_URL_QUERY), $redirectQuery);
+        $response->assertSessionHas('state', $redirectQuery['state']);
+        $this->assertSame('select_account', $redirectQuery['prompt']);
     }
 
     public function test_google_callback_creates_and_authenticates_new_user(): void
@@ -241,12 +239,14 @@ class AuthTest extends TestCase
         $socialiteUser->shouldReceive('getAvatar')->andReturn('https://lh3.googleusercontent.com/avatar.jpg');
 
         $provider = Mockery::mock(GoogleProvider::class);
-        $provider->shouldReceive('stateless')->andReturnSelf();
         $provider->shouldReceive('user')->andReturn($socialiteUser);
 
         Socialite::shouldReceive('driver')->with('google')->andReturn($provider);
 
-        $response = $this->withSession(['remember_login' => true])->get('/auth/google/callback');
+        $response = $this->withSession([
+            'remember_login' => true,
+            'state' => 'valid-oauth-state',
+        ])->get('/auth/google/callback?state=valid-oauth-state');
 
         $response->assertRedirect(route('beranda'));
         $response->assertCookieNotExpired(Auth::guard()->getRecallerName());
@@ -257,5 +257,52 @@ class AuthTest extends TestCase
             'google_id' => 'google-unique-id-123',
             'name' => 'Google User',
         ]);
+    }
+
+    public function test_google_callback_rejects_a_mismatched_oauth_state(): void
+    {
+        config([
+            'services.google.client_id' => 'google-client-id',
+            'services.google.client_secret' => 'google-client-secret',
+        ]);
+
+        $mockResponses = [
+            new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'access_token' => 'google-access-token',
+                'expires_in' => 3600,
+                'token_type' => 'Bearer',
+                'scope' => 'openid email profile',
+            ], JSON_THROW_ON_ERROR)),
+            new Response(200, ['Content-Type' => 'application/json'], json_encode([
+                'sub' => 'attacker-google-id',
+                'email' => 'attacker@example.com',
+                'name' => 'Attacker',
+                'email_verified' => true,
+            ], JSON_THROW_ON_ERROR)),
+        ];
+
+        Socialite::shouldReceive('driver')
+            ->with('google')
+            ->andReturnUsing(function () use ($mockResponses): GoogleProvider {
+                $provider = new GoogleProvider(
+                    request(),
+                    'google-client-id',
+                    'google-client-secret',
+                    route('auth.google.callback')
+                );
+                $provider->setHttpClient(new Client([
+                    'handler' => HandlerStack::create(new MockHandler($mockResponses)),
+                ]));
+
+                return $provider;
+            });
+
+        $response = $this->withSession(['state' => 'expected-oauth-state'])
+            ->get('/auth/google/callback?state=attacker-oauth-state&code=authorization-code');
+
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHasErrors(['google_error']);
+        $this->assertGuest();
+        $this->assertDatabaseMissing('users', ['email' => 'attacker@example.com']);
     }
 }
