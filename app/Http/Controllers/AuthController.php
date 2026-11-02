@@ -151,7 +151,6 @@ class AuthController extends Controller
         $request->session()->put('remember_login', $request->boolean('remember'));
 
         return Socialite::driver('google')
-            ->stateless()
             ->with(['prompt' => 'select_account'])
             ->redirect();
     }
@@ -162,7 +161,7 @@ class AuthController extends Controller
     public function handleGoogleCallback(Request $request): RedirectResponse
     {
         try {
-            $googleUser = Socialite::driver('google')->stateless()->user();
+            $googleUser = Socialite::driver('google')->user();
 
             $user = User::where('google_id', $googleUser->getId())
                 ->orWhere('email', $googleUser->getEmail())
