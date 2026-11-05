@@ -40,15 +40,17 @@ class SubmissionController extends Controller
 
         if (filled($filters['search'] ?? null)) {
             $search = trim($filters['search']);
-            $filteredSubmissions->where(function ($query) use ($search): void {
-                if (ctype_digit($search)) {
-                    $query->where('id', (int) $search);
+            $normalizedSearch = mb_strtolower($search);
+            preg_match('/^(?:#?SUB-)?(\d+)$/i', $search, $submissionNumber);
+            $filteredSubmissions->where(function ($query) use ($normalizedSearch, $submissionNumber): void {
+                if (isset($submissionNumber[1])) {
+                    $query->where('id', (int) $submissionNumber[1]);
                 }
 
-                $query->orWhereHas('exercise', function ($exerciseQuery) use ($search): void {
+                $query->orWhereHas('exercise', function ($exerciseQuery) use ($normalizedSearch): void {
                     $exerciseQuery
-                        ->where('title', 'like', '%'.$search.'%')
-                        ->orWhere('slug', 'like', '%'.$search.'%');
+                        ->whereRaw('LOWER(title) LIKE ?', ['%'.$normalizedSearch.'%'])
+                        ->orWhereRaw('LOWER(slug) LIKE ?', ['%'.$normalizedSearch.'%']);
                 });
             });
         }

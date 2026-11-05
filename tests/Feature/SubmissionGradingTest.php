@@ -752,6 +752,7 @@ class SubmissionGradingTest extends TestCase
                 'is_hidden' => false,
             ],
         ]);
+        DB::table('exercises')->where('id', $exerciseId)->update(['title' => 'Cetak Salam']);
         $user = User::factory()->create();
         $now = now();
         $passedSubmissionId = DB::table('submissions')->insertGetId([
@@ -787,7 +788,7 @@ class SubmissionGradingTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('submissions.history', [
-                'search' => $failedSubmissionId,
+                'search' => "#SUB-{$failedSubmissionId}",
                 'status' => 'improvement',
                 'module_id' => $moduleId,
             ]))
@@ -795,7 +796,38 @@ class SubmissionGradingTest extends TestCase
             ->assertSee("#SUB-{$failedSubmissionId}")
             ->assertDontSee("#SUB-{$passedSubmissionId}")
             ->assertSee('1–1 dari 1')
-            ->assertSee('needs-improvement-solution');
+            ->assertSee('needs-improvement-solution')
+            ->assertSee(route('submissions.history', [
+                'search' => "#SUB-{$failedSubmissionId}",
+                'status' => 'improvement',
+                'module_id' => $moduleId,
+                'selected' => $failedSubmissionId,
+                'page' => 1,
+            ]));
+
+        $this->get(route('submissions.history', [
+            'search' => 'cetak salam',
+        ]))
+            ->assertOk()
+            ->assertSee('1–2 dari 2')
+            ->assertSee("#SUB-{$failedSubmissionId}")
+            ->assertSee("#SUB-{$passedSubmissionId}");
+
+        $this->get(route('submissions.history', [
+            'search' => "SUB-{$failedSubmissionId}",
+        ]))
+            ->assertOk()
+            ->assertSee('1–1 dari 1')
+            ->assertSee("#SUB-{$failedSubmissionId}")
+            ->assertDontSee("#SUB-{$passedSubmissionId}");
+
+        $this->get(route('submissions.history', [
+            'search' => $failedSubmissionId,
+        ]))
+            ->assertOk()
+            ->assertSee('1–1 dari 1')
+            ->assertSee("#SUB-{$failedSubmissionId}")
+            ->assertDontSee("#SUB-{$passedSubmissionId}");
     }
 
     /**

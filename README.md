@@ -82,6 +82,9 @@ Database default menggunakan SQLite, sesi menggunakan database, dan avatar disim
 
 ## Pemeriksaan
 
+Lihat [TESTING.md](./TESTING.md) untuk cara menjalankan test PHPUnit, memilih
+suite atau test tertentu, serta menjalankan integrasi Judge0 opsional.
+
 ```powershell
 php artisan test --no-interaction
 npm run build
