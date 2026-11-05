@@ -62,6 +62,7 @@
 
                 @php
                     $baseFilters = request()->except(['status', 'page']);
+                    $submissionFilters = array_filter($filters, fn ($value) => filled($value));
                     $allFilterUrl = route('submissions.history', $baseFilters);
                     $perfectFilterUrl = route('submissions.history', array_merge($baseFilters, ['status' => 'perfect']));
                     $improvementFilterUrl = route('submissions.history', array_merge($baseFilters, ['status' => 'improvement']));
@@ -164,7 +165,7 @@
                     <div class="space-y-4 flex-grow">
                         @forelse($submissions as $sub)
                             @php $isActive = $selectedSubmission && $selectedSubmission->id === $sub->id; @endphp
-                            <a href="{{ route('submissions.history', ['selected' => $sub->id, 'page' => $submissions->currentPage()]) }}" 
+                            <a href="{{ route('submissions.history', array_merge($submissionFilters, ['selected' => $sub->id, 'page' => $submissions->currentPage()])) }}"
                                class="block group relative overflow-hidden bg-white rounded-3xl p-6 shadow-sm ring-1 transition duration-200 hover:-translate-y-1 hover:shadow-md hover:ring-emerald-300 z-10 {{ $isActive ? 'ring-emerald-400 shadow-md bg-emerald-50/20' : 'ring-emerald-100' }}">
                                 
                                 <!-- Hover Blob untuk item list -->
