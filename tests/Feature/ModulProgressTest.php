@@ -28,7 +28,7 @@ class ModulProgressTest extends TestCase
 
     public function test_authenticated_user_initial_status_is_belum_mulai(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'learner']);
 
         $response = $this->actingAs($user)->get(route('modul.index'));
 
@@ -53,7 +53,8 @@ class ModulProgressTest extends TestCase
 
     public function test_toggling_complete_marks_module_as_selesai_and_allows_toggling_back(): void
     {
-        $user = User::factory()->create();
+        $admin = User::factory()->create(['role' => 'admin']);
+        $user = User::factory()->create(['role' => 'learner']);
 
         // 1. Visit detail to initiate
         $this->actingAs($user)->get(route('modul.detail.01'));
@@ -61,6 +62,7 @@ class ModulProgressTest extends TestCase
         // 2. Toggle complete
         $postResponse = $this->actingAs($user)->post(route('modul.toggle-complete', ['nomor' => 1]));
         $postResponse->assertRedirect();
+        $this->assertSame('module_completed', $admin->notifications()->first()->data['type']);
 
         // 3. Check index shows 'Tinjau Ulang' and 'Selesai'
         $indexResponse = $this->actingAs($user)->get(route('modul.index'));

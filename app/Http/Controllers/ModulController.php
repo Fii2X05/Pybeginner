@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\LessonProgress;
 use App\Models\Module;
+use App\Services\AdminNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -193,7 +194,7 @@ class ModulController extends Controller
     /**
      * Tandai modul selesai atau kembali ke sedang berjalan.
      */
-    public function toggleComplete(int $no): RedirectResponse
+    public function toggleComplete(int $no, AdminNotificationService $notifications): RedirectResponse
     {
         $meta = $this->getModuleMeta($no);
         abort_unless($meta, 404);
@@ -224,6 +225,14 @@ class ModulController extends Controller
                 LessonProgress::updateOrCreate(
                     ['user_id' => auth()->id(), 'lesson_id' => $lesson->id],
                     ['status' => 'completed', 'completed_at' => now(), 'last_accessed_at' => now()]
+                );
+            }
+            if ($lessons->isNotEmpty() && auth()->user()->role === 'learner') {
+                $notifications->notifyAdmins(
+                    'module_completed',
+                    'Siswa menyelesaikan modul',
+                    auth()->user()->name.' telah menyelesaikan modul '.$module->title.'.',
+                    route('admin.siswa.show', auth()->user()),
                 );
             }
             $msg = "Selamat! Modul {$no} berhasil diselesaikan.";
@@ -279,12 +288,37 @@ class ModulController extends Controller
     /**
      * Tandai materi selesai (butuh login).
      */
-    public function complete(Course $course, Module $module, Lesson $lesson): RedirectResponse
+    public function complete(Course $course, Module $module, Lesson $lesson, AdminNotificationService $notifications): RedirectResponse
     {
+        $wasCompleted = LessonProgress::where('user_id', auth()->id())
+            ->where('lesson_id', $lesson->id)
+            ->where('status', 'completed')
+            ->exists();
+
         LessonProgress::updateOrCreate(
             ['user_id' => auth()->id(), 'lesson_id' => $lesson->id],
             ['status' => 'completed', 'completed_at' => now(), 'last_accessed_at' => now()]
         );
+
+        $publishedLessonIds = $module->lessons()->where('is_published', true)->pluck('id');
+        $completedLessonCount = LessonProgress::where('user_id', auth()->id())
+            ->whereIn('lesson_id', $publishedLessonIds)
+            ->where('status', 'completed')
+            ->count();
+
+        if (
+            auth()->user()->role === 'learner'
+            && ! $wasCompleted
+            && $publishedLessonIds->isNotEmpty()
+            && $completedLessonCount === $publishedLessonIds->count()
+        ) {
+            $notifications->notifyAdmins(
+                'module_completed',
+                'Siswa menyelesaikan modul',
+                auth()->user()->name.' telah menyelesaikan modul '.$module->title.'.',
+                route('admin.siswa.show', auth()->user()),
+            );
+        }
 
         $next = $module->lessons()
             ->where('is_published', true)

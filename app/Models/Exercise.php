@@ -14,6 +14,13 @@ class Exercise extends Model
         'sort_order', 'is_published',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'is_published' => 'boolean',
+        ];
+    }
+
     // Semua test case aktif soal ini
     public function lesson(): BelongsTo
     {
@@ -31,5 +38,15 @@ class Exercise extends Model
     public function publicTestCases()
     {
         return $this->testCases()->where('is_hidden', false);
+    }
+
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(Submission::class);
+    }
+
+    public function testCaseProgress(): HasMany
+    {
+        return $this->hasMany(TestCaseProgress::class);
     }
 }

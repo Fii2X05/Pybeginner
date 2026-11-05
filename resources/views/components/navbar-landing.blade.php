@@ -30,9 +30,9 @@
             @auth
                 <span class="hidden text-sm font-semibold text-slate-800 sm:inline">{{ auth()->user()->name }}</span>
 
-                <a href="{{ route('profile') }}" title="Profil" class="shrink-0">
-                    @if (auth()->user()->avatar)
-                        <img src="{{ auth()->user()->avatar }}" alt="{{ auth()->user()->name }}"
+                <a href="{{ auth()->user()->role === 'admin' ? route('admin.dashboard') : route('profile') }}" title="{{ auth()->user()->role === 'admin' ? 'Dashboard Admin' : 'Profil' }}" class="shrink-0">
+                    @if (auth()->user()->avatar_url)
+                        <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}"
                              class="h-10 w-10 rounded-full object-cover ring-2 ring-emerald-500 hover:ring-4 transition">
                     @else
                         <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600 text-white font-bold text-sm shadow-sm hover:bg-emerald-500 transition">
@@ -41,13 +41,10 @@
                     @endif
                 </a>
 
-                <form method="POST" action="{{ route('logout') }}" class="hidden sm:inline">
-                    @csrf
-                    <button type="submit" title="Keluar"
+                <button type="button" title="Keluar" onclick="document.getElementById('logout-confirmation-modal').showModal()"
                             class="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-600">
-                        Keluar
-                    </button>
-                </form>
+                    Keluar
+                </button>
             @else
                 <a href="{{ route('login') }}"
                    class="hidden text-base font-medium text-slate-700 transition hover:text-emerald-700 sm:inline">Masuk</a>
@@ -85,13 +82,10 @@
                     <div class="px-4 py-2 text-xs font-semibold text-slate-500">
                         Masuk sebagai <span class="font-bold text-slate-800">{{ auth()->user()->name }}</span>
                     </div>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit"
+                    <button type="button" onclick="document.getElementById('logout-confirmation-modal').showModal()"
                                 class="w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-red-600 transition hover:bg-red-50">
-                            Keluar dari Akun
-                        </button>
-                    </form>
+                        Keluar dari Akun
+                    </button>
                 </div>
             @else
                 <a href="{{ route('login') }}"
@@ -102,6 +96,7 @@
         </div>
     </div>
 </header>
+<x-logout-confirmation />
 
 @push('scripts')
 <script>
