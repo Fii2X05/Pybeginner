@@ -1,10 +1,10 @@
-<x-layouts.app title="Riwayat Submission" active="riwayat">
+<x-layouts.app title="Riwayat Submission" active="riwayat" :flush="true">
 
     {{-- ===================== HEADER SECTION ===================== --}}
     <section class="relative overflow-hidden bg-gradient-to-b from-white via-emerald-50/70 to-emerald-50">
         <div class="hidden lg:block absolute top-0 right-0 w-96 h-96 bg-yellow-100/50 rounded-full blur-3xl z-0"></div>
 
-        <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 py-10">
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-8 sm:py-10">
             <div class="flex items-center gap-3 mb-4 text-xs font-semibold">
                 <span class="inline-flex items-center gap-1.5 bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
                     <span class="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
@@ -12,15 +12,15 @@
                 </span>
             </div>
 
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                <div class="flex items-center gap-4">
-                    <img src="{{ asset('images/mascot-python.png') }}" alt="Mascot" class="w-16 h-16 object-contain object-top drop-shadow-sm transition duration-300 hover:-rotate-6 hover:scale-105">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <img src="{{ asset('images/mascot-python.png') }}" alt="Mascot" class="w-12 h-12 sm:w-16 sm:h-16 object-contain object-top drop-shadow-sm transition duration-300 hover:-rotate-6 hover:scale-105">
                     <div>
-                        <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900">Riwayat Submission</h1>
-                        <p class="text-gray-600 mt-2 max-w-2xl">Pantau progres pengiriman kode, hasil evaluasi test case, dan umpan balik langsung.</p>
+                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900">Riwayat Submission</h1>
+                        <p class="text-gray-600 mt-1 sm:mt-2 text-xs sm:text-sm max-w-2xl">Pantau progres pengiriman kode, hasil evaluasi test case, dan umpan balik langsung.</p>
                     </div>
                 </div>
-                <a href="{{ route('latihan.index') }}" class="inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white font-semibold px-5 py-2.5 rounded-xl transition-colors whitespace-nowrap">
+                <a href="{{ route('latihan.index') }}" class="inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2.5 rounded-xl transition-colors whitespace-nowrap self-start sm:self-auto">
                     <i data-lucide="square-code" class="w-4 h-4"></i>
                     Lihat Semua Latihan
                 </a>
@@ -29,8 +29,8 @@
     </section>
 
     {{-- ===================== KONTEN UTAMA ===================== --}}
-    <section class="bg-emerald-50 py-10 flex-grow pb-20">
-        <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <section class="bg-emerald-50 py-8 sm:py-10 flex-grow pb-20 w-full">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
             
             <div class="mb-6 space-y-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
                 <form method="GET" action="{{ route('submissions.history') }}" class="flex flex-col gap-3 md:flex-row">
@@ -81,7 +81,7 @@
             </div>
 
             <!-- Statistik Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
                 <!-- Total Pengiriman -->
                 <div class="group relative overflow-hidden bg-white p-6 rounded-3xl border border-gray-100 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg hover:ring-1 hover:ring-emerald-200 flex justify-between items-start z-10">
                     <div class="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-blue-50 transition duration-300 group-hover:scale-150 -z-10"></div>
@@ -147,7 +147,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
                 <!-- KIRI: Daftar Submission -->
-                <div class="lg:col-span-1 flex flex-col h-full">
+                <div class="lg:col-span-1 flex flex-col h-full min-w-0">
                     <div class="flex justify-between items-center mb-4 px-1">
                         <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
                             DAFTAR SUBMISSION
@@ -220,7 +220,7 @@
                 </div>
 
                 <!-- KANAN: Detail Submission Terpilih -->
-                <div class="lg:col-span-2">
+                <div class="lg:col-span-2 min-w-0">
                     @if($selectedSubmission)
                         <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 lg:p-8">
                             

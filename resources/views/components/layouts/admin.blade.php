@@ -3,7 +3,7 @@
 <html lang="id" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title }} - PyBeginner</title>
 
@@ -110,7 +110,7 @@
         <!-- Main Content Area -->
         <div class="flex-1 flex flex-col min-w-0 bg-[#F8FAFC]">
             <!-- Topbar -->
-            <header class="h-16 px-6 lg:px-10 border-b border-slate-200/70 bg-white/70 backdrop-blur-sm flex items-center justify-between sticky top-0 z-20">
+            <header class="h-16 px-4 sm:px-6 lg:px-10 border-b border-slate-200/70 bg-white/70 backdrop-blur-sm flex items-center justify-between sticky top-0 z-20">
                 <div class="flex items-center gap-2 text-sm text-slate-500">
                     <span class="hidden md:inline font-medium">Panel Administrasi</span>
                 </div>
@@ -139,7 +139,7 @@
             </header>
 
             <!-- Page Body -->
-            <main class="flex-1 p-6 lg:p-10 max-w-7xl w-full">
+            <main class="flex-1 p-4 sm:px-6 sm:py-8 lg:p-10 max-w-7xl w-full min-w-0">
                 @if (session('status'))
                     <div id="admin-status-toast" role="status" class="fixed right-6 top-6 z-[100] flex max-w-md items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 shadow-lg transition duration-300">
                         <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 shrink-0"></i>

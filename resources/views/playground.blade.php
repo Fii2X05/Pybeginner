@@ -6,23 +6,23 @@
     <a href="{{ route('latihan.index', ['level' => $exercise->difficulty]) }}"
        class="text-sm font-medium text-emerald-700 hover:underline">&larr; Kembali ke daftar latihan</a>
 
-    <div class="mb-6 mt-3 flex flex-wrap items-center gap-3">
-        <h1 class="text-3xl font-extrabold text-slate-900">{{ $exercise->title }}</h1>
+    <div class="mb-6 mt-3 flex flex-wrap items-center gap-2 sm:gap-3">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">{{ $exercise->title }}</h1>
         <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $badge }}">
             {{ $levels[$exercise->difficulty]['label'] ?? $exercise->difficulty }}
         </span>
     </div>
 
-    <div class="grid gap-6 lg:grid-cols-2">
+    <div class="grid gap-6 lg:grid-cols-2 items-start">
 
         {{-- KIRI: SOAL --}}
-        <section class="h-fit rounded-3xl bg-white p-7 shadow-sm ring-1 ring-emerald-100">
+        <section class="min-w-0 h-fit rounded-3xl bg-white p-5 sm:p-7 shadow-sm ring-1 ring-emerald-100">
             <h2 class="text-xs font-bold uppercase tracking-widest text-emerald-600">Deskripsi Tantangan</h2>
-            <p class="mt-2 leading-relaxed text-slate-700">{{ $exercise->description }}</p>
+            <p class="mt-2 leading-relaxed text-slate-700 text-sm sm:text-base">{{ $exercise->description }}</p>
 
             @if ($exercise->instructions)
                 <h2 class="mt-6 text-xs font-bold uppercase tracking-widest text-emerald-600">Instruksi</h2>
-                <p class="mt-2 leading-relaxed text-slate-700">{{ $exercise->instructions }}</p>
+                <p class="mt-2 leading-relaxed text-slate-700 text-sm sm:text-base">{{ $exercise->instructions }}</p>
             @endif
 
             <h2 class="mt-6 text-xs font-bold uppercase tracking-widest text-emerald-600">Contoh Uji Coba</h2>
@@ -31,16 +31,16 @@
                     <div class="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 font-mono text-xs text-slate-700">
                         <p class="mb-2 font-sans text-xs font-semibold text-emerald-700">Contoh {{ $i + 1 }}</p>
                         @if ($s->assertion_code)
-                            <pre class="whitespace-pre-wrap">{{ $s->assertion_code }}</pre>
+                            <pre class="whitespace-pre-wrap overflow-x-auto">{{ $s->assertion_code }}</pre>
                         @else
                             <p class="whitespace-pre-line"><span class="text-slate-400">Input &nbsp;:</span> {{ $s->input }}</p>
                             <p class="mt-1"><span class="text-slate-400">Output :</span> {{ $s->expected_output }}</p>
                         @endif
                         @auth
-                            <div class="mt-3 flex items-center justify-between gap-3 border-t border-emerald-100 pt-3">
+                            <div class="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 border-t border-emerald-100 pt-3">
                                 <span class="test-case-progress text-[11px] text-slate-500" data-test-case-progress="{{ $s->id }}">Belum diuji</span>
                                 <button type="button"
-                                        class="btn-test-case rounded-lg border border-emerald-300 px-3 py-1.5 font-sans text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
+                                        class="btn-test-case w-full sm:w-auto rounded-lg border border-emerald-300 px-3 py-1.5 font-sans text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50 text-center"
                                         data-test-case-id="{{ $s->id }}"
                                         data-test-case-url="{{ route('submissions.test-case.run', ['exerciseId' => $exercise->id, 'testCaseId' => $s->id]) }}">
                                     Uji test case ini
@@ -56,9 +56,9 @@
         </section>
 
         {{-- KANAN: EDITOR + HASIL + MATERI --}}
-        <section class="space-y-5">
-            <div id="editor-wrap" class="overflow-hidden rounded-3xl bg-slate-900 shadow-sm">
-                <div class="flex items-center justify-between px-5 py-3 text-xs text-slate-300">
+        <section class="min-w-0 space-y-5">
+            <div id="editor-wrap" class="overflow-hidden rounded-3xl bg-slate-900 shadow-sm min-w-0 w-full">
+                <div class="flex items-center justify-between px-4 sm:px-5 py-3 text-xs text-slate-300">
                     <div class="flex items-center gap-2">
                         <span class="h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
                         <span class="h-2.5 w-2.5 rounded-full bg-yellow-300"></span>
@@ -67,33 +67,33 @@
                     <span>Python 3</span>
                 </div>
                 <div id="editor" style="height: 320px;"></div>
-                <div class="bg-slate-800 px-5 pb-4">
+                <div class="bg-slate-800 px-4 sm:px-5 pb-4">
                     <label for="custom-stdin" class="mb-1 block text-xs font-semibold text-slate-300">Input Program (Jalankan Kode)</label>
                     <p class="mb-2 text-[11px] text-slate-400">Untuk menguji input manual. Penilaian test case menggunakan input acuan di kartu sebelah kiri.</p>
                     <textarea id="custom-stdin" rows="4" placeholder="Masukkan input : "
                               class="w-full resize-y rounded-xl border border-slate-600 bg-slate-900 p-3 font-mono text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"></textarea>
                 </div>
-                <div class="flex justify-end gap-3 bg-slate-800 px-5 py-3">
+                <div class="flex flex-col sm:flex-row sm:justify-end gap-2.5 sm:gap-3 bg-slate-800 px-4 sm:px-5 py-3">
                     <button id="btn-run"
-                            class="rounded-xl border border-emerald-400/60 px-4 py-2 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-400/10">
+                            class="w-full sm:w-auto rounded-xl border border-emerald-400/60 px-4 py-2.5 sm:py-2 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-400/10">
                         Jalankan Kode
                     </button>
                     @auth
                         <button id="btn-submit"
-                                class="rounded-xl bg-yellow-400 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-50"
+                                class="w-full sm:w-auto rounded-xl bg-yellow-400 px-5 py-2.5 sm:py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-50"
                                 disabled>
                             Kirim &amp; Nilai Jawaban
                         </button>
                     @else
                         <a href="{{ route('login') }}"
-                           class="rounded-xl bg-yellow-400 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
+                           class="w-full sm:w-auto text-center rounded-xl bg-yellow-400 px-5 py-2.5 sm:py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
                             Masuk untuk Mengirim
                         </a>
                     @endauth
                 </div>
             </div>
 
-            <div id="hasil" class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-emerald-100">
+            <div id="hasil" class="rounded-3xl bg-white p-5 sm:p-6 shadow-sm ring-1 ring-emerald-100 min-w-0 overflow-hidden">
                 <p class="text-sm text-slate-500">Hasil akan tampil di sini setelah kamu menjalankan atau mengirim kode.</p>
             </div>
 

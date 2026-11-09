@@ -18,10 +18,10 @@
         {{-- Gradient banner --}}
         <div class="h-24" style="background: linear-gradient(110deg, #ffffff 0%, #fffef5 12%, #fde68a 58%, #a7f3d0 100%);"></div>
 
-        <div class="relative px-6 pb-6 sm:px-8">
+        <div class="relative px-4 pb-6 sm:px-8">
             {{-- Avatar overlay --}}
             <div class="-mt-12 mb-4 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-                <div class="flex items-end gap-5">
+                <div class="flex flex-col sm:flex-row items-start sm:items-end gap-4 sm:gap-5">
                     {{-- Avatar with upload --}}
                     <form method="POST" action="{{ route('profile.avatar') }}" enctype="multipart/form-data" id="avatarForm" class="relative group shrink-0">
                         @csrf
@@ -82,7 +82,7 @@
     </div>
 
     {{-- ===================== INFORMASI PRIBADI ===================== --}}
-    <div class="mb-8 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8">
+    <div class="mb-8 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-8">
         <div class="mb-6 flex items-center gap-3">
             <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100">
                 <svg class="h-4.5 w-4.5 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -163,7 +163,7 @@
     </div>
 
     {{-- ===================== SESI AKUN PENGGUNA ===================== --}}
-    <div class="mb-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8">
+    <div class="mb-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h3 class="text-lg font-bold text-red-600">Sesi Akun Pengguna</h3>

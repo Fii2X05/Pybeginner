@@ -1,4 +1,4 @@
-<x-layouts.app :title="$module->title.' - PyBeginner'" active="modul">
+<x-layouts.app :title="$module->title.' - PyBeginner'" active="modul" :flush="true">
     @push('styles')
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
         <style>
@@ -38,8 +38,8 @@
     <main class="min-h-screen bg-slate-50">
         <section class="relative overflow-hidden border-b border-gray-100 bg-gradient-to-b from-white via-emerald-50/70 to-emerald-50">
             <div class="absolute right-0 top-0 hidden h-96 w-96 rounded-full bg-yellow-100/50 blur-3xl lg:block"></div>
-            <div class="relative z-10 mx-auto max-w-7xl px-6 py-8 lg:px-10">
-                <nav class="mb-6 flex items-center gap-2 text-sm text-gray-500" aria-label="Breadcrumb">
+            <div class="relative z-10 mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
+                <nav class="mb-4 sm:mb-6 flex items-center gap-2 text-sm text-gray-500" aria-label="Breadcrumb">
                     <a href="{{ route('modul.index') }}" class="flex items-center gap-1 transition-colors hover:text-emerald-600"><i data-lucide="book-open" class="h-3.5 w-3.5"></i> Modul Belajar</a>
                     <i data-lucide="chevron-right" class="h-3.5 w-3.5 text-gray-400"></i>
                     <span class="font-semibold text-gray-900">Modul {{ sprintf('%02d', $no ?? $module->sort_order) }}</span>
@@ -87,7 +87,7 @@
             </div>
         </section>
 
-        <section class="mx-auto grid max-w-7xl gap-6 px-5 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-start lg:px-10 lg:py-10">
+        <section class="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-start lg:px-10 lg:py-10">
             <aside class="order-2 h-fit lg:sticky lg:top-24 lg:order-2">
                 <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                     <div class="border-b border-slate-100 px-5 py-4">

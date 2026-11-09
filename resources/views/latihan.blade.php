@@ -1,11 +1,11 @@
 <x-layouts.app title="Latihan Coding" active="latihan">
-    {{-- Tambahan Container agar konten tidak "wide" --}}
-    <div class="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+    {{-- Container terpusat yang responsif --}}
+    <div class="mx-auto max-w-5xl">
         
         @php $badge = 'bg-emerald-100 text-emerald-800'; @endphp
 
         {{-- HERO --}}
-        <section class="relative mb-10 overflow-hidden rounded-3xl bg-white px-8 py-8 shadow-sm ring-1 ring-emerald-100 md:px-12">
+        <section class="relative mb-8 sm:mb-10 overflow-hidden rounded-3xl bg-white px-5 py-6 sm:px-8 sm:py-8 shadow-sm ring-1 ring-emerald-100 md:px-12">
             <div class="pointer-events-none absolute -right-12 -top-12 h-52 w-52 rounded-full bg-emerald-100/70"></div>
             <div class="pointer-events-none absolute -bottom-14 right-28 h-36 w-36 rounded-full bg-yellow-100"></div>
 
@@ -102,7 +102,7 @@
                         </div>
 
                         <a href="{{ route('latihan.show', $ex->slug) }}"
-                           class="inline-flex shrink-0 items-center justify-center gap-1 rounded-xl bg-yellow-400 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300 hover:shadow">
+                           class="inline-flex w-full sm:w-auto shrink-0 items-center justify-center gap-1 rounded-xl bg-yellow-400 px-5 py-2.5 sm:py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300 hover:shadow">
                             Mulai <span class="transition group-hover:translate-x-0.5">&rarr;</span>
                         </a>
                     </div>

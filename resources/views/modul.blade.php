@@ -1,11 +1,11 @@
-<x-layouts.app title="Modul Belajar Python - PyBeginner" active="modul">
+<x-layouts.app title="Modul Belajar Python - PyBeginner" active="modul" :flush="true">
 
     {{-- ===================== HEADER MODUL ===================== --}}
     <section class="relative overflow-hidden bg-gradient-to-b from-white via-emerald-50/70 to-emerald-50">
         <div class="hidden lg:block absolute top-0 right-0 w-96 h-96 bg-yellow-100/50 rounded-full blur-3xl z-0"></div>
 
-        <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 py-10">
-            <div class="flex items-center gap-3 mb-4 text-xs font-semibold">
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-8 lg:py-10">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-4 text-xs font-semibold">
                 <span class="inline-flex items-center gap-1.5 bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
                     <span class="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
                     KURIKULUM TERSTRUKTUR PEMULA
@@ -14,16 +14,16 @@
                 <span class="text-gray-500 font-mono-code">PYTHON 3.7.7</span>
             </div>
 
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
-                <div class="flex items-center gap-4">
-                    <img src="{{ asset('images/learning.png') }}" alt="" class="w-24 h-24 object-contain object-top">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <img src="{{ asset('images/learning.png') }}" alt="" class="w-14 h-14 sm:w-20 sm:h-20 lg:w-24 lg:h-24 object-contain object-top shrink-0">
                     <div>
-                        <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900">Modul Belajar Python</h1>
+                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900">Modul Belajar Python</h1>
                     </div>
                 </div>
 
                 <a href="{{ route('latihan.index') }}"
-                   class="inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white font-semibold px-5 py-2.5 rounded-xl transition-colors whitespace-nowrap">
+                   class="inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white font-semibold px-4 sm:px-5 py-2.5 rounded-xl transition-colors whitespace-nowrap text-sm sm:text-base w-full sm:w-auto">
                     <i data-lucide="square-code" class="w-4 h-4"></i>
                     Buka Latihan Python
                 </a>
@@ -76,8 +76,8 @@
     </section>
 
     {{-- ===================== DAFTAR MODUL ===================== --}}
-    <section class="bg-emerald-50 py-10">
-        <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <section class="bg-emerald-50 py-6 sm:py-8 lg:py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
 
             @if (session('status'))
                 <div class="mb-6 bg-emerald-100 border border-emerald-300 text-emerald-800 px-4 py-3 rounded-xl flex items-center gap-3">
@@ -94,7 +94,7 @@
                            class="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                 </div>
 
-                <div class="flex items-center gap-2 overflow-x-auto" id="filter-status">
+                <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none" id="filter-status">
                     <button type="button" data-filter="semua" class="filter-btn px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-semibold text-gray-900 whitespace-nowrap">Semua Modul</button>
                     <button type="button" data-filter="berjalan" class="filter-btn px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap">Sedang Berjalan ({{ $modulBerjalan }})</button>
                     <button type="button" data-filter="belum" class="filter-btn px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap">Belum Mulai ({{ $modulBelum }})</button>
@@ -102,7 +102,7 @@
                 </div>
 
                 <div class="relative">
-                    <select id="urutkan-modul" class="appearance-none pl-4 pr-9 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <select id="urutkan-modul" class="w-full sm:w-auto appearance-none pl-4 pr-9 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                         <option value="kurikulum">Urutkan: Sesuai Kurikulum</option>
                         <option value="az">Urutkan: A-Z</option>
                     </select>
@@ -111,7 +111,7 @@
             </div>
 
             {{-- Grid modul dinamis --}}
-            <div id="grid-modul" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
+            <div id="grid-modul" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-start">
 
                 @foreach ($modulList as $modul)
                     <div class="modul-card bg-white rounded-2xl {{ $modul['status'] === 'berjalan' ? 'border border-emerald-300 ring-1 ring-emerald-200' : 'border border-gray-100' }} shadow-sm p-6 flex flex-col"

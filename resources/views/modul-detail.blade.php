@@ -1,4 +1,4 @@
-<x-layouts.app title="Modul 01: Dasar Python & Sintaks Awal - PyBeginner" active="modul">
+<x-layouts.app title="Modul 01: Dasar Python & Sintaks Awal - PyBeginner" active="modul" :flush="true">
 
     @push('styles')
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,9 +32,9 @@
     <section class="relative overflow-hidden bg-gradient-to-b from-white via-emerald-50/70 to-emerald-50 border-b border-gray-100">
         <div class="hidden lg:block absolute top-0 right-0 w-96 h-96 bg-yellow-100/50 rounded-full blur-3xl z-0"></div>
 
-        <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 py-8">
+        <div class="relative z-10 max-w-7xl mx-auto px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
             {{-- Breadcrumb --}}
-            <nav class="flex items-center gap-2 text-sm text-gray-500 mb-6">
+            <nav class="flex items-center gap-2 text-sm text-gray-500 mb-4 sm:mb-6">
                 <a href="{{ route('modul.index') }}" class="hover:text-emerald-600 transition-colors flex items-center gap-1">
                     <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Modul Belajar
                 </a>
@@ -97,13 +97,13 @@
     </section>
 
     {{-- ===================== KONTEN UTAMA ===================== --}}
-    <section class="bg-gray-50 py-10">
-        <div class="max-w-[1440px] mx-auto px-6 lg:px-10">
-            <div class="flex flex-col md:flex-row-reverse gap-6">
+    <section class="bg-gray-50 py-6 sm:py-8 lg:py-10">
+        <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10">
+            <div class="flex flex-col lg:flex-row-reverse gap-6">
 
                 {{-- ===== SIDEBAR: Daftar Materi ===== --}}
-                <aside class="md:w-60 shrink-0">
-                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden md:sticky md:top-24">
+                <aside class="lg:w-64 shrink-0">
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden lg:sticky lg:top-24">
                         <div class="px-5 py-4 border-b border-gray-100">
                             <h2 class="font-bold text-sm text-gray-900">Daftar Materi</h2>
                             <p class="text-xs text-gray-400 mt-0.5">{{ $totalMateri ?? 5 }} materi dalam modul ini</p>
