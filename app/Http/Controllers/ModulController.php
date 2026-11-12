@@ -335,6 +335,32 @@ class ModulController extends Controller
     }
 
     /**
+     * Tandai modul selesai saat siswa memilih untuk lanjut ke modul berikutnya.
+     */
+    public function completeAndContinue(int $no): RedirectResponse
+    {
+        $meta = $this->getModuleMeta($no);
+        abort_unless($meta, 404);
+
+        $module = Module::where('slug', $meta['slug'])
+            ->with(['lessons' => fn ($query) => $query->where('is_published', true)->orderBy('sort_order')])
+            ->firstOrFail();
+
+        foreach ($module->lessons as $lesson) {
+            LessonProgress::updateOrCreate(
+                ['user_id' => auth()->id(), 'lesson_id' => $lesson->id],
+                ['status' => 'completed', 'progress_percent' => 100, 'completed_at' => now(), 'last_accessed_at' => now()]
+            );
+        }
+
+        $nextModuleNumber = $no + 1;
+
+        return $nextModuleNumber <= 7
+            ? redirect()->route(sprintf('modul.detail.%02d', $nextModuleNumber))
+            : redirect()->route('modul.index');
+    }
+
+    /**
      * Halaman baca materi (/modul/{course}/{module}/{lesson}).
      */
     public function show(Course $course, Module $module, Lesson $lesson)

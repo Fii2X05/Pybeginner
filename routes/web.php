@@ -46,6 +46,8 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/modul/{nomor}/toggle-selesai', [ModulController::class, 'toggleComplete'])
         ->name('modul.toggle-complete');
+    Route::post('/modul/{nomor}/lanjutkan', [ModulController::class, 'completeAndContinue'])
+        ->name('modul.complete-and-continue');
 
     Route::get('/modul/{course:slug}/{module:slug}', [ModulController::class, 'showModule'])
         ->scopeBindings()->name('module.show');

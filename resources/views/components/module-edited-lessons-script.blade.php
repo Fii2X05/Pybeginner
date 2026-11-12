@@ -188,9 +188,11 @@
 
             articles.forEach(function (article) {
                 const savedPercent = Number(article.dataset.progressPercent || 0);
-                const readPercent = savedPercent >= 100
-                    ? 100
-                    : Math.min(99, Math.max(savedPercent, Number(article.dataset.localProgressPercent || 0), getReadPercentage(article)));
+                const readPercent = Math.min(100, Math.max(
+                    savedPercent,
+                    Number(article.dataset.localProgressPercent || 0),
+                    getReadPercentage(article)
+                ));
                 article.dataset.localProgressPercent = String(readPercent);
                 totalPercent += readPercent;
                 if (readPercent > 0) {
@@ -248,7 +250,7 @@
                     return;
                 }
 
-                sendArticleProgressBeacon(article, Math.min(99, readPercent));
+                sendArticleProgressBeacon(article, readPercent);
             });
         }
 

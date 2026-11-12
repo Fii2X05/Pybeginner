@@ -561,10 +561,13 @@ total = harga_satuan * jumlah
                             </form>
                         @endauth
 
-                        <a href="{{ route('modul.detail.02') }}"
+                        <form action="{{ route('modul.complete-and-continue', 1) }}" method="POST" class="w-full sm:w-auto">
+                            @csrf
+                            <button type="submit"
                            class="w-full sm:w-auto flex items-center justify-center gap-2 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-800 px-5 py-2.5 rounded-xl transition-colors">
                             Modul Selanjutnya (Modul 02) <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </a>
+                        </button>
+                        </form>
                     </div>
 
                 </main>
