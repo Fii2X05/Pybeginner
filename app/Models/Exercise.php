@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Exercise extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'lesson_id', 'title', 'slug', 'description', 'instructions',
         'starter_code', 'difficulty', 'time_limit_ms', 'memory_limit_mb',
