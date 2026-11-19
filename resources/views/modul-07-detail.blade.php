@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Modul 07: Pengantar Pandas & NumPy - PyBeginner</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -430,27 +431,12 @@ statistik = df.groupby(<span class="string">"kelas"</span>)[<span class="string"
                             <i data-lucide="arrow-left" class="w-4 h-4"></i> Modul Sebelumnya (Modul 06)
                         </a>
 
-                        @auth
-                            <form action="{{ route('modul.toggle-complete', 7) }}" method="POST" class="w-full sm:w-auto">
-                                @csrf
-                                @if (($status ?? 'belum') === 'selesai')
-                                    <button type="submit"
-                                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-5 py-2.5 rounded-xl transition-colors">
-                                        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i> Modul Selesai (Klik untuk Ulangi)
-                                    </button>
-                                @else
-                                    <button type="submit"
-                                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 rounded-xl transition-colors shadow-sm">
-                                        <i data-lucide="check" class="w-4 h-4"></i> Tandai Modul Selesai
-                                    </button>
-                                @endif
-                            </form>
-                        @endauth
-
-                        <a href="{{ route('modul.index') }}"
-                           class="w-full sm:w-auto flex items-center justify-center gap-2 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-800 px-5 py-2.5 rounded-xl transition-colors">
-                            Kembali ke Daftar Modul <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </a>
+                        <form action="{{ route('modul.complete-and-continue', 7) }}" method="POST" class="w-full sm:w-auto">
+                            @csrf
+                            <button type="submit" class="w-full sm:w-auto flex items-center justify-center gap-2 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-800 px-5 py-2.5 rounded-xl transition-colors">
+                                Selesaikan Modul <i data-lucide="check" class="w-4 h-4"></i>
+                            </button>
+                        </form>
                     </div>
 
                 </main>

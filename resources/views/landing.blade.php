@@ -28,13 +28,9 @@
 
                 <div class="flex flex-col gap-4 sm:flex-row">
                     <a href="{{ auth()->check() ? route('modul.index') : route('login') }}"
-                       class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 font-semibold text-white shadow-sm transition hover:bg-emerald-700">
+                       class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-6 py-3.5 font-bold text-white shadow-lg ring-4 ring-emerald-100 transition hover:bg-emerald-800 hover:shadow-xl">
                         Mulai Belajar Sekarang
                         <i data-lucide="arrow-right" class="h-4 w-4"></i>
-                    </a>
-                    <a href="{{ auth()->check() ? route('modul.index') : route('login') }}"
-                       class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-slate-800 shadow-sm ring-1 ring-emerald-100 transition hover:ring-emerald-300">
-                        Lihat Modul Pembelajaran
                     </a>
                 </div>
             </div>

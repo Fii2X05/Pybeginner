@@ -86,12 +86,12 @@ class LatihanSeeder extends Seeder
         ];
 
         $lessonIds = [];
-        $order = 1;
+        $order = 6;
         foreach ($lessons as $level => $l) {
             $existingLesson = DB::table('lessons')->where('module_id', $moduleId)->where('slug', $l['slug'])->first();
             $lessonIds[$level] = $existingLesson ? $existingLesson->id : DB::table('lessons')->insertGetId([
                 'module_id' => $moduleId, 'title' => $l['title'], 'slug' => $l['slug'],
-                'content' => $l['content'], 'sort_order' => $order++, 'is_published' => true,
+                'content' => $l['content'], 'sort_order' => $order++, 'is_published' => false,
                 'created_at' => $now, 'updated_at' => $now,
             ]);
         }
