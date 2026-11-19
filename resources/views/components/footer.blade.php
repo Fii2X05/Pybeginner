@@ -21,9 +21,9 @@
         <div>
             <h4 class="mb-4 text-sm font-bold text-slate-900">Fitur</h4>
             <ul class="space-y-2 text-sm text-slate-600">
-                <li>Belajar langsung dari browser</li>
-                <li>Penilaian kode otomatis</li>
-                <li>Feedback instan</li>
+                <li><a href="{{ route('beranda') }}#fitur" class="transition hover:text-emerald-700">Belajar langsung dari browser</a></li>
+                <li><a href="{{ route('beranda') }}#fitur" class="transition hover:text-emerald-700">Penilaian kode otomatis</a></li>
+                <li><a href="{{ route('beranda') }}#fitur" class="transition hover:text-emerald-700">Feedback instan</a></li>
             </ul>
         </div>
     </div>

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Modul 06: Struktur Data Dasar - PyBeginner</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -292,23 +293,6 @@ alamat = mahasiswa.get(<span class="string">"alamat"</span>, <span class="string
                            class="w-full sm:w-auto flex items-center justify-center gap-2 text-sm font-semibold text-gray-600 hover:text-emerald-700 bg-white border border-gray-200 px-5 py-2.5 rounded-xl transition-colors">
                             <i data-lucide="arrow-left" class="w-4 h-4"></i> Modul Sebelumnya (Modul 05)
                         </a>
-
-                        @auth
-                            <form action="{{ route('modul.toggle-complete', 6) }}" method="POST" class="w-full sm:w-auto">
-                                @csrf
-                                @if (($status ?? 'belum') === 'selesai')
-                                    <button type="submit"
-                                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-5 py-2.5 rounded-xl transition-colors">
-                                        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i> Modul Selesai (Klik untuk Ulangi)
-                                    </button>
-                                @else
-                                    <button type="submit"
-                                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 rounded-xl transition-colors shadow-sm">
-                                        <i data-lucide="check" class="w-4 h-4"></i> Tandai Modul Selesai
-                                    </button>
-                                @endif
-                            </form>
-                        @endauth
 
                         <form action="{{ route('modul.complete-and-continue', 6) }}" method="POST" class="w-full sm:w-auto">
                             @csrf

@@ -5,6 +5,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 
     <style>
+        html, body {
+            overflow-x: visible !important;
+        }
+        @supports (overflow: clip) {
+            html, body {
+                overflow-x: clip !important;
+            }
+        }
+        article[id^="materi-"] {
+            scroll-margin-top: 6rem;
+        }
         .font-mono-code { font-family: 'Fira Code', ui-monospace, 'Courier New', monospace; }
         pre code { font-family: 'Fira Code', ui-monospace, monospace; font-size: 0.85rem; line-height: 1.7; }
         .prose code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-family: 'Fira Code', monospace; color: #0f766e; }
@@ -99,20 +110,20 @@
     {{-- ===================== KONTEN UTAMA ===================== --}}
     <section class="bg-gray-50 py-6 sm:py-8 lg:py-10">
         <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10">
-            <div class="flex flex-col lg:flex-row-reverse gap-6">
+            <div class="flex flex-col md:flex-row-reverse gap-6">
 
                 {{-- ===== SIDEBAR: Daftar Materi ===== --}}
-                <aside class="lg:w-64 shrink-0">
-                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden lg:sticky lg:top-24">
-                        <div class="px-5 py-4 border-b border-gray-100">
+                <aside class="md:w-60 shrink-0">
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden md:sticky md:top-24 max-h-[calc(100vh-7rem)] flex flex-col">
+                        <div class="px-5 py-4 border-b border-gray-100 shrink-0">
                             <h2 class="font-bold text-sm text-gray-900">Daftar Materi</h2>
                             <p class="text-xs text-gray-400 mt-0.5">{{ $totalMateri ?? 5 }} materi dalam modul ini</p>
                         </div>
-                        <nav class="py-2">
-                            <a href="#materi-1" class="sidebar-link active block px-5 py-3 text-sm transition-all">
+                        <nav class="py-2 overflow-y-auto">
+                            <a href="#materi-1" data-progress-number="1" class="sidebar-link active block px-5 py-3 text-sm transition-all">
                                 <div class="flex items-center gap-3">
-                                    <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">
-                                        <i data-lucide="check" class="w-3 h-3"></i>
+                                    <span class="w-6 h-6 rounded-full {{ ($lessonProgressValues[1] ?? 0) > 0 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500' }} flex items-center justify-center text-xs font-bold shrink-0">
+                                        @if (($lessonProgressValues[1] ?? 0) > 0)<i data-lucide="check" class="w-3 h-3"></i>@else 01 @endif
                                     </span>
                                     <div>
                                         <p class="font-semibold text-gray-900 text-sm">Apa itu Python?</p>
@@ -120,10 +131,10 @@
                                     </div>
                                 </div>
                             </a>
-                            <a href="#materi-2" class="sidebar-link block px-5 py-3 text-sm text-gray-600 transition-all">
+                            <a href="#materi-2" data-progress-number="2" class="sidebar-link block px-5 py-3 text-sm text-gray-600 transition-all">
                                 <div class="flex items-center gap-3">
-                                    <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">
-                                        <i data-lucide="check" class="w-3 h-3"></i>
+                                    <span class="w-6 h-6 rounded-full {{ ($lessonProgressValues[2] ?? 0) > 0 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500' }} flex items-center justify-center text-xs font-bold shrink-0">
+                                        @if (($lessonProgressValues[2] ?? 0) > 0)<i data-lucide="check" class="w-3 h-3"></i>@else 02 @endif
                                     </span>
                                     <div>
                                         <p class="font-medium text-sm">Program Pertamamu</p>
@@ -131,10 +142,10 @@
                                     </div>
                                 </div>
                             </a>
-                            <a href="#materi-3" class="sidebar-link block px-5 py-3 text-sm text-gray-600 transition-all">
+                            <a href="#materi-3" data-progress-number="3" class="sidebar-link block px-5 py-3 text-sm text-gray-600 transition-all">
                                 <div class="flex items-center gap-3">
-                                    <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">
-                                        <i data-lucide="check" class="w-3 h-3"></i>
+                                    <span class="w-6 h-6 rounded-full {{ ($lessonProgressValues[3] ?? 0) > 0 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500' }} flex items-center justify-center text-xs font-bold shrink-0">
+                                        @if (($lessonProgressValues[3] ?? 0) > 0)<i data-lucide="check" class="w-3 h-3"></i>@else 03 @endif
                                     </span>
                                     <div>
                                         <p class="font-medium text-sm">Input dari Pengguna</p>
@@ -142,10 +153,10 @@
                                     </div>
                                 </div>
                             </a>
-                            <a href="#materi-4" class="sidebar-link block px-5 py-3 text-sm text-gray-600 transition-all">
+                            <a href="#materi-4" data-progress-number="4" class="sidebar-link block px-5 py-3 text-sm text-gray-600 transition-all">
                                 <div class="flex items-center gap-3">
-                                    <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">
-                                        <i data-lucide="check" class="w-3 h-3"></i>
+                                    <span class="w-6 h-6 rounded-full {{ ($lessonProgressValues[4] ?? 0) > 0 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500' }} flex items-center justify-center text-xs font-bold shrink-0">
+                                        @if (($lessonProgressValues[4] ?? 0) > 0)<i data-lucide="check" class="w-3 h-3"></i>@else 04 @endif
                                     </span>
                                     <div>
                                         <p class="font-medium text-sm">Komentar Kode</p>
@@ -153,10 +164,10 @@
                                     </div>
                                 </div>
                             </a>
-                            <a href="#materi-5" class="sidebar-link block px-5 py-3 text-sm text-gray-600 transition-all">
+                            <a href="#materi-5" data-progress-number="5" class="sidebar-link block px-5 py-3 text-sm text-gray-600 transition-all">
                                 <div class="flex items-center gap-3">
-                                    <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">
-                                        <i data-lucide="check" class="w-3 h-3"></i>
+                                    <span class="w-6 h-6 rounded-full {{ ($lessonProgressValues[5] ?? 0) > 0 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500' }} flex items-center justify-center text-xs font-bold shrink-0">
+                                        @if (($lessonProgressValues[5] ?? 0) > 0)<i data-lucide="check" class="w-3 h-3"></i>@else 05 @endif
                                     </span>
                                     <div>
                                         <p class="font-medium text-sm">Aturan Indentasi</p>
@@ -543,23 +554,6 @@ total = harga_satuan * jumlah
                            class="w-full sm:w-auto flex items-center justify-center gap-2 text-sm font-semibold text-gray-600 hover:text-emerald-700 bg-white border border-gray-200 px-5 py-2.5 rounded-xl transition-colors">
                             <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali ke Modul
                         </a>
-
-                        @auth
-                            <form action="{{ route('modul.toggle-complete', 1) }}" method="POST" class="w-full sm:w-auto">
-                                @csrf
-                                @if (($status ?? 'belum') === 'selesai')
-                                    <button type="submit"
-                                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-5 py-2.5 rounded-xl transition-colors">
-                                        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i> Modul Selesai (Klik untuk Ulangi)
-                                    </button>
-                                @else
-                                    <button type="submit"
-                                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 rounded-xl transition-colors shadow-sm">
-                                        <i data-lucide="check" class="w-4 h-4"></i> Tandai Modul Selesai
-                                    </button>
-                                @endif
-                            </form>
-                        @endauth
 
                         <form action="{{ route('modul.complete-and-continue', 1) }}" method="POST" class="w-full sm:w-auto">
                             @csrf

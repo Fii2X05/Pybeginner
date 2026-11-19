@@ -170,9 +170,14 @@ class ModulController extends Controller
         $selesaiCount = 0;
         $totalMateri = max($meta['materiCount'], $module?->lessons->count() ?? 0);
         $progress = 0;
-        $lessonProgressUrls = $module
-            ? $module->lessons->mapWithKeys(fn ($lesson) => [$lesson->sort_order => route('lesson.progress', $lesson)])->all()
-            : [];
+        $lessonProgressUrls = [];
+        if ($module) {
+            foreach ($module->lessons->values() as $idx => $lesson) {
+                $url = route('lesson.progress', $lesson);
+                $lessonProgressUrls[$lesson->sort_order] = $url;
+                $lessonProgressUrls[$idx + 1] = $url;
+            }
+        }
         $lessonProgressValues = [];
         $additionalLessons = $module
             ? $module->lessons->filter(fn ($lesson) => $lesson->sort_order > $meta['materiCount'])->values()
@@ -218,9 +223,12 @@ class ModulController extends Controller
             $progressValues = $lessons->mapWithKeys(fn ($lesson) => [
                 $lesson->id => (int) ($userProgress[$lesson->id]->progress_percent ?? (($userProgress[$lesson->id]->status ?? null) === 'completed' ? 100 : 0)),
             ]);
-            $lessonProgressValues = $lessons->mapWithKeys(fn ($lesson) => [
-                $lesson->sort_order => $progressValues[$lesson->id],
-            ])->all();
+            $lessonProgressValues = [];
+            foreach ($lessons->values() as $idx => $lesson) {
+                $val = $progressValues[$lesson->id];
+                $lessonProgressValues[$lesson->sort_order] = $val;
+                $lessonProgressValues[$idx + 1] = $val;
+            }
             $completedLessons = $lessons->filter(fn ($lesson) => $progressValues[$lesson->id] >= 100)->count();
             $readLessons = $lessons->filter(fn ($lesson) => $progressValues[$lesson->id] > 0)->count();
             $hasStarted = $lessons->contains(fn ($lesson) => isset($userProgress[$lesson->id]));
@@ -427,7 +435,10 @@ class ModulController extends Controller
         DB::table('lesson_progress')
             ->where('user_id', auth()->id())
             ->where('lesson_id', $lesson->id)
-            ->where('progress_percent', '<', $progressPercent)
+            ->where(function ($query) use ($progressPercent) {
+                $query->where('progress_percent', '<', $progressPercent)
+                    ->orWhereNull('progress_percent');
+            })
             ->update($progressData);
 
         $progressPercent = (int) LessonProgress::query()

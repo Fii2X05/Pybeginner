@@ -76,18 +76,44 @@
             .filter(function (article) {
                 return article.dataset.progressUrl.trim() !== '';
             });
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || @json(csrf_token());
         const progressLabels = document.querySelectorAll('[data-module-progress]');
         const readCountLabels = document.querySelectorAll('[data-module-read-count]');
 
         function getReadPercentage(article) {
             const bounds = article.getBoundingClientRect();
-            const travelDistance = bounds.height + window.innerHeight;
-            if (travelDistance <= 0) {
+            const viewportHeight = window.innerHeight;
+            const navOffset = 90;
+
+            // Jika artikel belum masuk viewport sama sekali
+            if (bounds.top >= viewportHeight) {
                 return 0;
             }
 
-            return Math.max(0, Math.min(100, Math.round(((window.innerHeight - bounds.top) / travelDistance) * 100)));
+            // Jika bagian bawah artikel sudah terlihat di viewport atau sudah terlewati di atas
+            if (bounds.bottom <= viewportHeight) {
+                if (bounds.top <= viewportHeight * 0.75) {
+                    return 100;
+                }
+            }
+
+            const effectiveHeight = bounds.height;
+            if (effectiveHeight <= 0) {
+                return 0;
+            }
+
+            // Untuk artikel pendek yang muat di viewport
+            if (effectiveHeight <= (viewportHeight - navOffset)) {
+                const visible = Math.max(0, viewportHeight - bounds.top);
+                return Math.max(0, Math.min(100, Math.round((visible / effectiveHeight) * 100)));
+            }
+
+            // Untuk artikel panjang: scroll proporsional
+            const scrolledPast = Math.max(0, navOffset - bounds.top);
+            const totalScrollable = Math.max(1, effectiveHeight - (viewportHeight - navOffset));
+            const percent = Math.round((scrolledPast / totalScrollable) * 100);
+
+            return Math.max(0, Math.min(100, percent));
         }
 
         function updateNavigation() {
@@ -167,6 +193,12 @@
                 return;
             }
 
+            // Gunakan fetch keepalive terlebih dahulu karena mendukung JSON payload dan CSRF header
+            if (typeof window.fetch === 'function') {
+                saveArticleProgress(article, progressPercent, true);
+                return;
+            }
+
             const payload = new FormData();
             payload.append('_token', csrfToken);
             payload.append('progress_percent', String(progressPercent));
@@ -200,14 +232,16 @@
                 }
 
                 const lastSent = Number(article.dataset.lastSentProgress || savedPercent);
-                const nextMilestone = readPercent >= 100 ? 100 : Math.floor(readPercent / 5) * 5;
+                const nextMilestone = readPercent >= 100
+                    ? 100
+                    : (readPercent > 0 ? Math.max(1, Math.floor(readPercent / 5) * 5) : 0);
                 if (csrfToken && nextMilestone > lastSent) {
                     article.dataset.lastSentProgress = String(nextMilestone);
                     saveArticleProgress(article, nextMilestone);
                 }
             });
 
-            const modulePercent = articles.length > 0 ? Math.round(readCount / articles.length * 100) : 0;
+            const modulePercent = articles.length > 0 ? Math.round(totalPercent / articles.length) : 0;
             progressLabels.forEach(function (label) {
                 label.textContent = modulePercent + '%';
             });
@@ -228,8 +262,8 @@
                 return;
             }
 
-            article.dataset.localProgressPercent = '99';
-            saveArticleProgress(article, 99, true);
+            article.dataset.localProgressPercent = '100';
+            saveArticleProgress(article, 100, true);
             updateProgress();
         });
 
@@ -258,31 +292,56 @@
         document.addEventListener('scroll', scheduleProgressUpdate, { passive: true, capture: true });
         window.addEventListener('resize', scheduleProgressUpdate);
         window.addEventListener('pagehide', flushProgress);
+        window.addEventListener('beforeunload', flushProgress);
         document.addEventListener('visibilitychange', function () {
             if (document.visibilityState === 'hidden') {
                 flushProgress();
             }
         });
+        document.querySelectorAll('a[href]').forEach(function (anchor) {
+            anchor.addEventListener('click', function () {
+                flushProgress();
+            });
+        });
         updateProgress();
 
         if ('IntersectionObserver' in window) {
             const articleObserver = new IntersectionObserver(function (entries) {
+                let needsUpdate = false;
                 entries.forEach(function (entry) {
                     if (!entry.isIntersecting) {
                         return;
                     }
 
                     const article = entry.target;
-                    article.dataset.localProgressPercent = String(Math.max(
+                    const current = Math.max(
                         Number(article.dataset.progressPercent || 0),
-                        Number(article.dataset.localProgressPercent || 0),
-                        99
-                    ));
-                    saveArticleProgress(article, 99, true);
+                        Number(article.dataset.localProgressPercent || 0)
+                    );
+
+                    // Hitung persentase berdasarkan seberapa banyak artikel sudah terlihat
+                    const ratio = Math.round(entry.intersectionRatio * 100);
+                    const readPercent = Math.max(current, ratio, getReadPercentage(article));
+
+                    if (readPercent > current) {
+                        article.dataset.localProgressPercent = String(readPercent);
+                        needsUpdate = true;
+
+                        const milestone = readPercent >= 100
+                            ? 100
+                            : (readPercent > 0 ? Math.max(1, Math.floor(readPercent / 5) * 5) : 0);
+                        const lastSent = Number(article.dataset.lastSentProgress || article.dataset.progressPercent || 0);
+                        if (milestone > lastSent) {
+                            article.dataset.lastSentProgress = String(milestone);
+                            saveArticleProgress(article, milestone);
+                        }
+                    }
                 });
 
-                updateProgress();
-            }, { threshold: 0.01 });
+                if (needsUpdate) {
+                    updateProgress();
+                }
+            }, { threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] });
 
             articles.forEach(function (article) {
                 articleObserver.observe(article);
