@@ -30,7 +30,7 @@
             @auth
                 <span class="hidden text-sm font-semibold text-slate-800 xl:inline">{{ auth()->user()->name }}</span>
 
-                <a href="{{ route('profile') }}" title="Profil" class="shrink-0 flex items-center">
+                <a href="{{ auth()->user()->role === 'admin' ? route('admin.dashboard') : route('profile') }}" title="{{ auth()->user()->role === 'admin' ? 'Dashboard Admin' : 'Profil' }}" class="shrink-0 flex items-center">
                     @if (auth()->user()->avatar_url)
                         <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}"
                              class="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover ring-2 ring-emerald-500 hover:ring-4 transition"
@@ -106,6 +106,7 @@
         </div>
     </div>
 </header>
+<x-logout-confirmation />
 
 @push('scripts')
 <script>

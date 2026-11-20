@@ -21,6 +21,12 @@
         <p class="text-sm text-slate-500 mt-0.5">Soal: {{ $exercise->title }}</p>
     </div>
 
+    @if ($errors->any())
+        <div role="alert" class="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 max-w-3xl">
+            @foreach ($errors->all() as $error)<p>{{ $error }}</p>@endforeach
+        </div>
+    @endif
+
     <form action="{{ $action }}" method="POST" class="bg-white rounded-2xl border border-slate-200 p-6 space-y-5 max-w-3xl">
         @csrf
         @if ($method !== 'POST')

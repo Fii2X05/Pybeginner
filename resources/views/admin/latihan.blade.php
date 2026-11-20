@@ -1,26 +1,28 @@
-<x-layouts.admin title="Latihan & Soal - Admin" active="latihan">
+<x-layouts.admin title="Latihan &amp; Soal - Admin" active="latihan">
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 tracking-wider uppercase mb-1">
-                <span>BANK SOAL</span>
-                <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+            <div class="mb-1 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-700">
+                <span>Bank Soal</span><span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
             </div>
-            <h1 class="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
-                Latihan &amp; Soal
-            </h1>
-            <p class="text-sm text-slate-500 mt-1">Daftar soal coding interaktif yang dikerjakan oleh siswa pada platform.</p>
+            <h1 class="text-2xl font-black tracking-tight text-slate-900 lg:text-3xl">Latihan &amp; Soal</h1>
+            <p class="mt-1 text-sm text-slate-500">Buat latihan, kelola test case, dan atur soal yang diterbitkan untuk siswa.</p>
         </div>
         <div class="flex items-center gap-2">
             <span class="px-3.5 py-1.5 rounded-xl bg-emerald-100/70 text-emerald-800 text-xs font-bold whitespace-nowrap">
                 Total {{ $exercises->count() }} Latihan
             </span>
             <a href="{{ route('admin.latihan.create') }}"
-               class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-4 py-2 rounded-xl transition whitespace-nowrap">
+               class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-4 py-2.5 rounded-xl transition whitespace-nowrap">
                 <i data-lucide="plus" class="w-4 h-4"></i> Tambah Latihan
             </a>
         </div>
     </div>
 
+    @if (session('status'))
+        <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-sm font-medium" style="padding: 0.75rem 1rem;">
+            {{ session('status') }}
+        </div>
+    @endif
     @if (session('success'))
         <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-sm font-medium" style="padding: 0.75rem 1rem;">
             {{ session('success') }}
@@ -31,9 +33,13 @@
             {{ session('error') }}
         </div>
     @endif
+    @if ($errors->any())
+        <div role="alert" class="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            @foreach ($errors->all() as $error)<p>{{ $error }}</p>@endforeach
+        </div>
+    @endif
 
     <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-
         {{-- Bilah cari & filter --}}
         <div class="flex flex-col md:flex-row md:items-center gap-3 border-b border-slate-100" style="padding: 1rem 1.5rem;">
             <div class="relative flex-1" style="min-width: 0;">

@@ -38,6 +38,27 @@
         </div>
     </div>
 
+    @if (session('status'))
+        <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-sm font-medium" style="padding: 0.75rem 1rem;">
+            {{ session('status') }}
+        </div>
+    @endif
+    @if (session('success'))
+        <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-sm font-medium" style="padding: 0.75rem 1rem;">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="mb-4 rounded-xl border border-rose-200 bg-rose-50 text-rose-800 text-sm font-medium" style="padding: 0.75rem 1rem;">
+            {{ session('error') }}
+        </div>
+    @endif
+    @if ($errors->any())
+        <div role="alert" class="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            @foreach ($errors->all() as $error)<p>{{ $error }}</p>@endforeach
+        </div>
+    @endif
+
     {{-- Status soal dan pilihan simpan --}}
     @php
         $statusBox = match (true) {
@@ -73,43 +94,49 @@
             @else
                 <a href="{{ route('admin.latihan') }}"
                    class="inline-flex items-center gap-2 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm px-4 py-2 rounded-xl transition whitespace-nowrap">
-                    <i data-lucide="file-edit" class="w-4 h-4"></i> Simpan sebagai Draft
+                    <i data-lucide="file-edit" class="w-4 h-4"></i> Simpan Draft Saja
                 </a>
-                @if ($canPublish)
-                    <form method="POST" action="{{ route('admin.latihan.status.update', $exercise) }}">
-                        @csrf
-                        @method('PUT')
-                        <input type="hidden" name="is_published" value="1">
-                        <button type="submit" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-4 py-2 rounded-xl transition whitespace-nowrap">
-                            <i data-lucide="rocket" class="w-4 h-4"></i> Terbitkan Soal
-                        </button>
-                    </form>
-                @endif
+                <form method="POST" action="{{ route('admin.latihan.status.update', $exercise) }}">
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" name="is_published" value="1">
+                    <button type="submit"
+                            @disabled(! $canPublish)
+                            title="{{ $canPublish ? 'Terbitkan agar bisa dikerjakan siswa' : 'Tambahkan minimal satu test case terlihat untuk menerbitkan' }}"
+                            class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold text-sm px-4 py-2 rounded-xl transition whitespace-nowrap">
+                        <i data-lucide="upload" class="w-4 h-4"></i> Simpan &amp; Terbitkan Soal
+                    </button>
+                </form>
             @endif
         </div>
     </div>
 
+    {{-- Tabel Test Case --}}
     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[900px] text-sm text-left">
+            <table class="w-full text-sm text-left">
                 <thead class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
                     <tr>
                         <th class="px-5 py-3.5 w-16">#</th>
                         <th class="px-5 py-3.5">Input / Assertion</th>
-                        <th class="px-5 py-3.5">Output yang diharapkan</th>
-                        <th class="px-5 py-3.5 text-center whitespace-nowrap">Tampilan</th>
-                        <th class="px-5 py-3.5 text-center">Bobot</th>
-                        <th class="px-5 py-3.5 text-right">Aksi</th>
+                        <th class="px-5 py-3.5">Output yang Diharapkan</th>
+                        <th class="px-5 py-3.5 text-center w-32">Status &amp; Tipe</th>
+                        <th class="px-5 py-3.5 text-center w-24">Bobot</th>
+                        <th class="px-5 py-3.5 text-right w-44">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse ($testCases as $testCase)
-                        @php $hasResults = $withResults->contains($testCase->id); @endphp
-                        <tr class="hover:bg-slate-50/60 transition align-top {{ $testCase->is_active ? '' : 'opacity-60' }}">
-                            <td class="px-5 py-4 font-bold text-slate-400">#{{ $testCase->sort_order }}</td>
+                        @php
+                            $hasResults = ($testCaseResultsCount[$testCase->id] ?? 0) > 0;
+                        @endphp
+                        <tr class="hover:bg-slate-50/60 transition {{ ! $testCase->is_active ? 'opacity-60 bg-slate-50/40' : '' }}">
+                            <td class="px-5 py-4 font-bold text-slate-400 text-sm">
+                                {{ sprintf('%02d', $testCase->sort_order) }}
+                            </td>
                             <td class="px-5 py-4">
                                 @if ($testCase->assertion_code)
-                                    <span class="inline-flex mb-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-100">Assertion</span>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-700 mb-1 border border-purple-200">Assertion</span>
                                     <pre class="font-mono text-xs text-slate-700 whitespace-pre-wrap">{{ \Illuminate\Support\Str::limit($testCase->assertion_code, 160) }}</pre>
                                 @else
                                     <pre class="font-mono text-xs text-slate-700 whitespace-pre-wrap">{{ $testCase->input !== null && $testCase->input !== '' ? \Illuminate\Support\Str::limit($testCase->input, 160) : '(tanpa input)' }}</pre>

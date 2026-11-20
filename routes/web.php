@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminContentController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExerciseController;
@@ -7,6 +8,8 @@ use App\Http\Controllers\ModulController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PuzzleCaptchaController;
 use App\Http\Controllers\SubmissionController;
+use App\Http\Controllers\SupportController;
+use App\Http\Controllers\UserProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -30,7 +33,9 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 // Modul & Pelajaran serta Latihan (Memerlukan Login)
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'active'])->group(function () {
+    Route::get('/bantuan', [SupportController::class, 'create'])->name('support.create');
+    Route::post('/bantuan', [SupportController::class, 'store'])->name('support.store');
     Route::get('/modul', [ModulController::class, 'index'])->name('modul.index');
     Route::get('/modul/mulai', function () {
         return redirect()->route('modul.index');
@@ -63,8 +68,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/pelajaran/{lesson}/progress', [ModulController::class, 'recordLessonReadingProgress'])
         ->name('lesson.progress');
 
-    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
-    Route::put('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/profile', [UserProfileController::class, 'show'])->name('profile');
+    Route::put('/profile', [UserProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
 
     Route::get('/riwayat-submission', [SubmissionController::class, 'history'])->name('submissions.history');
@@ -93,7 +98,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/', [AdminController::class, 'dashboard'])->name('index');
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/materi', [AdminController::class, 'materi'])->name('materi');
+    Route::get('/materi/tambah', [AdminContentController::class, 'createModule'])->name('materi.create');
     Route::post('/materi', [AdminController::class, 'storeModule'])->name('materi.store');
+    Route::get('/materi/{module}/edit', [AdminContentController::class, 'editModule'])->name('materi.edit');
     Route::put('/materi/{module}', [AdminController::class, 'updateModule'])->name('materi.update');
     Route::put('/materi/{module}/tingkat-kesulitan', [AdminController::class, 'updateModuleLevel'])->name('materi.level.update');
     Route::delete('/materi/{module}', [AdminController::class, 'destroyModule'])->name('materi.destroy');
@@ -125,8 +132,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/latihan/{exercise}/uji-kunci', [AdminController::class, 'answerKey'])->name('latihan.answer-key');
     Route::post('/latihan/{exercise}/uji-kunci', [AdminController::class, 'runAnswerKey'])->name('latihan.answer-key.run');
     Route::get('/siswa', [AdminController::class, 'siswa'])->name('siswa');
+    Route::get('/siswa/{user}', [AdminController::class, 'siswaShow'])->name('siswa.show');
+    Route::put('/siswa/{user}/role', [AdminController::class, 'updateStudentRole'])->name('siswa.role');
+    Route::post('/siswa/{user}/suspension', [AdminController::class, 'toggleStudentSuspension'])->name('siswa.suspension');
+    Route::delete('/siswa/{user}', [AdminController::class, 'deleteStudent'])->name('siswa.destroy');
     Route::get('/penilaian', [AdminController::class, 'penilaian'])->name('penilaian');
     Route::get('/pengaturan', [AdminController::class, 'pengaturan'])->name('pengaturan');
+    Route::get('/notifications', [AdminController::class, 'notifications'])->name('notifications');
+    Route::post('/notifications/read-all', [AdminController::class, 'markAllNotificationsRead'])->name('notifications.read-all');
+    Route::post('/notifications/{notification}/read', [AdminController::class, 'markNotificationRead'])->name('notifications.read');
     Route::put('/pengaturan/profile', [AdminController::class, 'updateProfile'])->name('pengaturan.profile');
     Route::put('/pengaturan/password', [AdminController::class, 'updatePassword'])->name('pengaturan.password');
 });

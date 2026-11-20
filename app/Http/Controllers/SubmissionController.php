@@ -7,8 +7,10 @@ use App\Models\Module;
 use App\Models\Submission;
 use App\Models\TestCase;
 use App\Models\TestCaseProgress;
+use App\Services\AdminNotificationService;
 use App\Services\Judge0Service;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +20,10 @@ use Throwable;
 
 class SubmissionController extends Controller
 {
-    public function __construct(private Judge0Service $judge0) {}
+    public function __construct(
+        private Judge0Service $judge0,
+        private AdminNotificationService $adminNotifications,
+    ) {}
 
     public function history(Request $request): View
     {
@@ -112,6 +117,7 @@ class SubmissionController extends Controller
             $evaluated = $this->evaluate($data['source_code'], $testCases, $exercise);
         } catch (Throwable $e) {
             report($e);
+            $this->notifyJudge0Failure($e);
 
             return response()->json(['success' => false, 'message' => 'Layanan penilai (Judge0) tidak dapat dihubungi.'], 502);
         }
@@ -144,6 +150,7 @@ class SubmissionController extends Controller
             );
         } catch (Throwable $e) {
             report($e);
+            $this->notifyJudge0Failure($e);
 
             return response()->json(['success' => false, 'message' => 'Layanan penilai (Judge0) tidak dapat dihubungi.'], 502);
         }
@@ -181,6 +188,7 @@ class SubmissionController extends Controller
             );
         } catch (Throwable $e) {
             report($e);
+            $this->notifyJudge0Failure($e);
 
             return response()->json(['success' => false, 'message' => 'Layanan penilai (Judge0) tidak dapat dihubungi.'], 502);
         }
@@ -283,6 +291,7 @@ class SubmissionController extends Controller
             $evaluated = $this->evaluate($data['source_code'], $testCases, $exercise);
         } catch (Throwable $e) {
             report($e);
+            $this->notifyJudge0Failure($e);
 
             return response()->json(['success' => false, 'message' => 'Layanan penilai (Judge0) tidak dapat dihubungi.'], 502);
         }
@@ -304,6 +313,15 @@ class SubmissionController extends Controller
 
             return $submission;
         });
+
+        if ($evaluated['score'] === 100.0 && Auth::user()->role === 'learner') {
+            $this->adminNotifications->notifyAdmins(
+                'perfect_score',
+                'Siswa meraih skor sempurna',
+                Auth::user()->name.' mendapatkan skor 100 pada latihan '.$exercise->title.'.',
+                route('admin.penilaian'),
+            );
+        }
 
         return response()->json([
             'success' => true,
@@ -397,9 +415,14 @@ class SubmissionController extends Controller
         ];
     }
 
-    /**
-     * @param  array<string, mixed>  $execution
-     */
+    private function notifyJudge0Failure(Throwable $exception): void
+    {
+        $statusCode = $exception instanceof RequestException
+            ? $exception->response->status()
+            : null;
+
+        $this->adminNotifications->notifyJudge0Failure($statusCode);
+    }
     private function executionError(array $execution): ?string
     {
         $details = trim(implode("\n", array_filter([

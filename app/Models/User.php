@@ -9,8 +9,9 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['name', 'email', 'password', 'google_id', 'avatar', 'role', 'email_verified_at', 'phone', 'bio', 'last_login_at'])]
+#[Fillable(['name', 'email', 'password', 'google_id', 'avatar', 'role', 'email_verified_at', 'is_suspended', 'phone', 'bio', 'last_login_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -28,6 +29,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
             'password' => 'hashed',
+            'is_suspended' => 'boolean',
         ];
     }
 
@@ -40,10 +42,8 @@ class User extends Authenticatable
             return null;
         }
 
-        if (str_starts_with($this->avatar, 'http://') || str_starts_with($this->avatar, 'https://')) {
-            return $this->avatar;
-        }
-
-        return asset('storage/'.$this->avatar);
+        return filter_var($this->avatar, FILTER_VALIDATE_URL)
+            ? $this->avatar
+            : Storage::disk('public')->url($this->avatar);
     }
 }

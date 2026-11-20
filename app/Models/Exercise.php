@@ -16,6 +16,13 @@ class Exercise extends Model
         'sort_order', 'is_published',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'is_published' => 'boolean',
+        ];
+    }
+
     // Semua test case aktif soal ini
     public function lesson(): BelongsTo
     {
@@ -35,23 +42,21 @@ class Exercise extends Model
         return $this->testCases()->where('is_hidden', false);
     }
 
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(Submission::class, 'exercise_id');
+    }
+
+    public function testCaseProgress(): HasMany
+    {
+        return $this->hasMany(TestCaseProgress::class);
+    }
+
     // Semua test case soal ini, termasuk yang nonaktif. Untuk panel admin;
     // penilaian tetap memakai testCases() yang hanya memuat test case aktif.
     public function allTestCases(): HasMany
     {
         return $this->hasMany(TestCase::class, 'exercise_id')
             ->orderBy('sort_order');
-    }
-
-    public function submissions(): HasMany
-    {
-        return $this->hasMany(Submission::class, 'exercise_id');
-    }
-
-    protected function casts(): array
-    {
-        return [
-            'is_published' => 'boolean',
-        ];
     }
 }
