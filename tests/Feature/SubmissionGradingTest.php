@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request as ClientRequest;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -166,6 +167,74 @@ class SubmissionGradingTest extends TestCase
             ->assertSee('id="editor"', false)
             ->assertSee('assert jumlah(2, 3) == 5')
             ->assertSee('const RUN_URL =', false);
+    }
+
+    public function test_duplicate_submission_within_short_window_is_prevented(): void
+    {
+        Http::fake(fn () => Http::response([
+            'status' => ['id' => 3, 'description' => 'Accepted'],
+            'stdout' => "5\n",
+            'time' => '0.01',
+        ]));
+
+        $exerciseId = $this->createExercise([
+            [
+                'assertion_code' => 'assert jumlah(2, 3) == 5',
+                'is_hidden' => false,
+                'weight' => 1,
+            ],
+        ]);
+
+        $user = User::factory()->create();
+
+        // Submission pertama
+        $response1 = $this->actingAs($user)->postJson(route('submissions.submit'), [
+            'exercise_id' => $exerciseId,
+            'source_code' => "def jumlah(a, b):\n    return a + b",
+        ]);
+
+        $response1->assertOk()
+            ->assertJsonPath('score', 100);
+
+        $this->assertSame(1, DB::table('submissions')->where('user_id', $user->id)->count());
+
+        // Submission kedua (duplikat cepat dengan kode dan exercise yang sama)
+        $response2 = $this->actingAs($user)->postJson(route('submissions.submit'), [
+            'exercise_id' => $exerciseId,
+            'source_code' => "def jumlah(a, b):\n    return a + b",
+        ]);
+
+        $response2->assertOk()
+            ->assertJsonPath('score', 100)
+            ->assertJsonPath('submission_id', $response1->json('submission_id'));
+
+        // Pastikan jumlah submission di database tetap 1 (tidak duplikat)
+        $this->assertSame(1, DB::table('submissions')->where('user_id', $user->id)->count());
+    }
+
+    public function test_concurrent_submission_is_rejected_with_429(): void
+    {
+        $exerciseId = $this->createExercise([
+            [
+                'assertion_code' => 'assert jumlah(2, 3) == 5',
+                'is_hidden' => false,
+                'weight' => 1,
+            ],
+        ]);
+
+        $user = User::factory()->create();
+
+        // Simulasikan lock aktif oleh request concurrent
+        $lockKey = "submission_lock:{$user->id}:{$exerciseId}";
+        Cache::lock($lockKey, 15)->get();
+
+        $response = $this->actingAs($user)->postJson(route('submissions.submit'), [
+            'exercise_id' => $exerciseId,
+            'source_code' => "def jumlah(a, b):\n    return a + b",
+        ]);
+
+        $response->assertStatus(429)
+            ->assertJsonPath('success', false);
     }
 
     /**

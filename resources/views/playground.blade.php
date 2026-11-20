@@ -55,12 +55,14 @@
                 <div id="editor" style="height: 320px;"></div>
                 <div class="flex justify-end gap-3 bg-slate-800 px-5 py-3">
                     <button id="btn-run"
-                            class="rounded-xl border border-emerald-400/60 px-4 py-2 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-400/10">
+                            type="button"
+                            class="rounded-xl border border-emerald-400/60 px-4 py-2 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-400/10 disabled:cursor-not-allowed disabled:opacity-50">
                         Jalankan Kode
                     </button>
                     @auth
                         <button id="btn-submit"
-                                class="rounded-xl bg-yellow-400 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
+                                type="button"
+                                class="rounded-xl bg-yellow-400 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-50">
                             Kirim &amp; Nilai Jawaban
                         </button>
                     @else
@@ -163,14 +165,33 @@
             }
         }
 
+        let isProcessing = false;
+
         async function kirim(url, isSubmit) {
-            hasilEl.innerHTML = '<p class="text-sm text-slate-500">Memproses...</p>';
-            if (materiEl) materiEl.classList.add('hidden');
+            if (isProcessing) return;
 
             if (!editor) {
                 hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Editor belum siap. Muat ulang halaman dan coba lagi.</p>';
                 return;
             }
+
+            isProcessing = true;
+            const btnRun = document.getElementById('btn-run');
+            const submitBtn = document.getElementById('btn-submit');
+            const originalRunText = btnRun ? btnRun.innerText : '';
+            const originalSubmitText = submitBtn ? submitBtn.innerText : '';
+
+            if (btnRun) btnRun.disabled = true;
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                if (isSubmit) submitBtn.innerText = 'Menilai...';
+            }
+            if (!isSubmit && btnRun) {
+                btnRun.innerText = 'Menjalankan...';
+            }
+
+            hasilEl.innerHTML = '<p class="text-sm text-slate-500">Memproses...</p>';
+            if (materiEl) materiEl.classList.add('hidden');
 
             try {
                 const res = await fetch(url, {
@@ -192,6 +213,16 @@
                 tampilkanHasil(data, isSubmit);
             } catch (e) {
                 hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Gagal terhubung ke server.</p>';
+            } finally {
+                isProcessing = false;
+                if (btnRun) {
+                    btnRun.disabled = false;
+                    btnRun.innerText = originalRunText;
+                }
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = originalSubmitText;
+                }
             }
         }
 
