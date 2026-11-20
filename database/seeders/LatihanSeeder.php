@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -16,18 +17,15 @@ class LatihanSeeder extends Seeder
             return;
         }
 
-        if (! DB::table('users')->where('id', 1)->exists()) {
-            DB::table('users')->insert([
-                'id' => 1,
+        User::firstOrCreate(
+            ['email' => 'learner@pybeginner.test'],
+            [
                 'name' => 'Sukma Ananda',
-                'email' => 'learner@pybeginner.test',
                 'password' => Hash::make('password'),
                 'role' => 'learner',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]);
-            DB::statement("SELECT setval(pg_get_serial_sequence('users','id'), (SELECT MAX(id) FROM users))");
-        }
+                'email_verified_at' => $now,
+            ],
+        );
 
         $course = DB::table('courses')->where('slug', 'python-dasar')->first();
         if (! $course) {
@@ -45,12 +43,13 @@ class LatihanSeeder extends Seeder
             $courseId = $course->id;
         }
 
-        $module = DB::table('modules')->where('slug', 'dasar-python')->first();
+        $module = DB::table('modules')->where('slug', 'dasar-python-sintaks-awal')->first()
+            ?? DB::table('modules')->where('slug', 'dasar-python')->first();
         if (! $module) {
             $moduleId = DB::table('modules')->insertGetId([
                 'course_id' => $courseId,
-                'title' => 'Dasar Pemrograman Python',
-                'slug' => 'dasar-python',
+                'title' => 'Dasar Python & Sintaks Awal',
+                'slug' => 'dasar-python-sintaks-awal',
                 'description' => 'Dari input-output sampai logika dasar.',
                 'sort_order' => 1,
                 'is_published' => true,

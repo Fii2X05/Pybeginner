@@ -17,13 +17,11 @@ class ModulProgressTest extends TestCase
         $this->seed(ModulSeeder::class);
     }
 
-    public function test_guest_can_view_modul_list_with_default_belum_mulai_status(): void
+    public function test_guest_is_redirected_to_login_from_modul_list(): void
     {
         $response = $this->get(route('modul.index'));
 
-        $response->assertStatus(200);
-        $response->assertSee('Belum Mulai');
-        $response->assertSee('Mulai Modul');
+        $response->assertRedirect(route('login'));
     }
 
     public function test_authenticated_user_initial_status_is_belum_mulai(): void

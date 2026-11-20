@@ -3,7 +3,7 @@
 <html lang="id" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title }} - PyBeginner</title>
 
@@ -95,11 +95,14 @@
                         </div>
                     </div>
 
-                    <button type="button" onclick="document.getElementById('logout-confirmation-modal').showModal()"
+                    <form method="POST" action="{{ route('logout') }}" class="mt-3" data-confirm-logout>
+                        @csrf
+                        <button type="submit"
                                 class="w-full bg-white hover:bg-red-50 text-red-500 hover:text-red-600 border border-red-100 text-xs font-semibold py-2 px-3 rounded-xl flex items-center justify-center gap-2 transition shadow-xs">
-                        <i data-lucide="log-out" class="w-3.5 h-3.5 text-red-500"></i>
-                        <span>Keluar Akun</span>
-                    </button>
+                            <i data-lucide="log-out" class="w-3.5 h-3.5 text-red-500"></i>
+                            <span>Keluar Akun</span>
+                        </button>
+                    </form>
                 </div>
             </div>
         </aside>
@@ -107,7 +110,7 @@
         <!-- Main Content Area -->
         <div class="flex-1 flex flex-col min-w-0 bg-[#F8FAFC]">
             <!-- Topbar -->
-            <header class="h-16 px-6 lg:px-10 border-b border-slate-200/70 bg-white/70 backdrop-blur-sm flex items-center justify-between sticky top-0 z-20">
+            <header class="h-16 px-4 sm:px-6 lg:px-10 border-b border-slate-200/70 bg-white/70 backdrop-blur-sm flex items-center justify-between sticky top-0 z-20">
                 <div class="flex items-center gap-2 text-sm text-slate-500">
                     <span class="hidden md:inline font-medium">Panel Administrasi</span>
                 </div>
@@ -138,19 +141,20 @@
                     </a>
 
                     <!-- Admin Profile Capsule -->
-                    <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-slate-200 text-slate-700 text-sm font-semibold shadow-2xs">
+                    <a href="{{ route('admin.pengaturan') }}" aria-label="Buka profil admin" title="Profil admin"
+                       class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-slate-200 text-slate-700 text-sm font-semibold shadow-2xs transition hover:border-emerald-200 hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
                         <div class="w-6 h-6 rounded-full bg-emerald-800 text-white flex items-center justify-center shrink-0">
                             <i data-lucide="user" class="w-3.5 h-3.5"></i>
                         </div>
                         <span class="text-xs">Admin</span>
-                    </div>
+                    </a>
                 </div>
             </header>
 
             <!-- Page Body -->
-            <main class="flex-1 p-6 lg:p-10 max-w-7xl w-full">
+            <main class="flex-1 p-4 sm:px-6 sm:py-8 lg:p-10 max-w-7xl w-full min-w-0">
                 @if (session('status'))
-                    <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl text-sm flex items-center gap-2">
+                    <div id="admin-status-toast" role="status" class="fixed right-6 top-6 z-[100] flex max-w-md items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 shadow-lg transition duration-300">
                         <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 shrink-0"></i>
                         <span>{{ session('status') }}</span>
                     </div>
@@ -270,8 +274,17 @@
 
             window.setInterval(loadNotifications, 30000);
         })();
-    </script>
-    <script>
+
+        const adminStatusToast = document.getElementById('admin-status-toast');
+        if (adminStatusToast) {
+            window.setTimeout(function () {
+                adminStatusToast.classList.add('pointer-events-none', 'opacity-0', '-translate-y-2');
+                window.setTimeout(function () {
+                    adminStatusToast.remove();
+                }, 300);
+            }, 4000);
+        }
+
         if (window.lucide) {
             lucide.createIcons();
         }

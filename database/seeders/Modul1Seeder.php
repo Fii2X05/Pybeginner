@@ -14,7 +14,7 @@ class Modul1Seeder extends Seeder
      */
     public function run(): void
     {
-        $course = Course::updateOrCreate(['slug' => 'python-dasar'], [
+        $course = Course::firstOrCreate(['slug' => 'python-dasar'], [
             'title' => 'Python Dasar',
             'description' => 'Belajar Python dari nol: sintaks, variabel, percabangan, perulangan, fungsi, sampai struktur data.',
             'level' => 'beginner',
@@ -24,7 +24,7 @@ class Modul1Seeder extends Seeder
 
         $m = $this->module();
 
-        $module = $course->modules()->updateOrCreate(['slug' => $m['slug']], [
+        $module = $course->modules()->firstOrCreate(['slug' => $m['slug']], [
             'title' => $m['title'],
             'description' => $m['description'],
             'sort_order' => 1,
@@ -32,7 +32,7 @@ class Modul1Seeder extends Seeder
         ]);
 
         foreach ($m['lessons'] as $li => $l) {
-            $module->lessons()->updateOrCreate(['slug' => $l['slug']], [
+            $module->lessons()->firstOrCreate(['slug' => $l['slug']], [
                 'title' => $l['title'],
                 'content' => $l['content'],
                 'sort_order' => $li + 1,
@@ -48,6 +48,21 @@ class Modul1Seeder extends Seeder
             'title' => 'Dasar Python & Sintaks Awal',
             'description' => 'Mengenal struktur program Python, fungsi print(), komentar kode, dan aturan indentasi yang menjadi ciri khas Python.',
             'lessons' => [
+                [
+                    'slug' => 'apa-itu-python',
+                    'title' => 'Apa itu Python?',
+                    'content' => <<<'MD'
+Python adalah bahasa pemrograman yang dirancang agar mudah dibaca. Python banyak digunakan untuk membuat aplikasi web, mengolah data, otomatisasi, dan kecerdasan buatan.
+
+## Kenapa belajar Python?
+
+- Sintaksnya ringkas dan dekat dengan bahasa sehari-hari.
+- Banyak contoh dan pustaka yang bisa digunakan.
+- Cocok untuk belajar konsep dasar pemrograman.
+
+Program Python dijalankan baris demi baris. Spasi di awal baris juga punya arti, jadi susunan kode perlu ditulis dengan rapi.
+MD,
+                ],
                 [
                     'slug' => 'program-python-pertama',
                     'title' => 'Program Python Pertamamu',
@@ -68,6 +83,22 @@ print("Umur:", 20)
 ```
 
 Pisahkan nilai dengan koma, dan Python akan menambahkan spasi di antaranya.
+MD,
+                ],
+                [
+                    'slug' => 'input-dari-pengguna',
+                    'title' => 'Input dari Pengguna',
+                    'content' => <<<'MD'
+Program bisa meminta pengguna memasukkan data dengan fungsi `input()`. Nilai yang dikembalikan selalu berupa teks (`str`), sehingga angka perlu dikonversi sebelum dipakai dalam perhitungan.
+
+```python
+nama = input("Siapa namamu? ")
+umur = int(input("Berapa umurmu? "))
+
+print(f"Halo, {nama}! Tahun depan umurmu {umur + 1}.")
+```
+
+Gunakan `int()` untuk bilangan bulat atau `float()` untuk bilangan desimal. Awalan `f` pada f-string memungkinkan nilai variabel ditulis di dalam kurung kurawal.
 MD,
                 ],
                 [

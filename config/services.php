@@ -2,7 +2,6 @@
 
 return [
 
-
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],
@@ -24,7 +23,7 @@ return [
         ],
     ],
 
-        'judge0' => [
+    'judge0' => [
         'url' => env('JUDGE0_URL'),
         'language_id' => env('JUDGE0_LANGUAGE_ID', 10),
         'token' => env('JUDGE0_TOKEN'),
@@ -41,6 +40,9 @@ return [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI', env('APP_URL').'/auth/google/callback'),
+        'guzzle' => [
+            'verify' => env('GOOGLE_CA_BUNDLE', base_path('cacert.pem')),
+        ],
     ],
 
 ];

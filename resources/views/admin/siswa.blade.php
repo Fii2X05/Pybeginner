@@ -80,7 +80,11 @@
                             <td class="whitespace-nowrap px-5 py-4">
                                 <div class="flex items-center gap-3">
                                     @if ($user->avatar_url)
-                                        <img src="{{ $user->avatar_url }}" alt="" class="h-9 w-9 rounded-full object-cover">
+                                        <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="h-9 w-9 rounded-full object-cover"
+                                             onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+                                        <div class="hidden h-9 w-9 rounded-full bg-emerald-100 text-emerald-700 items-center justify-center font-bold text-sm shrink-0">
+                                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                                        </div>
                                     @else
                                         <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700">
                                             {{ strtoupper(substr($user->name, 0, 1)) }}

@@ -18,6 +18,7 @@ class Lesson extends Model
         'content',
         'sort_order',
         'is_published',
+        'is_content_edited',
     ];
 
     public function module(): BelongsTo

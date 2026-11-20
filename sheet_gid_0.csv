@@ -1,0 +1,23 @@
+,,,,,,,,,
+,,Unit Test - Pybeginner,,,,,,,
+,,,,,,,,,
+,ID Test,Domain / Modul,Developer,Tester,Skenario Pengujian,Langkah Pengujian,Ekspektasi Hasil,Status,Prioritas
+,Domain: Learning Module,,,,,,,,
+,Test 1,Learning Module,Adelia Rizki Eka Putri,Rafi Zeta Fauzan,Menampilkan daftar course dan modul,Buka halaman course overview,Daftar course dan modul muncul sesuai hierarki,Passed,Sedang
+,Test 2,Learning Module,Adelia Rizki Eka Putri,Rafi Zeta Fauzan,Navigasi materi pembelajaran,Klik tombol next/previous pada detail materi,Berpindah antar halaman materi tanpa error,Passed,Sedang
+,Test 3,Learning Module,Adelia Rizki Eka Putri,Rafi Zeta Fauzan,Tracking progress,Selesaikan membaca 1 materi modul,Progress bar modul bertambah di dashboard,Passed,Sedang
+,Domain: Exercise & Code Editor,,,,,,,,
+,Test 4,Exercise & Code Editor,Adinda Luluk Hanifah,Sukma Ananda Putri,Render antarmuka Code Editor,Akses halaman latihan soal,Code editor termuat dengan starter code dan syntax highlighting Python,Passed,Sedang
+,Test 5,Exercise & Code Editor,Adinda Luluk Hanifah,Sukma Ananda Putri,Auto-indentation dan input,Mengetik fungsi dasar Python di dalam editor,Editor mendeteksi spasi/tab dan merapikan kode otomatis,Passed,Rendah
+,Test 6,Exercise & Code Editor,Adinda Luluk Hanifah,Sukma Ananda Putri,Aksi Submit Kode,"Klik tombol ""Run/Submit"" setelah menulis kode","Payload kode terkirim ke backend, tombol berubah status loading",Passed,Tinggi
+,Test 7,Exercise & Code Editor,Adinda Luluk Hanifah,Sukma Ananda Putri,Riwayat Submission,"Klik tab ""Riwayat Pengerjaan"" pada soal",Menampilkan histori kode yang pernah dikirim sebelumnya,Passed,Rendah
+,Domain: Grading System & Sandbox,,,,,,,,
+,Test 8,Grading System & Sandbox,Rafi Zeta Fauzan,Adelia Rizki Eka Putri,Eksekusi kode benar,Submit kode yang outputnya sesuai test case soal,"Sistem memproses di sandbox dan mereturn status ""Lolos/Passed""",Passed,Tinggi
+,Test 9,Grading System & Sandbox,Rafi Zeta Fauzan,Adelia Rizki Eka Putri,Eksekusi kode salah (Logic error),Submit kode yang outputnya tidak sesuai ekspektasi soal,"Sistem mereturn status ""Gagal"" beserta output yang salah tanpa crash",Passed,Tinggi
+,Test 10,Grading System & Sandbox,Rafi Zeta Fauzan,Adelia Rizki Eka Putri,Handling Infinite Loop (Timeout),"Submit kode dengan ""while True:"" tanpa henti","Eksekusi otomatis dihentikan (timeout < 5 detik), mengembalikan error Timeout",Passed,Tinggi
+,Test 11,Grading System & Sandbox,Rafi Zeta Fauzan,Adelia Rizki Eka Putri,Error Syntax,Submit kode dengan syntax tidak valid,"Sandbox tidak crash, mereturn error SyntaxError yang rapi",Passed,Tinggi
+,Domain: Backend & System Integration,,,,,,,,
+,Test 12,Backend & System Integration,Sukma Ananda Putri,Adinda Luluk Hanifah,Registrasi Akun,Isi form registrasi dengan email dan password valid,Data masuk ke database relasi user dan password di-hash,Passed,Tinggi
+,Test 13,Backend & System Integration,Sukma Ananda Putri,Adinda Luluk Hanifah,Login & Session,Login menggunakan email dan password yang benar,Sistem mengautentikasi dan memberikan akses token/session ke dashboard,Passed,Tinggi
+,Test 14,Backend & System Integration,Sukma Ananda Putri,Adinda Luluk Hanifah,Validasi Authorization API,Akses endpoint grading/exercise tanpa login,Server menolak permintaan dengan error 401 Unauthorized,Passed,Sedang
+,Test 15,Backend & System Integration,Sukma Ananda Putri,Adinda Luluk Hanifah,Integrasi Progress Belajar,Cek data database setelah user lulus 1 modul,Tabel Progress terupdate dengan id_user dan id_module yang tepat,Passed,Sedang

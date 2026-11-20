@@ -10,6 +10,46 @@
         <p class="text-sm text-slate-500 mt-1">Konfigurasi akun administrator dan informasi lingkungan sistem PyBeginner.</p>
     </div>
 
+    <div class="mb-8 overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+        <div class="h-24" style="background: linear-gradient(110deg, #ffffff 0%, #fffef5 12%, #fde68a 58%, #a7f3d0 100%);"></div>
+        <div class="relative px-6 pb-6 sm:px-8">
+            <div class="-mt-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div class="flex items-end gap-5">
+                    @if ($admin->avatar_url)
+                        <img src="{{ $admin->avatar_url }}" alt="{{ $admin->name }}"
+                             class="h-24 w-24 rounded-full border-4 border-white object-cover shadow-lg"
+                             onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+                        <div class="hidden h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-emerald-100 text-3xl font-bold text-emerald-800 shadow-lg">
+                            {{ strtoupper(substr($admin->name, 0, 1)) }}
+                        </div>
+                    @else
+                        <div class="flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-emerald-100 text-3xl font-bold text-emerald-800 shadow-lg">
+                            {{ strtoupper(substr($admin->name, 0, 1)) }}
+                        </div>
+                    @endif
+                    <div class="pb-1">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h2 class="text-xl font-bold text-slate-900">{{ $admin->name }}</h2>
+                            <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">Administrator</span>
+                        </div>
+                        <p class="mt-0.5 text-sm text-slate-500">{{ $admin->email }}</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-500">
+                    <span class="flex items-center gap-1">
+                        <i data-lucide="calendar-days" class="h-3.5 w-3.5 text-emerald-600"></i>
+                        Bergabung sejak {{ $admin->created_at->translatedFormat('F Y') }}
+                    </span>
+                    <span class="flex items-center gap-1">
+                        <i data-lucide="clock-3" class="h-3.5 w-3.5 text-emerald-600"></i>
+                        Login terakhir:
+                        {{ $admin->last_login_at?->translatedFormat('d F Y, H:i') ?? 'Belum tercatat' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Edit Profile Form -->
         <div class="bg-white rounded-2xl p-6 sm:p-8 border border-slate-100 shadow-xs">

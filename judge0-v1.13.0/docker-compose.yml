@@ -19,7 +19,7 @@ services:
     restart: always
     # Batasan resource agar tidak membebani sistem
     cpus: 0.5
-    mem_limit: 512m
+    mem_limit: 256m
 
   workers:
     image: judge0/judge0:1.13.0-extra
@@ -30,8 +30,8 @@ services:
     <<: *default-logging
     restart: always
     # Worker diberi batas lebih besar karena bertugas mengeksekusi kode
-    cpus: 1.0
-    mem_limit: 1024m
+    cpus: 0.5
+    mem_limit: 512m
 
   db:
     image: postgres:13.0
