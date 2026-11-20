@@ -75,11 +75,13 @@
                 </div>
                 <div class="flex flex-col sm:flex-row sm:justify-end gap-2.5 sm:gap-3 bg-slate-800 px-4 sm:px-5 py-3">
                     <button id="btn-run"
-                            class="w-full sm:w-auto rounded-xl border border-emerald-400/60 px-4 py-2.5 sm:py-2 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-400/10">
+                            type="button"
+                            class="w-full sm:w-auto rounded-xl border border-emerald-400/60 px-4 py-2.5 sm:py-2 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-400/10 disabled:cursor-not-allowed disabled:opacity-50">
                         Jalankan Kode
                     </button>
                     @auth
                         <button id="btn-submit"
+                                type="button"
                                 class="w-full sm:w-auto rounded-xl bg-yellow-400 px-5 py-2.5 sm:py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-50"
                                 disabled>
                             Kirim &amp; Nilai Jawaban
@@ -322,8 +324,8 @@
                 return;
             }
 
+            const stdin = document.getElementById('custom-stdin')?.value ?? '';
             try {
-                const stdin = document.getElementById('custom-stdin').value;
                 const res = await fetch(RUN_URL, {
                     method: 'POST',
                     headers: {
@@ -331,33 +333,46 @@
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     },
-                    body: JSON.stringify({
-                        source_code: editor.getValue(),
-                        stdin,
-                        exercise_id: EXERCISE_ID,
-                    }),
+                    body: JSON.stringify({ source_code: editor.getValue(), stdin }),
                 });
                 const data = await res.json();
-
                 if (!res.ok || !data.success) {
-                    hasilEl.innerHTML = `<p class="text-sm text-yellow-800">${esc(data.message || 'Permintaan tidak dapat diproses.')}</p>`;
+                    hasilEl.innerHTML = `<p class="text-sm text-yellow-800">${esc(data.message || 'Eksekusi kode gagal.')}</p>`;
                     return;
                 }
-
                 tampilkanHasilEksekusi(data, stdin);
             } catch (e) {
                 hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Gagal terhubung ke server.</p>';
             }
         }
 
+        let isProcessing = false;
+
         async function kirim(url, isSubmit) {
-            hasilEl.innerHTML = '<p class="text-sm text-slate-500">Memproses...</p>';
-            if (materiEl) materiEl.classList.add('hidden');
+            if (isProcessing) return;
 
             if (!editor) {
                 hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Editor belum siap. Muat ulang halaman dan coba lagi.</p>';
                 return;
             }
+
+            isProcessing = true;
+            const btnRun = document.getElementById('btn-run');
+            const submitBtn = document.getElementById('btn-submit');
+            const originalRunText = btnRun ? btnRun.innerText : '';
+            const originalSubmitText = submitBtn ? submitBtn.innerText : '';
+
+            if (btnRun) btnRun.disabled = true;
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                if (isSubmit) submitBtn.innerText = 'Menilai...';
+            }
+            if (!isSubmit && btnRun) {
+                btnRun.innerText = 'Menjalankan...';
+            }
+
+            hasilEl.innerHTML = '<p class="text-sm text-slate-500">Memproses...</p>';
+            if (materiEl) materiEl.classList.add('hidden');
 
             try {
                 const res = await fetch(url, {
@@ -379,6 +394,16 @@
                 tampilkanHasil(data, isSubmit);
             } catch (e) {
                 hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Gagal terhubung ke server.</p>';
+            } finally {
+                isProcessing = false;
+                if (btnRun) {
+                    btnRun.disabled = false;
+                    btnRun.innerText = originalRunText;
+                }
+                if (submitBtn) {
+                    submitBtn.innerText = originalSubmitText;
+                }
+                renderTestCaseProgress();
             }
         }
 
