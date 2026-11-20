@@ -7,40 +7,36 @@
              alt=""
              class="absolute inset-0 w-full h-full object-cover object-left z-0">
 
-        <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 py-16 lg:py-24 grid lg:grid-cols-5 gap-12 items-center">
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-10 sm:py-16 lg:py-24 grid lg:grid-cols-5 gap-8 lg:gap-12 items-center">
 
             {{-- Kolom Kiri: Teks --}}
-            <div class="relative z-10 lg:col-span-3">
-                <span class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 text-xs font-semibold px-4 py-2 rounded-full mb-6">
-                    <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+            <div class="relative z-10 lg:col-span-3 min-w-0">
+                <span class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 text-xs font-semibold px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full mb-6">
+                    <i data-lucide="zap" class="w-3.5 h-3.5 shrink-0"></i>
                     Belajar Python Interaktif & Gratis untuk Pemula
                 </span>
 
-                <h1 class="mb-6 text-3xl font-extrabold leading-tight text-slate-900 sm:text-4xl">
-                    Belajar <span class="text-emerald-600">Python</span>. <span class="whitespace-nowrap">Tulis Kode.</span>
+                <h1 class="mb-4 sm:mb-6 text-2xl sm:text-4xl lg:text-5xl font-extrabold leading-tight text-slate-900">
+                    Belajar <span class="text-emerald-600">Python</span>. <span class="sm:whitespace-nowrap">Tulis Kode.</span>
                     <br>
-                    Dapatkan <span class="whitespace-nowrap rounded bg-yellow-300 px-2">Feedback Instan</span>.
+                    Dapatkan <span class="inline-block rounded bg-yellow-300 px-2">Feedback Instan</span>.
                 </h1>
 
-                <p class="mb-8 max-w-md text-lg text-slate-600">
+                <p class="mb-6 sm:mb-8 max-w-md text-base sm:text-lg text-slate-600">
                     Pelajari Python dari nol langsung melalui browser tanpa perlu instalasi software atau konfigurasi environment yang rumit.
                 </p>
 
                 <div class="flex flex-col gap-4 sm:flex-row">
-                    <a href="{{ route('modul.mulai') }}"
-                       class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 font-semibold text-white shadow-sm transition hover:bg-emerald-700">
+                    <a href="{{ auth()->check() ? route('modul.index') : route('login') }}"
+                       class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-6 py-3.5 font-bold text-white shadow-lg ring-4 ring-emerald-100 transition hover:bg-emerald-800 hover:shadow-xl">
                         Mulai Belajar Sekarang
                         <i data-lucide="arrow-right" class="h-4 w-4"></i>
-                    </a>
-                    <a href="{{ route('modul.index') }}"
-                       class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-slate-800 shadow-sm ring-1 ring-emerald-100 transition hover:ring-emerald-300">
-                        Lihat Modul Pembelajaran
                     </a>
                 </div>
             </div>
 
             {{-- Mockup editor (gaya sama dengan editor di halaman latihan) --}}
-            <div class="lg:col-span-2">
+            <div class="lg:col-span-2 min-w-0">
                 <div class="overflow-hidden rounded-3xl bg-slate-900 shadow-2xl">
                     <div class="flex items-center justify-between px-5 py-3 text-xs text-slate-300">
                         <div class="flex items-center gap-2">
@@ -87,16 +83,16 @@
     </section>
 
     {{-- ===================== FITUR UNGGULAN ===================== --}}
-    <section id="fitur" class="bg-emerald-50/70 py-20 scroll-mt-24">
-        <div class="max-w-7xl mx-auto px-6 lg:px-10">
-            <div class="text-center max-w-2xl mx-auto mb-14">
+    <section id="fitur" class="bg-emerald-50/70 py-12 sm:py-16 lg:py-20 scroll-mt-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
+            <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
                 <span class="inline-block bg-indigo-100 text-indigo-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-4">
                     Fitur Unggulan
                 </span>
-                <h2 class="mb-4 text-3xl font-extrabold text-slate-900 sm:text-4xl">
+                <h2 class="mb-4 text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900">
                     Dirancang Khusus untuk Memudahkan Pemula
                 </h2>
-                <p class="text-slate-600">
+                <p class="text-sm sm:text-base text-slate-600">
                     Semua rintangan teknis yang biasa ditemui saat pertama kali belajar coding kami singkirkan agar kamu bisa fokus memahami logika pemrograman.
                 </p>
             </div>
@@ -130,16 +126,16 @@
     </section>
 
     {{-- ===================== METODE PEMBELAJARAN ===================== --}}
-    <section id="metode" class="py-20 scroll-mt-24">
-        <div class="max-w-7xl mx-auto px-6 lg:px-10">
-            <div class="text-center max-w-2xl mx-auto mb-14">
+    <section id="metode" class="py-12 sm:py-16 lg:py-20 scroll-mt-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
+            <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
                 <span class="inline-block bg-yellow-100 text-yellow-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-4">
                     Metode Pembelajaran
                 </span>
-                <h2 class="mb-4 text-3xl font-extrabold text-slate-900 sm:text-4xl">
+                <h2 class="mb-4 text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900">
                     3 Langkah Mudah Menguasai Python
                 </h2>
-                <p class="text-slate-600">
+                <p class="text-sm sm:text-base text-slate-600">
                     Alur ringkas yang memastikan kamu tidak hanya membaca teori, tetapi langsung membangun refleks coding.
                 </p>
             </div>
@@ -166,31 +162,36 @@
         </div>
     </section>
 
-    {{-- ===================== CTA BANNER ===================== --}}
-    <section id="mulai-coding" class="pb-20 scroll-mt-24">
-        <div class="max-w-6xl mx-auto px-6 lg:px-10">
-            <div class="reveal relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-800 to-emerald-600 px-8 py-16 sm:px-16 text-center">
-                <span class="inline-flex items-center gap-2 bg-white/15 text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-6">
-                    <i data-lucide="rocket" class="w-3.5 h-3.5"></i>
-                    Akses 100% Gratis Selamanya
-                </span>
+    {{-- ===================== CTA ===================== --}}
+    <section id="mulai-coding" class="scroll-mt-24 bg-white pb-12 sm:pb-16 lg:pb-20">
+        <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-10">
+            <div class="reveal relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-700 to-emerald-500 px-5 py-10 sm:px-12 sm:py-16 text-center">
+                <div class="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full bg-white/10"></div>
+                <div class="pointer-events-none absolute -bottom-12 left-16 h-32 w-32 rounded-full bg-yellow-300/20"></div>
 
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">
-                    Siap Menulis Kode Python Pertamamu Hari Ini?
-                </h2>
-                <p class="text-emerald-100 max-w-xl mx-auto mb-8">
-                    Bergabunglah dengan ribuan pemula lainnya. Buka modul pertamamu sekarang dan buktikan bahwa coding itu mudah dan menyenangkan.
-                </p>
+                <div class="relative">
+                    <span class="mb-6 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold text-white">
+                        <i data-lucide="rocket" class="h-3.5 w-3.5"></i>
+                        Akses 100% Gratis
+                    </span>
 
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="{{ route('register') }}"
-                       class="inline-flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-6 py-3.5 rounded-xl transition-colors">
-                        Mulai Belajar Gratis <i data-lucide="rocket" class="w-4 h-4"></i>
-                    </a>
-                    <a href="{{ route('playground') }}"
-                       class="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-900 font-semibold px-6 py-3.5 rounded-xl transition-colors">
-                        Coba Mulai Coding
-                    </a>
+                    <h2 class="mb-4 text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white">
+                        Siap Menulis Kode Python Pertamamu Hari Ini?
+                    </h2>
+                    <p class="mx-auto mb-8 max-w-xl text-sm sm:text-base text-emerald-50">
+                        Buka soal pertamamu sekarang dan buktikan bahwa coding itu mudah dan menyenangkan.
+                    </p>
+
+                    <div class="flex flex-col justify-center gap-3 sm:gap-4 sm:flex-row">
+                        <a href="{{ auth()->check() ? route('modul.index') : route('login') }}"
+                           class="inline-flex items-center justify-center gap-2 rounded-xl bg-yellow-400 px-6 py-3.5 font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300 text-sm sm:text-base">
+                            Mulai Belajar Gratis <i data-lucide="rocket" class="h-4 w-4"></i>
+                        </a>
+                        <a href="{{ auth()->check() ? route('latihan.index') : route('login') }}"
+                           class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-slate-900 transition hover:bg-emerald-50 text-sm sm:text-base">
+                            Coba Mulai Coding
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

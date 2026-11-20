@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TestCase extends Model
 {
+    use HasFactory;
     protected $table = 'test_cases';
 
     protected $fillable = [
@@ -31,5 +34,15 @@ class TestCase extends Model
     public function exercise(): BelongsTo
     {
         return $this->belongsTo(Exercise::class);
+    }
+
+    public function results(): HasMany
+    {
+        return $this->hasMany(SubmissionResult::class);
+    }
+
+    public function progress(): HasMany
+    {
+        return $this->hasMany(TestCaseProgress::class);
     }
 }

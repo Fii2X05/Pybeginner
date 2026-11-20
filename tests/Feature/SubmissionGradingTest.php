@@ -43,8 +43,9 @@ class SubmissionGradingTest extends TestCase
                 'is_hidden' => true,
             ],
         ]);
+        $user = User::factory()->create();
 
-        $response = $this->postJson(route('submissions.run'), [
+        $response = $this->actingAs($user)->postJson(route('submissions.run'), [
             'exercise_id' => $exerciseId,
             'source_code' => "def jumlah(a, b):\n    return a + b",
         ]);
@@ -64,6 +65,179 @@ class SubmissionGradingTest extends TestCase
             && $request->data()['max_processes_and_or_threads'] === 8
             && $request->data()['enable_per_process_and_thread_time_limit'] === true
             && $request->data()['enable_per_process_and_thread_memory_limit'] === true);
+    }
+
+    public function test_guest_cannot_use_code_execution_or_submission_endpoints(): void
+    {
+        Http::fake();
+        $exerciseId = $this->createExercise([
+            [
+                'assertion_code' => 'assert True',
+                'is_hidden' => false,
+            ],
+        ]);
+        $payload = [
+            'exercise_id' => $exerciseId,
+            'source_code' => 'print(1)',
+        ];
+
+        $this->postJson(route('submissions.run'), $payload)->assertUnauthorized();
+        $this->postJson(route('submissions.execute'), $payload)->assertUnauthorized();
+        $this->postJson(route('submissions.submit'), $payload)->assertUnauthorized();
+
+        Http::assertNothingSent();
+        $this->assertDatabaseCount('submissions', 0);
+    }
+
+    public function test_live_judge0_grades_a_python_submission(): void
+    {
+        if (getenv('RUN_JUDGE0_INTEGRATION_TESTS') !== '1') {
+            $this->markTestSkipped('Set RUN_JUDGE0_INTEGRATION_TESTS=1 to run against a live Judge0 service.');
+        }
+
+        config([
+            'services.judge0.url' => 'http://127.0.0.1:2358',
+            'services.judge0.language_id' => 10,
+            'services.judge0.token' => null,
+            'services.judge0.max_processes_and_or_threads' => 8,
+            'services.judge0.per_process_time_limit' => true,
+            'services.judge0.per_process_memory_limit' => true,
+        ]);
+        $exerciseId = $this->createExercise([
+            [
+                'input' => '',
+                'expected_output' => '42',
+                'assertion_code' => null,
+                'is_hidden' => false,
+            ],
+        ]);
+
+        $user = User::factory()->create();
+        $sourceCode = 'print(40 + 2)';
+        $testCaseId = DB::table('test_cases')->where('exercise_id', $exerciseId)->value('id');
+
+        $this->actingAs($user)
+            ->postJson(route('submissions.test-case.run', [
+                'exerciseId' => $exerciseId,
+                'testCaseId' => $testCaseId,
+            ]), [
+                'source_code' => $sourceCode,
+            ])
+            ->assertOk()
+            ->assertJsonPath('is_passed', true);
+
+        $submissionResponse = $this->postJson(route('submissions.submit'), [
+            'exercise_id' => $exerciseId,
+            'source_code' => $sourceCode,
+        ])
+            ->assertOk()
+            ->assertJsonPath('status', 'accepted')
+            ->assertJsonPath('passed_tests', 1)
+            ->assertJsonPath('total_tests', 1)
+            ->assertJsonPath('score', 100);
+
+        $lessonId = DB::table('lessons')
+            ->join('exercises', 'lessons.id', '=', 'exercises.lesson_id')
+            ->where('exercises.id', $exerciseId)
+            ->value('lessons.id');
+
+        $this->postJson(route('lesson.progress', $lessonId), [
+            'progress_percent' => 100,
+        ])->assertOk()->assertJsonPath('progress_percent', 100);
+
+        $this->assertDatabaseHas('lesson_progress', [
+            'user_id' => $user->id,
+            'lesson_id' => $lessonId,
+            'status' => 'completed',
+            'progress_percent' => 100,
+        ]);
+
+        $this->get(route('submissions.history', ['search' => $submissionResponse->json('submission_id')]))
+            ->assertOk()
+            ->assertSee("#SUB-{$submissionResponse->json('submission_id')}")
+            ->assertSee($sourceCode);
+    }
+
+    public function test_time_limit_exceeded_is_reported_as_a_test_case_error(): void
+    {
+        Http::fake(fn () => Http::response([
+            'status' => ['id' => 5, 'description' => 'Time Limit Exceeded'],
+            'stdout' => '',
+            'stderr' => null,
+            'compile_output' => null,
+            'message' => null,
+            'time' => '2.00',
+        ]));
+        $exerciseId = $this->createExercise([
+            [
+                'input' => '',
+                'expected_output' => '42',
+                'assertion_code' => null,
+                'is_hidden' => false,
+            ],
+        ]);
+        $testCaseId = DB::table('test_cases')->where('exercise_id', $exerciseId)->value('id');
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->postJson(route('submissions.test-case.run', [
+                'exerciseId' => $exerciseId,
+                'testCaseId' => $testCaseId,
+            ]), [
+                'source_code' => 'while True: pass',
+            ])
+            ->assertOk()
+            ->assertJsonPath('is_passed', false)
+            ->assertJsonPath('error', 'Time Limit Exceeded');
+
+        $this->assertDatabaseHas('test_case_progress', [
+            'user_id' => $user->id,
+            'exercise_id' => $exerciseId,
+            'test_case_id' => $testCaseId,
+            'status' => 'failed',
+            'error_message' => 'Time Limit Exceeded',
+        ]);
+    }
+
+    public function test_judge0_unavailable_during_submission_returns_an_error_without_saving(): void
+    {
+        Http::fakeSequence()
+            ->push([
+                'status' => ['id' => 3, 'description' => 'Accepted'],
+                'stdout' => "42\n",
+                'time' => '0.01',
+            ])
+            ->push('Judge0 unavailable', 503);
+        $exerciseId = $this->createExercise([
+            [
+                'input' => '',
+                'expected_output' => '42',
+                'assertion_code' => null,
+                'is_hidden' => false,
+            ],
+        ]);
+        $testCaseId = DB::table('test_cases')->where('exercise_id', $exerciseId)->value('id');
+        $user = User::factory()->create();
+        $sourceCode = 'print(42)';
+
+        $this->actingAs($user)
+            ->postJson(route('submissions.test-case.run', [
+                'exerciseId' => $exerciseId,
+                'testCaseId' => $testCaseId,
+            ]), ['source_code' => $sourceCode])
+            ->assertOk()
+            ->assertJsonPath('is_passed', true);
+
+        $this->postJson(route('submissions.submit'), [
+            'exercise_id' => $exerciseId,
+            'source_code' => $sourceCode,
+        ])
+            ->assertStatus(502)
+            ->assertJsonPath('success', false)
+            ->assertJsonPath('message', 'Layanan penilai (Judge0) tidak dapat dihubungi.');
+
+        Http::assertSentCount(2);
+        $this->assertDatabaseCount('submissions', 0);
     }
 
     public function test_submit_saves_weighted_assertion_results_without_storing_hidden_output(): void
@@ -96,9 +270,18 @@ class SubmissionGradingTest extends TestCase
         ]);
 
         $user = User::factory()->create();
+        $sourceCode = "def jumlah(a, b):\n    return a + b";
+
+        $this->actingAs($user)->postJson(route('submissions.test-case.run', [
+            'exerciseId' => $exerciseId,
+            'testCaseId' => DB::table('test_cases')->where('is_hidden', false)->value('id'),
+        ]), [
+            'source_code' => $sourceCode,
+        ])->assertOk()->assertJsonPath('is_passed', true);
+
         $response = $this->actingAs($user)->postJson(route('submissions.submit'), [
             'exercise_id' => $exerciseId,
-            'source_code' => "def jumlah(a, b):\n    return a + b",
+            'source_code' => $sourceCode,
         ]);
 
         $response->assertOk()
@@ -127,6 +310,224 @@ class SubmissionGradingTest extends TestCase
         $this->assertSame('Test case tersembunyi gagal.', $hiddenResult->error_message);
     }
 
+    public function test_test_case_progress_is_isolated_per_user_and_saved_per_case(): void
+    {
+        Http::fake(fn (ClientRequest $request) => Http::response([
+            'status' => ['id' => 3, 'description' => 'Accepted'],
+            'stdout' => $request->data()['stdin'] === "2\n3" ? "5\n" : "6\n",
+            'time' => '0.01',
+        ]));
+        $exerciseId = $this->createExercise([
+            [
+                'input' => "2\n3",
+                'expected_output' => '5',
+                'assertion_code' => null,
+                'is_hidden' => false,
+            ],
+            [
+                'input' => "10\n-4",
+                'expected_output' => '6',
+                'assertion_code' => null,
+                'is_hidden' => false,
+            ],
+        ]);
+        $testCaseIds = DB::table('test_cases')
+            ->where('exercise_id', $exerciseId)
+            ->orderBy('sort_order')
+            ->pluck('id');
+        $sourceCode = "a = int(input())\nb = int(input())\nprint(a + b)";
+        $userA = User::factory()->create();
+        $userB = User::factory()->create();
+
+        $this->actingAs($userA)
+            ->postJson(route('submissions.test-case.run', [
+                'exerciseId' => $exerciseId,
+                'testCaseId' => $testCaseIds[0],
+            ]), ['source_code' => $sourceCode])
+            ->assertOk()
+            ->assertJsonPath('is_passed', true)
+            ->assertJsonPath('passed_tests', 1)
+            ->assertJsonPath('total_tests', 2);
+
+        $this->assertDatabaseHas('test_case_progress', [
+            'user_id' => $userA->id,
+            'exercise_id' => $exerciseId,
+            'test_case_id' => $testCaseIds[0],
+            'code_hash' => hash('sha256', $sourceCode),
+            'status' => 'passed',
+        ]);
+
+        $this->actingAs($userB)
+            ->postJson(route('submissions.test-case.progress', ['exerciseId' => $exerciseId]), [
+                'source_code' => $sourceCode,
+            ])
+            ->assertOk()
+            ->assertJsonPath('passed_tests', 0)
+            ->assertJsonPath('total_tests', 2);
+    }
+
+    public function test_manual_runtime_error_does_not_change_reference_test_case_progress(): void
+    {
+        Http::fake(function (ClientRequest $request) {
+            if ($request->data()['stdin'] === '0.5') {
+                return Http::response([
+                    'status' => ['id' => 11, 'description' => 'Runtime Error'],
+                    'stdout' => null,
+                    'stderr' => "ValueError: invalid literal for int() with base 10: '0.5'",
+                    'time' => '0.01',
+                ]);
+            }
+
+            return Http::response([
+                'status' => ['id' => 3, 'description' => 'Accepted'],
+                'stdout' => "Genap\n",
+                'time' => '0.01',
+            ]);
+        });
+
+        $exerciseId = $this->createExercise([
+            [
+                'input' => '4',
+                'expected_output' => 'Genap',
+                'assertion_code' => null,
+                'is_hidden' => false,
+            ],
+        ]);
+        $user = User::factory()->create();
+        $sourceCode = "angka = int(input())\nprint('Genap' if angka % 2 == 0 else 'Ganjil')";
+        $testCaseId = DB::table('test_cases')->where('exercise_id', $exerciseId)->value('id');
+
+        $this->actingAs($user)
+            ->postJson(route('submissions.test-case.run', [
+                'exerciseId' => $exerciseId,
+                'testCaseId' => $testCaseId,
+            ]), ['source_code' => $sourceCode])
+            ->assertOk()
+            ->assertJsonPath('is_passed', true)
+            ->assertJsonPath('input', '4');
+
+        $this->postJson(route('submissions.execute'), [
+            'exercise_id' => $exerciseId,
+            'source_code' => $sourceCode,
+            'stdin' => '0.5',
+        ])->assertOk()
+            ->assertJsonPath('status.id', 11)
+            ->assertJsonPath('stderr', "ValueError: invalid literal for int() with base 10: '0.5'");
+
+        $this->assertDatabaseHas('test_case_progress', [
+            'user_id' => $user->id,
+            'exercise_id' => $exerciseId,
+            'test_case_id' => $testCaseId,
+            'status' => 'passed',
+        ]);
+    }
+
+    public function test_wrong_answer_from_judge0_marks_test_case_as_failed(): void
+    {
+        Http::fake(function (ClientRequest $request) {
+            $this->assertSame('4', $request->data()['stdin']);
+            $this->assertSame('Genap', $request->data()['expected_output']);
+
+            return Http::response([
+                'status' => ['id' => 4, 'description' => 'Wrong Answer'],
+                'stdout' => "Ganjil\n",
+                'time' => '0.01',
+            ]);
+        });
+
+        $exerciseId = $this->createExercise([
+            [
+                'input' => '4',
+                'expected_output' => 'Genap',
+                'assertion_code' => null,
+                'is_hidden' => false,
+            ],
+        ]);
+        $user = User::factory()->create();
+        $testCaseId = DB::table('test_cases')->where('exercise_id', $exerciseId)->value('id');
+
+        $this->actingAs($user)
+            ->postJson(route('submissions.test-case.run', [
+                'exerciseId' => $exerciseId,
+                'testCaseId' => $testCaseId,
+            ]), ['source_code' => "print('Ganjil')"])
+            ->assertOk()
+            ->assertJsonPath('is_passed', false)
+            ->assertJsonPath('expected', 'Genap')
+            ->assertJsonPath('actual', "Ganjil\n")
+            ->assertJsonPath('passed_tests', 0);
+
+        $this->assertDatabaseHas('test_case_progress', [
+            'user_id' => $user->id,
+            'exercise_id' => $exerciseId,
+            'test_case_id' => $testCaseId,
+            'status' => 'failed',
+        ]);
+    }
+
+    public function test_submit_requires_each_visible_case_to_pass_for_the_current_code(): void
+    {
+        Http::fake(fn (ClientRequest $request) => Http::response([
+            'status' => ['id' => 3, 'description' => 'Accepted'],
+            'stdout' => $request->data()['stdin'] === "2\n3" ? "5\n" : "6\n",
+            'time' => '0.01',
+        ]));
+        $exerciseId = $this->createExercise([
+            [
+                'input' => "2\n3",
+                'expected_output' => '5',
+                'assertion_code' => null,
+                'is_hidden' => false,
+            ],
+            [
+                'input' => "10\n-4",
+                'expected_output' => '6',
+                'assertion_code' => null,
+                'is_hidden' => false,
+            ],
+        ]);
+        $testCaseIds = DB::table('test_cases')
+            ->where('exercise_id', $exerciseId)
+            ->orderBy('sort_order')
+            ->pluck('id');
+        $user = User::factory()->create();
+        $sourceCode = "a = int(input())\nb = int(input())\nprint(a + b)";
+
+        $this->actingAs($user)
+            ->postJson(route('submissions.test-case.run', [
+                'exerciseId' => $exerciseId,
+                'testCaseId' => $testCaseIds[0],
+            ]), ['source_code' => $sourceCode])
+            ->assertOk();
+
+        $this->postJson(route('submissions.submit'), [
+            'exercise_id' => $exerciseId,
+            'source_code' => $sourceCode,
+        ])->assertUnprocessable()
+            ->assertJsonPath('passed_tests', 1)
+            ->assertJsonPath('total_tests', 2);
+
+        $this->postJson(route('submissions.submit'), [
+            'exercise_id' => $exerciseId,
+            'source_code' => $sourceCode."\n# changed",
+        ])->assertUnprocessable()
+            ->assertJsonPath('passed_tests', 0);
+
+        $this->postJson(route('submissions.test-case.run', [
+            'exerciseId' => $exerciseId,
+            'testCaseId' => $testCaseIds[1],
+        ]), ['source_code' => $sourceCode])->assertOk();
+
+        $this->postJson(route('submissions.submit'), [
+            'exercise_id' => $exerciseId,
+            'source_code' => $sourceCode,
+        ])->assertOk()
+            ->assertJsonPath('passed_tests', 2)
+            ->assertJsonPath('total_tests', 2);
+
+        $this->assertDatabaseCount('submissions', 1);
+    }
+
     public function test_run_keeps_supporting_stdin_and_expected_output_test_cases(): void
     {
         Http::fake(fn () => Http::response([
@@ -143,14 +544,79 @@ class SubmissionGradingTest extends TestCase
                 'is_hidden' => false,
             ],
         ]);
+        $user = User::factory()->create();
 
-        $this->postJson(route('submissions.run'), [
+        $this->actingAs($user)->postJson(route('submissions.run'), [
             'exercise_id' => $exerciseId,
             'source_code' => 'nama = input()',
         ])->assertOk()->assertJsonPath('score', 100);
 
         Http::assertSent(fn (ClientRequest $request): bool => $request->data()['stdin'] === 'Budi'
             && $request->data()['expected_output'] === 'Halo, Budi!');
+    }
+
+    public function test_execute_sends_custom_stdin_to_judge0_and_returns_execution_output(): void
+    {
+        Http::fake(fn () => Http::response([
+            'status' => ['id' => 3, 'description' => 'Accepted'],
+            'stdout' => "Genap\n",
+            'stderr' => null,
+            'compile_output' => null,
+            'time' => '0.01',
+        ]));
+
+        $exerciseId = $this->createExercise([
+            [
+                'input' => '4',
+                'expected_output' => 'Genap',
+                'assertion_code' => null,
+                'is_hidden' => false,
+            ],
+        ]);
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->postJson(route('submissions.execute'), [
+            'exercise_id' => $exerciseId,
+            'source_code' => 'angka = int(input()); print("Genap" if angka % 2 == 0 else "Ganjil")',
+            'stdin' => '4',
+        ])->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('status.description', 'Accepted')
+            ->assertJsonPath('stdout', "Genap\n")
+            ->assertJsonPath('stderr', null);
+
+        Http::assertSent(fn (ClientRequest $request): bool => $request->data()['source_code'] === 'angka = int(input()); print("Genap" if angka % 2 == 0 else "Ganjil")'
+            && $request->data()['stdin'] === '4'
+            && ! array_key_exists('expected_output', $request->data())
+            && $request->data()['language_id'] === 10);
+    }
+
+    public function test_execute_returns_judge0_errors_for_display(): void
+    {
+        Http::fake(fn () => Http::response([
+            'status' => ['id' => 11, 'description' => 'Runtime Error'],
+            'stdout' => '',
+            'stderr' => 'ValueError: invalid input',
+            'compile_output' => null,
+            'time' => '0.02',
+        ]));
+
+        $exerciseId = $this->createExercise([
+            [
+                'assertion_code' => 'assert True',
+                'is_hidden' => false,
+            ],
+        ]);
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->postJson(route('submissions.execute'), [
+            'exercise_id' => $exerciseId,
+            'source_code' => 'raise ValueError("invalid input")',
+            'stdin' => '',
+        ])->assertOk()
+            ->assertJsonPath('status.id', 11)
+            ->assertJsonPath('status.description', 'Runtime Error')
+            ->assertJsonPath('stderr', 'ValueError: invalid input');
     }
 
     public function test_editor_displays_public_assertions_and_uses_the_grading_route(): void
@@ -162,9 +628,17 @@ class SubmissionGradingTest extends TestCase
             ],
         ]);
 
-        $this->get(route('latihan.show', 'jumlah'))
+        $this->actingAs(User::factory()->create())
+            ->get(route('latihan.show', 'jumlah'))
             ->assertOk()
             ->assertSee('id="editor"', false)
+            ->assertSee('placeholder="Masukkan input : "', false)
+            ->assertSee('Input Program (Jalankan Kode)')
+            ->assertSee('Input manual:')
+            ->assertSee('Hasil ini terpisah dari test case acuan')
+            ->assertSee('Penilaian test case menggunakan input acuan')
+            ->assertSee('Input Program hanya untuk Jalankan Kode dan tidak mengubah status')
+            ->assertSee('Uji test case ini')
             ->assertSee('assert jumlah(2, 3) == 5')
             ->assertSee('const RUN_URL =', false);
     }
@@ -186,11 +660,20 @@ class SubmissionGradingTest extends TestCase
         ]);
 
         $user = User::factory()->create();
+        $sourceCode = "def jumlah(a, b):\n    return a + b";
+        $testCaseId = DB::table('test_cases')->where('exercise_id', $exerciseId)->value('id');
+
+        $this->actingAs($user)
+            ->postJson(route('submissions.test-case.run', [
+                'exerciseId' => $exerciseId,
+                'testCaseId' => $testCaseId,
+            ]), ['source_code' => $sourceCode])
+            ->assertOk();
 
         // Submission pertama
-        $response1 = $this->actingAs($user)->postJson(route('submissions.submit'), [
+        $response1 = $this->postJson(route('submissions.submit'), [
             'exercise_id' => $exerciseId,
-            'source_code' => "def jumlah(a, b):\n    return a + b",
+            'source_code' => $sourceCode,
         ]);
 
         $response1->assertOk()
@@ -199,9 +682,9 @@ class SubmissionGradingTest extends TestCase
         $this->assertSame(1, DB::table('submissions')->where('user_id', $user->id)->count());
 
         // Submission kedua (duplikat cepat dengan kode dan exercise yang sama)
-        $response2 = $this->actingAs($user)->postJson(route('submissions.submit'), [
+        $response2 = $this->postJson(route('submissions.submit'), [
             'exercise_id' => $exerciseId,
-            'source_code' => "def jumlah(a, b):\n    return a + b",
+            'source_code' => $sourceCode,
         ]);
 
         $response2->assertOk()
@@ -223,18 +706,249 @@ class SubmissionGradingTest extends TestCase
         ]);
 
         $user = User::factory()->create();
+        $sourceCode = "def jumlah(a, b):\n    return a + b";
+        $testCaseId = DB::table('test_cases')->where('exercise_id', $exerciseId)->value('id');
+
+        $this->actingAs($user)
+            ->postJson(route('submissions.test-case.run', [
+                'exerciseId' => $exerciseId,
+                'testCaseId' => $testCaseId,
+            ]), ['source_code' => $sourceCode])
+            ->assertOk();
 
         // Simulasikan lock aktif oleh request concurrent
         $lockKey = "submission_lock:{$user->id}:{$exerciseId}";
         Cache::lock($lockKey, 15)->get();
 
-        $response = $this->actingAs($user)->postJson(route('submissions.submit'), [
+        $response = $this->postJson(route('submissions.submit'), [
             'exercise_id' => $exerciseId,
-            'source_code' => "def jumlah(a, b):\n    return a + b",
+            'source_code' => $sourceCode,
         ]);
 
         $response->assertStatus(429)
             ->assertJsonPath('success', false);
+    }
+
+    public function test_history_displays_passed_test_results_as_successful(): void
+    {
+        $exerciseId = $this->createExercise([
+            [
+                'input' => "2\n3",
+                'expected_output' => '5',
+                'assertion_code' => null,
+                'is_hidden' => false,
+            ],
+        ]);
+        DB::table('exercises')->where('id', $exerciseId)->update([
+            'title' => 'Jumlah Dua Bilangan',
+            'slug' => 'jumlah-dua-bilangan',
+        ]);
+        $user = User::factory()->create();
+        $now = now();
+        $submissionId = DB::table('submissions')->insertGetId([
+            'user_id' => $user->id,
+            'exercise_id' => $exerciseId,
+            'source_code' => "a = int(input())\nb = int(input())\nprint(a + b)",
+            'status' => 'accepted',
+            'score' => 100,
+            'passed_tests' => 1,
+            'total_tests' => 1,
+            'execution_time_ms' => 34,
+            'submitted_at' => $now,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        $testCaseId = DB::table('test_cases')
+            ->where('exercise_id', $exerciseId)
+            ->value('id');
+
+        DB::table('submission_results')->insert([
+            'submission_id' => $submissionId,
+            'test_case_id' => $testCaseId,
+            'status' => 'passed',
+            'actual_output' => "5\n",
+            'execution_time_ms' => 34,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('submissions.history', ['selected' => $submissionId]))
+            ->assertOk()
+            ->assertSee('border-emerald-600 font-semibold text-slate-900')
+            ->assertSee('Jumlah Dua Bilangan')
+            ->assertSee('print(a + b)')
+            ->assertSee("2\n3")
+            ->assertSee('"5"')
+            ->assertSee('Test Case 1: Input Sesuai Ekspektasi')
+            ->assertSee('Lolos • 34ms')
+            ->assertDontSee('Output Tidak Cocok')
+            ->assertDontSee('Cek Bilangan Genap atau Ganjil')
+            ->assertDontSee('"Genap"');
+    }
+
+    public function test_history_paginates_submissions_five_per_page_and_keeps_global_statistics(): void
+    {
+        $exerciseId = $this->createExercise([
+            [
+                'assertion_code' => 'assert True',
+                'is_hidden' => false,
+            ],
+        ]);
+        $user = User::factory()->create();
+        $submissionIds = [];
+        $now = now();
+
+        foreach (range(1, 7) as $number) {
+            $submissionIds[] = DB::table('submissions')->insertGetId([
+                'user_id' => $user->id,
+                'exercise_id' => $exerciseId,
+                'source_code' => "submission-code-{$number}",
+                'status' => 'accepted',
+                'score' => 100,
+                'passed_tests' => 1,
+                'total_tests' => 1,
+                'execution_time_ms' => 34,
+                'submitted_at' => $now->copy()->addSeconds($number),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+        }
+
+        $this->actingAs($user)
+            ->get(route('submissions.history'))
+            ->assertOk()
+            ->assertSee('1–5 dari 7')
+            ->assertSee('submission-code-7')
+            ->assertSee(route('submissions.history', ['selected' => $submissionIds[2], 'page' => 1]))
+            ->assertDontSee(route('submissions.history', ['selected' => $submissionIds[1], 'page' => 1]));
+
+        $this->get(route('submissions.history', ['page' => 2]))
+            ->assertOk()
+            ->assertSee('6–7 dari 7')
+            ->assertSee('submission-code-2')
+            ->assertSee(route('submissions.history', ['selected' => $submissionIds[0], 'page' => 2]))
+            ->assertDontSee(route('submissions.history', ['selected' => $submissionIds[2], 'page' => 2]));
+    }
+
+    public function test_perfect_submission_notifies_admin(): void
+    {
+        Http::fake(fn () => Http::response([
+            'status' => ['id' => 3, 'description' => 'Accepted'],
+            'stdout' => "ok\n",
+            'time' => '0.01',
+        ]));
+
+        $admin = User::factory()->create(['role' => 'admin']);
+        $student = User::factory()->create(['role' => 'learner']);
+        $exerciseId = $this->createExercise([
+            [
+                'assertion_code' => 'assert True',
+                'is_hidden' => false,
+            ],
+        ]);
+        $sourceCode = 'print("ok")';
+        $testCaseId = DB::table('test_cases')->where('exercise_id', $exerciseId)->value('id');
+
+        $this->actingAs($student)
+            ->postJson(route('submissions.test-case.run', [
+                'exerciseId' => $exerciseId,
+                'testCaseId' => $testCaseId,
+            ]), ['source_code' => $sourceCode])
+            ->assertOk();
+
+        $this->postJson(route('submissions.submit'), [
+            'exercise_id' => $exerciseId,
+            'source_code' => $sourceCode,
+        ])->assertOk()->assertJsonPath('score', 100);
+
+        $this->assertSame('perfect_score', $admin->notifications()->first()->data['type']);
+    }
+
+    public function test_history_searches_filters_and_scopes_submissions_by_module(): void
+    {
+        $exerciseId = $this->createExercise([
+            [
+                'assertion_code' => 'assert True',
+                'is_hidden' => false,
+            ],
+        ]);
+        DB::table('exercises')->where('id', $exerciseId)->update(['title' => 'Cetak Salam']);
+        $user = User::factory()->create();
+        $now = now();
+        $passedSubmissionId = DB::table('submissions')->insertGetId([
+            'user_id' => $user->id,
+            'exercise_id' => $exerciseId,
+            'source_code' => 'passed-solution',
+            'status' => 'accepted',
+            'score' => 100,
+            'passed_tests' => 1,
+            'total_tests' => 1,
+            'execution_time_ms' => 20,
+            'submitted_at' => $now,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        $failedSubmissionId = DB::table('submissions')->insertGetId([
+            'user_id' => $user->id,
+            'exercise_id' => $exerciseId,
+            'source_code' => 'needs-improvement-solution',
+            'status' => 'failed',
+            'score' => 40,
+            'passed_tests' => 0,
+            'total_tests' => 1,
+            'execution_time_ms' => 20,
+            'submitted_at' => $now->copy()->subMinute(),
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+        $moduleId = DB::table('lessons')
+            ->join('exercises', 'lessons.id', '=', 'exercises.lesson_id')
+            ->where('exercises.id', $exerciseId)
+            ->value('lessons.module_id');
+
+        $this->actingAs($user)
+            ->get(route('submissions.history', [
+                'search' => "#SUB-{$failedSubmissionId}",
+                'status' => 'improvement',
+                'module_id' => $moduleId,
+            ]))
+            ->assertOk()
+            ->assertSee("#SUB-{$failedSubmissionId}")
+            ->assertDontSee("#SUB-{$passedSubmissionId}")
+            ->assertSee('1–1 dari 1')
+            ->assertSee('needs-improvement-solution')
+            ->assertSee(route('submissions.history', [
+                'search' => "#SUB-{$failedSubmissionId}",
+                'status' => 'improvement',
+                'module_id' => $moduleId,
+                'selected' => $failedSubmissionId,
+                'page' => 1,
+            ]));
+
+        $this->get(route('submissions.history', [
+            'search' => 'cetak salam',
+        ]))
+            ->assertOk()
+            ->assertSee('1–2 dari 2')
+            ->assertSee("#SUB-{$failedSubmissionId}")
+            ->assertSee("#SUB-{$passedSubmissionId}");
+
+        $this->get(route('submissions.history', [
+            'search' => "SUB-{$failedSubmissionId}",
+        ]))
+            ->assertOk()
+            ->assertSee('1–1 dari 1')
+            ->assertSee("#SUB-{$failedSubmissionId}")
+            ->assertDontSee("#SUB-{$passedSubmissionId}");
+
+        $this->get(route('submissions.history', [
+            'search' => $failedSubmissionId,
+        ]))
+            ->assertOk()
+            ->assertSee('1–1 dari 1')
+            ->assertSee("#SUB-{$failedSubmissionId}")
+            ->assertDontSee("#SUB-{$passedSubmissionId}");
     }
 
     /**

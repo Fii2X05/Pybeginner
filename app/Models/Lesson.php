@@ -18,6 +18,7 @@ class Lesson extends Model
         'content',
         'sort_order',
         'is_published',
+        'is_content_edited',
     ];
 
     public function module(): BelongsTo
@@ -28,5 +29,10 @@ class Lesson extends Model
     public function exercises(): HasMany
     {
         return $this->hasMany(Exercise::class)->orderBy('sort_order');
+    }
+
+    public function progress(): HasMany
+    {
+        return $this->hasMany(LessonProgress::class);
     }
 }

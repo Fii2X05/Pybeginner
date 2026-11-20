@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Submission extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'user_id',
         'exercise_id',
@@ -15,7 +19,7 @@ class Submission extends Model
         'passed_tests',
         'total_tests',
         'execution_time_ms',
-        'submitted_at'
+        'submitted_at',
     ];
 
     // Mengubah tanggal agar otomatis menjadi instance Carbon
@@ -23,8 +27,17 @@ class Submission extends Model
         'submitted_at' => 'datetime',
     ];
 
-    // Relasi ke tabel submission_results
-    public function results()
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function exercise(): BelongsTo
+    {
+        return $this->belongsTo(Exercise::class);
+    }
+
+    public function results(): HasMany
     {
         return $this->hasMany(SubmissionResult::class);
     }

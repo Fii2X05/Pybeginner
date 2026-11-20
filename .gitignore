@@ -21,7 +21,19 @@
 /storage/*.key
 /storage/pail
 /vendor
+/playwright-report/
+/test-results/
 _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+*.stackdump
+SECURITY-REVIEW.md
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

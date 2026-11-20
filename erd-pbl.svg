@@ -1,0 +1,602 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="4720" height="978" viewBox="0 0 4720 978">
+  <rect x="0" y="0" width="4720" height="978" fill="#0f1115"/>
+  <g class="rel-group" data-src="Courses" data-tgt="Modules" data-rel-type="hasMany" data-rel-kind="eloquent" data-label="Courses::modules()"><path d="M380 526 L430 526 Q440 526 440 516 L440 96 Q440 86 450 86 L500 86" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M380 526 L430 526 Q440 526 440 516 L440 96 Q440 86 450 86 L500 86" fill="none" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 4"></path><line x1="387" y1="520" x2="387" y2="532" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="392" y1="520" x2="392" y2="532" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="488" y1="86" x2="500" y2="80" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="488" y1="86" x2="500" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="488" y1="86" x2="500" y2="86" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="484" y1="80" x2="484" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="Modules" data-tgt="Courses" data-rel-type="foreign key" data-rel-kind="fk" data-label="modules.course_id → courses.id"><path d="M500 156 L450 156 Q440 156 440 166 L440 562 Q440 572 430 572 L380 572" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M500 156 L450 156 Q440 156 440 166 L440 562 Q440 572 430 572 L380 572" fill="none" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><line x1="488" y1="156" x2="500" y2="150" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="488" y1="156" x2="500" y2="162" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="488" y1="156" x2="500" y2="156" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="484" y1="150" x2="484" y2="162" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="387" y1="566" x2="387" y2="578" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="392" y1="566" x2="392" y2="578" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="Modules" data-tgt="Courses" data-rel-type="belongsTo" data-rel-kind="eloquent" data-label="Modules::course()"><path d="M500 86 L450 86 Q440 86 440 96 L440 516 Q440 526 430 526 L380 526" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M500 86 L450 86 Q440 86 440 96 L440 516 Q440 526 430 526 L380 526" fill="none" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 4"></path><line x1="488" y1="86" x2="500" y2="80" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="488" y1="86" x2="500" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="488" y1="86" x2="500" y2="86" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="484" y1="80" x2="484" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="387" y1="520" x2="387" y2="532" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="392" y1="520" x2="392" y2="532" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="Modules" data-tgt="Lessons" data-rel-type="hasMany" data-rel-kind="eloquent" data-label="Modules::lessons()"><path d="M820 86 L870 86 Q880 86 880 86 L880 86 Q880 86 890 86 L940 86" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M820 86 L870 86 Q880 86 880 86 L880 86 Q880 86 890 86 L940 86" fill="none" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 4"></path><line x1="827" y1="80" x2="827" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="832" y1="80" x2="832" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="928" y1="86" x2="940" y2="80" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="928" y1="86" x2="940" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="928" y1="86" x2="940" y2="86" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="924" y1="80" x2="924" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="Lessons" data-tgt="Modules" data-rel-type="foreign key" data-rel-kind="fk" data-label="lessons.module_id → modules.id"><path d="M940 156 L890 156 Q880 156 880 146 L880 142 Q880 132 870 132 L820 132" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M940 156 L890 156 Q880 156 880 146 L880 142 Q880 132 870 132 L820 132" fill="none" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><line x1="928" y1="156" x2="940" y2="150" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="928" y1="156" x2="940" y2="162" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="928" y1="156" x2="940" y2="156" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="924" y1="150" x2="924" y2="162" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="827" y1="126" x2="827" y2="138" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="832" y1="126" x2="832" y2="138" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="Lessons" data-tgt="Modules" data-rel-type="belongsTo" data-rel-kind="eloquent" data-label="Lessons::module()"><path d="M940 86 L890 86 Q880 86 880 86 L880 86 Q880 86 870 86 L820 86" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M940 86 L890 86 Q880 86 880 86 L880 86 Q880 86 870 86 L820 86" fill="none" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 4"></path><line x1="928" y1="86" x2="940" y2="80" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="928" y1="86" x2="940" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="928" y1="86" x2="940" y2="86" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="924" y1="80" x2="924" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="827" y1="80" x2="827" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="832" y1="80" x2="832" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="Lessons" data-tgt="Exercises" data-rel-type="hasMany" data-rel-kind="eloquent" data-label="Lessons::exercises()"><path d="M1260 86 L1310 86 Q1320 86 1320 86 L1320 86 Q1320 86 1330 86 L1380 86" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M1260 86 L1310 86 Q1320 86 1320 86 L1320 86 Q1320 86 1330 86 L1380 86" fill="none" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 4"></path><line x1="1267" y1="80" x2="1267" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1272" y1="80" x2="1272" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1368" y1="86" x2="1380" y2="80" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1368" y1="86" x2="1380" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1368" y1="86" x2="1380" y2="86" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1364" y1="80" x2="1364" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="Exercises" data-tgt="Lessons" data-rel-type="foreign key" data-rel-kind="fk" data-label="exercises.lesson_id → lessons.id"><path d="M1380 156 L1330 156 Q1320 156 1320 146 L1320 142 Q1320 132 1310 132 L1260 132" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M1380 156 L1330 156 Q1320 156 1320 146 L1320 142 Q1320 132 1310 132 L1260 132" fill="none" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><line x1="1368" y1="156" x2="1380" y2="150" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1368" y1="156" x2="1380" y2="162" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1368" y1="156" x2="1380" y2="156" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1364" y1="150" x2="1364" y2="162" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1267" y1="126" x2="1267" y2="138" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1272" y1="126" x2="1272" y2="138" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="Exercises" data-tgt="Lessons" data-rel-type="belongsTo" data-rel-kind="eloquent" data-label="Exercises::lesson()"><path d="M1380 86 L1330 86 Q1320 86 1320 86 L1320 86 Q1320 86 1310 86 L1260 86" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M1380 86 L1330 86 Q1320 86 1320 86 L1320 86 Q1320 86 1310 86 L1260 86" fill="none" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 4"></path><line x1="1368" y1="86" x2="1380" y2="80" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1368" y1="86" x2="1380" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1368" y1="86" x2="1380" y2="86" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1364" y1="80" x2="1364" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1267" y1="80" x2="1267" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1272" y1="80" x2="1272" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="TestCases" data-tgt="Exercises" data-rel-type="foreign key" data-rel-kind="fk" data-label="test_cases.exercise_id → exercises.id"><path d="M1820 680 L1770 680 Q1760 680 1760 670 L1760 142 Q1760 132 1750 132 L1700 132" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M1820 680 L1770 680 Q1760 680 1760 670 L1760 142 Q1760 132 1750 132 L1700 132" fill="none" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><line x1="1808" y1="680" x2="1820" y2="674" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1808" y1="680" x2="1820" y2="686" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1808" y1="680" x2="1820" y2="680" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1804" y1="674" x2="1804" y2="686" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1707" y1="126" x2="1707" y2="138" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1712" y1="126" x2="1712" y2="138" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="TestCases" data-tgt="Exercises" data-rel-type="belongsTo" data-rel-kind="eloquent" data-label="TestCases::exercise()"><path d="M1820 610 L1770 610 Q1760 610 1760 600 L1760 96 Q1760 86 1750 86 L1700 86" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M1820 610 L1770 610 Q1760 610 1760 600 L1760 96 Q1760 86 1750 86 L1700 86" fill="none" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 4"></path><line x1="1808" y1="610" x2="1820" y2="604" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1808" y1="610" x2="1820" y2="616" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1808" y1="610" x2="1820" y2="610" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1804" y1="604" x2="1804" y2="616" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1707" y1="80" x2="1707" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1712" y1="80" x2="1712" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="Submissions" data-tgt="Users" data-rel-type="foreign key" data-rel-kind="fk" data-label="submissions.user_id → users.id"><path d="M1820 156 L1110 156 Q1100 156 1100 146 L1100 7 Q1100 -3 1090 -3 L418 -3 Q408 -3 408 7 L408 122 Q408 132 398 132 L380 132" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M1820 156 L1110 156 Q1100 156 1100 146 L1100 7 Q1100 -3 1090 -3 L418 -3 Q408 -3 408 7 L408 122 Q408 132 398 132 L380 132" fill="none" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><line x1="1808" y1="156" x2="1820" y2="150" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1808" y1="156" x2="1820" y2="162" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1808" y1="156" x2="1820" y2="156" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1804" y1="150" x2="1804" y2="162" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="387" y1="126" x2="387" y2="138" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="392" y1="126" x2="392" y2="138" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="Submissions" data-tgt="Exercises" data-rel-type="foreign key" data-rel-kind="fk" data-label="submissions.exercise_id → exercises.id"><path d="M1820 180 L1770 180 Q1760 180 1760 170 L1760 142 Q1760 132 1750 132 L1700 132" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M1820 180 L1770 180 Q1760 180 1760 170 L1760 142 Q1760 132 1750 132 L1700 132" fill="none" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><line x1="1808" y1="180" x2="1820" y2="174" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1808" y1="180" x2="1820" y2="186" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1808" y1="180" x2="1820" y2="180" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1804" y1="174" x2="1804" y2="186" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1707" y1="126" x2="1707" y2="138" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1712" y1="126" x2="1712" y2="138" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="Submissions" data-tgt="Users" data-rel-type="belongsTo" data-rel-kind="eloquent" data-label="Submissions::user()"><path d="M1820 86 L1110 86 Q1100 86 1100 76 L1100 7 Q1100 -3 1090 -3 L418 -3 Q408 -3 408 7 L408 76 Q408 86 398 86 L380 86" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M1820 86 L1110 86 Q1100 86 1100 76 L1100 7 Q1100 -3 1090 -3 L418 -3 Q408 -3 408 7 L408 76 Q408 86 398 86 L380 86" fill="none" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 4"></path><line x1="1808" y1="86" x2="1820" y2="80" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1808" y1="86" x2="1820" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1808" y1="86" x2="1820" y2="86" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1804" y1="80" x2="1804" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="387" y1="80" x2="387" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="392" y1="80" x2="392" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="Submissions" data-tgt="Exercises" data-rel-type="belongsTo" data-rel-kind="eloquent" data-label="Submissions::exercise()"><path d="M1820 86 L1770 86 Q1760 86 1760 86 L1760 86 Q1760 86 1750 86 L1700 86" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M1820 86 L1770 86 Q1760 86 1760 86 L1760 86 Q1760 86 1750 86 L1700 86" fill="none" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 4"></path><line x1="1808" y1="86" x2="1820" y2="80" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1808" y1="86" x2="1820" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1808" y1="86" x2="1820" y2="86" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1804" y1="80" x2="1804" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1707" y1="80" x2="1707" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1712" y1="80" x2="1712" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="SubmissionResults" data-tgt="Submissions" data-rel-type="foreign key" data-rel-kind="fk" data-label="submission_results.submission_id → submissions.id"><path d="M2260 156 L2210 156 Q2200 156 2200 146 L2200 142 Q2200 132 2190 132 L2140 132" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M2260 156 L2210 156 Q2200 156 2200 146 L2200 142 Q2200 132 2190 132 L2140 132" fill="none" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><line x1="2248" y1="156" x2="2260" y2="150" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="2248" y1="156" x2="2260" y2="162" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="2248" y1="156" x2="2260" y2="156" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="2244" y1="150" x2="2244" y2="162" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="2147" y1="126" x2="2147" y2="138" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="2152" y1="126" x2="2152" y2="138" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="SubmissionResults" data-tgt="TestCases" data-rel-type="foreign key" data-rel-kind="fk" data-label="submission_results.test_case_id → test_cases.id"><path d="M2260 180 L2210 180 Q2200 180 2200 190 L2200 646 Q2200 656 2190 656 L2140 656" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M2260 180 L2210 180 Q2200 180 2200 190 L2200 646 Q2200 656 2190 656 L2140 656" fill="none" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><line x1="2248" y1="180" x2="2260" y2="174" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="2248" y1="180" x2="2260" y2="186" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="2248" y1="180" x2="2260" y2="180" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="2244" y1="174" x2="2244" y2="186" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="2147" y1="650" x2="2147" y2="662" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="2152" y1="650" x2="2152" y2="662" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="SubmissionResults" data-tgt="Submissions" data-rel-type="belongsTo" data-rel-kind="eloquent" data-label="SubmissionResults::submission()"><path d="M2260 86 L2210 86 Q2200 86 2200 86 L2200 86 Q2200 86 2190 86 L2140 86" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M2260 86 L2210 86 Q2200 86 2200 86 L2200 86 Q2200 86 2190 86 L2140 86" fill="none" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 4"></path><line x1="2248" y1="86" x2="2260" y2="80" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="2248" y1="86" x2="2260" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="2248" y1="86" x2="2260" y2="86" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="2244" y1="80" x2="2244" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="2147" y1="80" x2="2147" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="2152" y1="80" x2="2152" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="LessonProgress" data-tgt="Users" data-rel-type="foreign key" data-rel-kind="fk" data-label="lesson_progress.user_id → users.id"><path d="M1380 680 L490 680 Q480 680 480 670 L480 142 Q480 132 470 132 L380 132" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M1380 680 L490 680 Q480 680 480 670 L480 142 Q480 132 470 132 L380 132" fill="none" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><line x1="1368" y1="680" x2="1380" y2="674" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1368" y1="680" x2="1380" y2="686" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1368" y1="680" x2="1380" y2="680" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1364" y1="674" x2="1364" y2="686" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="387" y1="126" x2="387" y2="138" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="392" y1="126" x2="392" y2="138" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="LessonProgress" data-tgt="Lessons" data-rel-type="foreign key" data-rel-kind="fk" data-label="lesson_progress.lesson_id → lessons.id"><path d="M1380 704 L1330 704 Q1320 704 1320 694 L1320 142 Q1320 132 1310 132 L1260 132" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M1380 704 L1330 704 Q1320 704 1320 694 L1320 142 Q1320 132 1310 132 L1260 132" fill="none" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><line x1="1368" y1="704" x2="1380" y2="698" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1368" y1="704" x2="1380" y2="710" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1368" y1="704" x2="1380" y2="704" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1364" y1="698" x2="1364" y2="710" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1267" y1="126" x2="1267" y2="138" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1272" y1="126" x2="1272" y2="138" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="LessonProgress" data-tgt="Lessons" data-rel-type="belongsTo" data-rel-kind="eloquent" data-label="LessonProgress::lesson()"><path d="M1380 610 L1330 610 Q1320 610 1320 600 L1320 96 Q1320 86 1310 86 L1260 86" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M1380 610 L1330 610 Q1320 610 1320 600 L1320 96 Q1320 86 1310 86 L1260 86" fill="none" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 4"></path><line x1="1368" y1="610" x2="1380" y2="604" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1368" y1="610" x2="1380" y2="616" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1368" y1="610" x2="1380" y2="610" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1364" y1="604" x2="1364" y2="616" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1267" y1="80" x2="1267" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1272" y1="80" x2="1272" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="TestCaseProgress" data-tgt="Users" data-rel-type="foreign key" data-rel-kind="fk" data-label="test_case_progress.user_id → users.id"><path d="M4320 156 L2360 156 Q2350 156 2350 146 L2350 7 Q2350 -3 2340 -3 L418 -3 Q408 -3 408 7 L408 122 Q408 132 398 132 L380 132" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M4320 156 L2360 156 Q2350 156 2350 146 L2350 7 Q2350 -3 2340 -3 L418 -3 Q408 -3 408 7 L408 122 Q408 132 398 132 L380 132" fill="none" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><line x1="4308" y1="156" x2="4320" y2="150" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="4308" y1="156" x2="4320" y2="162" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="4308" y1="156" x2="4320" y2="156" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="4304" y1="150" x2="4304" y2="162" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="387" y1="126" x2="387" y2="138" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="392" y1="126" x2="392" y2="138" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="TestCaseProgress" data-tgt="Exercises" data-rel-type="foreign key" data-rel-kind="fk" data-label="test_case_progress.exercise_id → exercises.id"><path d="M4320 180 L3020 180 Q3010 180 3010 170 L3010 7 Q3010 -3 3000 -3 L1738 -3 Q1728 -3 1728 7 L1728 122 Q1728 132 1718 132 L1700 132" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M4320 180 L3020 180 Q3010 180 3010 170 L3010 7 Q3010 -3 3000 -3 L1738 -3 Q1728 -3 1728 7 L1728 122 Q1728 132 1718 132 L1700 132" fill="none" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><line x1="4308" y1="180" x2="4320" y2="174" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="4308" y1="180" x2="4320" y2="186" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="4308" y1="180" x2="4320" y2="180" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="4304" y1="174" x2="4304" y2="186" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1707" y1="126" x2="1707" y2="138" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="1712" y1="126" x2="1712" y2="138" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="TestCaseProgress" data-tgt="TestCases" data-rel-type="foreign key" data-rel-kind="fk" data-label="test_case_progress.test_case_id → test_cases.id"><path d="M4320 204 L3240 204 Q3230 204 3230 194 L3230 7 Q3230 -3 3220 -3 L2178 -3 Q2168 -3 2168 7 L2168 646 Q2168 656 2158 656 L2140 656" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M4320 204 L3240 204 Q3230 204 3230 194 L3230 7 Q3230 -3 3220 -3 L2178 -3 Q2168 -3 2168 7 L2168 646 Q2168 656 2158 656 L2140 656" fill="none" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><line x1="4308" y1="204" x2="4320" y2="198" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="4308" y1="204" x2="4320" y2="210" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="4308" y1="204" x2="4320" y2="204" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="4304" y1="198" x2="4304" y2="210" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="2147" y1="650" x2="2147" y2="662" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line><line x1="2152" y1="650" x2="2152" y2="662" stroke="#6b9bff" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="TestCaseProgress" data-tgt="Users" data-rel-type="belongsTo" data-rel-kind="eloquent" data-label="TestCaseProgress::user()"><path d="M4320 86 L2360 86 Q2350 86 2350 76 L2350 7 Q2350 -3 2340 -3 L418 -3 Q408 -3 408 7 L408 76 Q408 86 398 86 L380 86" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M4320 86 L2360 86 Q2350 86 2350 76 L2350 7 Q2350 -3 2340 -3 L418 -3 Q408 -3 408 7 L408 76 Q408 86 398 86 L380 86" fill="none" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 4"></path><line x1="4308" y1="86" x2="4320" y2="80" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="4308" y1="86" x2="4320" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="4308" y1="86" x2="4320" y2="86" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="4304" y1="80" x2="4304" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="387" y1="80" x2="387" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="392" y1="80" x2="392" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line></g>
+  <g class="rel-group" data-src="TestCaseProgress" data-tgt="Exercises" data-rel-type="belongsTo" data-rel-kind="eloquent" data-label="TestCaseProgress::exercise()"><path d="M4320 86 L3020 86 Q3010 86 3010 76 L3010 7 Q3010 -3 3000 -3 L1738 -3 Q1728 -3 1728 7 L1728 76 Q1728 86 1718 86 L1700 86" fill="none" stroke="transparent" stroke-width="14"></path><path class="rel-line" d="M4320 86 L3020 86 Q3010 86 3010 76 L3010 7 Q3010 -3 3000 -3 L1738 -3 Q1728 -3 1728 7 L1728 76 Q1728 86 1718 86 L1700 86" fill="none" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 4"></path><line x1="4308" y1="86" x2="4320" y2="80" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="4308" y1="86" x2="4320" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="4308" y1="86" x2="4320" y2="86" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="4304" y1="80" x2="4304" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1707" y1="80" x2="1707" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line><line x1="1712" y1="80" x2="1712" y2="92" stroke="#2fd3b8" stroke-width="1.6" stroke-linecap="round"></line></g>
+
+<g>
+<clipPath id="card-0"><rect x="60" y="60" width="320" height="382" rx="12"/></clipPath>
+<rect x="60" y="60" width="320" height="382" rx="12" fill="#171a20" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1"/>
+<rect x="60" y="60" width="320" height="3" fill="hsl(192,72%,66%)" clip-path="url(#card-0)"/>
+<text x="74" y="86" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="650" fill="#e8eaef">Users</text>
+<text x="74" y="102" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#6d7482">users</text>
+<line x1="60" y1="112" x2="380" y2="112" stroke="rgba(255, 255, 255, 0.08)"/>
+  <text x="74" y="136" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#f2b64c">PK</text>
+  <text x="96" y="136" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">id</text>
+  <text x="366" y="136" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint</text>
+  <text x="74" y="160" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="160" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">name</text>
+  <text x="366" y="160" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="74" y="184" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="184" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">email</text>
+  <text x="366" y="184" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="74" y="208" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="208" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">email_verified_at</text>
+  <text x="366" y="208" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+  <text x="74" y="232" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="232" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">password</text>
+  <text x="366" y="232" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="74" y="256" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="256" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">remember_token</text>
+  <text x="366" y="256" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">string(100)?</text>
+  <text x="74" y="280" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="280" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">created_at</text>
+  <text x="366" y="280" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+  <text x="74" y="304" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="304" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">updated_at</text>
+  <text x="366" y="304" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+  <text x="74" y="328" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="328" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">role</text>
+  <text x="366" y="328" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="74" y="352" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="352" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">google_id</text>
+  <text x="366" y="352" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar?</text>
+  <text x="74" y="376" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="376" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">avatar</text>
+  <text x="366" y="376" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar?</text>
+  <text x="74" y="400" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="400" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">phone</text>
+  <text x="366" y="400" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar?</text>
+  <text x="74" y="424" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="424" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">bio</text>
+  <text x="366" y="424" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar?</text>
+</g>
+<g>
+<clipPath id="card-1"><rect x="3120" y="332" width="320" height="142" rx="12"/></clipPath>
+<rect x="3120" y="332" width="320" height="142" rx="12" fill="#171a20" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1"/>
+<rect x="3120" y="332" width="320" height="3" fill="hsl(148,72%,66%)" clip-path="url(#card-1)"/>
+<text x="3134" y="358" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="650" fill="#e8eaef">PasswordResetTokens</text>
+<text x="3134" y="374" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#6d7482">password_reset_tokens</text>
+<line x1="3120" y1="384" x2="3440" y2="384" stroke="rgba(255, 255, 255, 0.08)"/>
+  <text x="3134" y="408" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3156" y="408" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">email</text>
+  <text x="3426" y="408" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="3134" y="432" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3156" y="432" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">token</text>
+  <text x="3426" y="432" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="3134" y="456" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3156" y="456" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">created_at</text>
+  <text x="3426" y="456" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+</g>
+<g>
+<clipPath id="card-2"><rect x="3500" y="444" width="320" height="214" rx="12"/></clipPath>
+<rect x="3500" y="444" width="320" height="214" rx="12" fill="#171a20" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1"/>
+<rect x="3500" y="444" width="320" height="3" fill="hsl(44,72%,66%)" clip-path="url(#card-2)"/>
+<text x="3514" y="470" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="650" fill="#e8eaef">Sessions</text>
+<text x="3514" y="486" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#6d7482">sessions</text>
+<line x1="3500" y1="496" x2="3820" y2="496" stroke="rgba(255, 255, 255, 0.08)"/>
+  <text x="3514" y="520" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3536" y="520" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">id</text>
+  <text x="3806" y="520" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="3514" y="544" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3536" y="544" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">user_id</text>
+  <text x="3806" y="544" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint unsigned?</text>
+  <text x="3514" y="568" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3536" y="568" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">ip_address</text>
+  <text x="3806" y="568" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar?</text>
+  <text x="3514" y="592" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3536" y="592" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">user_agent</text>
+  <text x="3806" y="592" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">text?</text>
+  <text x="3514" y="616" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3536" y="616" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">payload</text>
+  <text x="3806" y="616" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">longtext</text>
+  <text x="3514" y="640" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3536" y="640" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">last_activity</text>
+  <text x="3806" y="640" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int</text>
+</g>
+<g>
+<clipPath id="card-3"><rect x="2740" y="60" width="320" height="142" rx="12"/></clipPath>
+<rect x="2740" y="60" width="320" height="142" rx="12" fill="#171a20" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1"/>
+<rect x="2740" y="60" width="320" height="3" fill="hsl(148,72%,66%)" clip-path="url(#card-3)"/>
+<text x="2754" y="86" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="650" fill="#e8eaef">Cache</text>
+<text x="2754" y="102" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#6d7482">cache</text>
+<line x1="2740" y1="112" x2="3060" y2="112" stroke="rgba(255, 255, 255, 0.08)"/>
+  <text x="2754" y="136" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="2776" y="136" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">key</text>
+  <text x="3046" y="136" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="2754" y="160" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="2776" y="160" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">value</text>
+  <text x="3046" y="160" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">mediumtext</text>
+  <text x="2754" y="184" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="2776" y="184" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">expiration</text>
+  <text x="3046" y="184" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint</text>
+</g>
+<g>
+<clipPath id="card-4"><rect x="3120" y="60" width="320" height="142" rx="12"/></clipPath>
+<rect x="3120" y="60" width="320" height="142" rx="12" fill="#171a20" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1"/>
+<rect x="3120" y="60" width="320" height="3" fill="hsl(148,72%,66%)" clip-path="url(#card-4)"/>
+<text x="3134" y="86" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="650" fill="#e8eaef">CacheLocks</text>
+<text x="3134" y="102" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#6d7482">cache_locks</text>
+<line x1="3120" y1="112" x2="3440" y2="112" stroke="rgba(255, 255, 255, 0.08)"/>
+  <text x="3134" y="136" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3156" y="136" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">key</text>
+  <text x="3426" y="136" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="3134" y="160" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3156" y="160" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">owner</text>
+  <text x="3426" y="160" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="3134" y="184" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3156" y="184" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">expiration</text>
+  <text x="3426" y="184" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint</text>
+</g>
+<g>
+<clipPath id="card-5"><rect x="2740" y="332" width="320" height="238" rx="12"/></clipPath>
+<rect x="2740" y="332" width="320" height="238" rx="12" fill="#171a20" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1"/>
+<rect x="2740" y="332" width="320" height="3" fill="hsl(328,72%,66%)" clip-path="url(#card-5)"/>
+<text x="2754" y="358" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="650" fill="#e8eaef">Jobs</text>
+<text x="2754" y="374" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#6d7482">jobs</text>
+<line x1="2740" y1="384" x2="3060" y2="384" stroke="rgba(255, 255, 255, 0.08)"/>
+  <text x="2754" y="408" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#f2b64c">PK</text>
+  <text x="2776" y="408" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">id</text>
+  <text x="3046" y="408" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint</text>
+  <text x="2754" y="432" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="2776" y="432" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">queue</text>
+  <text x="3046" y="432" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="2754" y="456" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="2776" y="456" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">payload</text>
+  <text x="3046" y="456" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">longtext</text>
+  <text x="2754" y="480" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="2776" y="480" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">attempts</text>
+  <text x="3046" y="480" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">unsignedSmallInteger</text>
+  <text x="2754" y="504" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="2776" y="504" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">reserved_at</text>
+  <text x="3046" y="504" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int unsigned?</text>
+  <text x="2754" y="528" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="2776" y="528" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">available_at</text>
+  <text x="3046" y="528" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int unsigned</text>
+  <text x="2754" y="552" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="2776" y="552" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">created_at</text>
+  <text x="3046" y="552" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int unsigned</text>
+</g>
+<g>
+<clipPath id="card-6"><rect x="3880" y="60" width="320" height="310" rx="12"/></clipPath>
+<rect x="3880" y="60" width="320" height="310" rx="12" fill="#171a20" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1"/>
+<rect x="3880" y="60" width="320" height="3" fill="hsl(6,72%,66%)" clip-path="url(#card-6)"/>
+<text x="3894" y="86" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="650" fill="#e8eaef">JobBatches</text>
+<text x="3894" y="102" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#6d7482">job_batches</text>
+<line x1="3880" y1="112" x2="4200" y2="112" stroke="rgba(255, 255, 255, 0.08)"/>
+  <text x="3894" y="136" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3916" y="136" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">id</text>
+  <text x="4186" y="136" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="3894" y="160" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3916" y="160" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">name</text>
+  <text x="4186" y="160" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="3894" y="184" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3916" y="184" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">total_jobs</text>
+  <text x="4186" y="184" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int</text>
+  <text x="3894" y="208" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3916" y="208" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">pending_jobs</text>
+  <text x="4186" y="208" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int</text>
+  <text x="3894" y="232" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3916" y="232" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">failed_jobs</text>
+  <text x="4186" y="232" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int</text>
+  <text x="3894" y="256" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3916" y="256" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">failed_job_ids</text>
+  <text x="4186" y="256" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">longtext</text>
+  <text x="3894" y="280" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3916" y="280" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">options</text>
+  <text x="4186" y="280" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">mediumtext?</text>
+  <text x="3894" y="304" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3916" y="304" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">cancelled_at</text>
+  <text x="4186" y="304" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int?</text>
+  <text x="3894" y="328" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3916" y="328" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">created_at</text>
+  <text x="4186" y="328" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int</text>
+  <text x="3894" y="352" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3916" y="352" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">finished_at</text>
+  <text x="4186" y="352" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int?</text>
+</g>
+<g>
+<clipPath id="card-7"><rect x="3500" y="60" width="320" height="238" rx="12"/></clipPath>
+<rect x="3500" y="60" width="320" height="238" rx="12" fill="#171a20" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1"/>
+<rect x="3500" y="60" width="320" height="3" fill="hsl(6,72%,66%)" clip-path="url(#card-7)"/>
+<text x="3514" y="86" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="650" fill="#e8eaef">FailedJobs</text>
+<text x="3514" y="102" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#6d7482">failed_jobs</text>
+<line x1="3500" y1="112" x2="3820" y2="112" stroke="rgba(255, 255, 255, 0.08)"/>
+  <text x="3514" y="136" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#f2b64c">PK</text>
+  <text x="3536" y="136" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">id</text>
+  <text x="3806" y="136" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint</text>
+  <text x="3514" y="160" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3536" y="160" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">uuid</text>
+  <text x="3806" y="160" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="3514" y="184" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3536" y="184" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">connection</text>
+  <text x="3806" y="184" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="3514" y="208" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3536" y="208" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">queue</text>
+  <text x="3806" y="208" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="3514" y="232" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3536" y="232" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">payload</text>
+  <text x="3806" y="232" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">longtext</text>
+  <text x="3514" y="256" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3536" y="256" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">exception</text>
+  <text x="3806" y="256" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">longtext</text>
+  <text x="3514" y="280" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="3536" y="280" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">failed_at</text>
+  <text x="3806" y="280" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp</text>
+</g>
+<g>
+<clipPath id="card-8"><rect x="60" y="500" width="320" height="310" rx="12"/></clipPath>
+<rect x="60" y="500" width="320" height="310" rx="12" fill="#171a20" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1"/>
+<rect x="60" y="500" width="320" height="3" fill="hsl(214,72%,66%)" clip-path="url(#card-8)"/>
+<text x="74" y="526" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="650" fill="#e8eaef">Courses</text>
+<text x="74" y="542" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#6d7482">courses</text>
+<line x1="60" y1="552" x2="380" y2="552" stroke="rgba(255, 255, 255, 0.08)"/>
+  <text x="74" y="576" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#f2b64c">PK</text>
+  <text x="96" y="576" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">id</text>
+  <text x="366" y="576" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint</text>
+  <text x="74" y="600" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="600" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">title</text>
+  <text x="366" y="600" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="74" y="624" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="624" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">slug</text>
+  <text x="366" y="624" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="74" y="648" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="648" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">description</text>
+  <text x="366" y="648" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">text?</text>
+  <text x="74" y="672" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="672" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">thumbnail</text>
+  <text x="366" y="672" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar?</text>
+  <text x="74" y="696" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="696" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">level</text>
+  <text x="366" y="696" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="74" y="720" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="720" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">is_published</text>
+  <text x="366" y="720" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">boolean</text>
+  <text x="74" y="744" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="744" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">sort_order</text>
+  <text x="366" y="744" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int unsigned</text>
+  <text x="74" y="768" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="768" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">created_at</text>
+  <text x="366" y="768" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+  <text x="74" y="792" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="96" y="792" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">updated_at</text>
+  <text x="366" y="792" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+</g>
+<g>
+<clipPath id="card-9"><rect x="500" y="60" width="320" height="286" rx="12"/></clipPath>
+<rect x="500" y="60" width="320" height="286" rx="12" fill="#171a20" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1"/>
+<rect x="500" y="60" width="320" height="3" fill="hsl(96,72%,66%)" clip-path="url(#card-9)"/>
+<text x="514" y="86" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="650" fill="#e8eaef">Modules</text>
+<text x="514" y="102" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#6d7482">modules</text>
+<line x1="500" y1="112" x2="820" y2="112" stroke="rgba(255, 255, 255, 0.08)"/>
+  <text x="514" y="136" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#f2b64c">PK</text>
+  <text x="536" y="136" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">id</text>
+  <text x="806" y="136" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint</text>
+  <text x="514" y="160" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff">FK</text>
+  <text x="536" y="160" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">course_id</text>
+  <text x="806" y="160" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint unsigned</text>
+  <text x="514" y="184" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="536" y="184" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">title</text>
+  <text x="806" y="184" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="514" y="208" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="536" y="208" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">slug</text>
+  <text x="806" y="208" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="514" y="232" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="536" y="232" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">description</text>
+  <text x="806" y="232" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">text?</text>
+  <text x="514" y="256" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="536" y="256" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">sort_order</text>
+  <text x="806" y="256" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int unsigned</text>
+  <text x="514" y="280" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="536" y="280" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">is_published</text>
+  <text x="806" y="280" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">boolean</text>
+  <text x="514" y="304" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="536" y="304" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">created_at</text>
+  <text x="806" y="304" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+  <text x="514" y="328" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="536" y="328" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">updated_at</text>
+  <text x="806" y="328" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+</g>
+<g>
+<clipPath id="card-10"><rect x="940" y="60" width="320" height="286" rx="12"/></clipPath>
+<rect x="940" y="60" width="320" height="286" rx="12" fill="#171a20" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1"/>
+<rect x="940" y="60" width="320" height="3" fill="hsl(170,72%,66%)" clip-path="url(#card-10)"/>
+<text x="954" y="86" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="650" fill="#e8eaef">Lessons</text>
+<text x="954" y="102" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#6d7482">lessons</text>
+<line x1="940" y1="112" x2="1260" y2="112" stroke="rgba(255, 255, 255, 0.08)"/>
+  <text x="954" y="136" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#f2b64c">PK</text>
+  <text x="976" y="136" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">id</text>
+  <text x="1246" y="136" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint</text>
+  <text x="954" y="160" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff">FK</text>
+  <text x="976" y="160" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">module_id</text>
+  <text x="1246" y="160" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint unsigned</text>
+  <text x="954" y="184" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="976" y="184" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">title</text>
+  <text x="1246" y="184" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="954" y="208" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="976" y="208" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">slug</text>
+  <text x="1246" y="208" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="954" y="232" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="976" y="232" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">content</text>
+  <text x="1246" y="232" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">text</text>
+  <text x="954" y="256" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="976" y="256" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">sort_order</text>
+  <text x="1246" y="256" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int unsigned</text>
+  <text x="954" y="280" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="976" y="280" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">is_published</text>
+  <text x="1246" y="280" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">boolean</text>
+  <text x="954" y="304" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="976" y="304" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">created_at</text>
+  <text x="1246" y="304" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+  <text x="954" y="328" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="976" y="328" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">updated_at</text>
+  <text x="1246" y="328" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+</g>
+<g>
+<clipPath id="card-11"><rect x="1380" y="60" width="320" height="406" rx="12"/></clipPath>
+<rect x="1380" y="60" width="320" height="406" rx="12" fill="#171a20" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1"/>
+<rect x="1380" y="60" width="320" height="3" fill="hsl(170,72%,66%)" clip-path="url(#card-11)"/>
+<text x="1394" y="86" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="650" fill="#e8eaef">Exercises</text>
+<text x="1394" y="102" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#6d7482">exercises</text>
+<line x1="1380" y1="112" x2="1700" y2="112" stroke="rgba(255, 255, 255, 0.08)"/>
+  <text x="1394" y="136" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#f2b64c">PK</text>
+  <text x="1416" y="136" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">id</text>
+  <text x="1686" y="136" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint</text>
+  <text x="1394" y="160" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff">FK</text>
+  <text x="1416" y="160" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">lesson_id</text>
+  <text x="1686" y="160" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint unsigned</text>
+  <text x="1394" y="184" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1416" y="184" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">title</text>
+  <text x="1686" y="184" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="1394" y="208" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1416" y="208" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">slug</text>
+  <text x="1686" y="208" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="1394" y="232" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1416" y="232" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">description</text>
+  <text x="1686" y="232" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">text</text>
+  <text x="1394" y="256" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1416" y="256" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">instructions</text>
+  <text x="1686" y="256" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">text?</text>
+  <text x="1394" y="280" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1416" y="280" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">starter_code</text>
+  <text x="1686" y="280" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">text?</text>
+  <text x="1394" y="304" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1416" y="304" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">difficulty</text>
+  <text x="1686" y="304" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="1394" y="328" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1416" y="328" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">time_limit_ms</text>
+  <text x="1686" y="328" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int unsigned</text>
+  <text x="1394" y="352" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1416" y="352" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">memory_limit_mb</text>
+  <text x="1686" y="352" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int unsigned</text>
+  <text x="1394" y="376" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1416" y="376" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">sort_order</text>
+  <text x="1686" y="376" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int unsigned</text>
+  <text x="1394" y="400" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1416" y="400" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">is_published</text>
+  <text x="1686" y="400" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">boolean</text>
+  <text x="1394" y="424" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1416" y="424" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">created_at</text>
+  <text x="1686" y="424" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+  <text x="1394" y="448" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1416" y="448" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">updated_at</text>
+  <text x="1686" y="448" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+</g>
+<g>
+<clipPath id="card-12"><rect x="1820" y="584" width="320" height="334" rx="12"/></clipPath>
+<rect x="1820" y="584" width="320" height="334" rx="12" fill="#171a20" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1"/>
+<rect x="1820" y="584" width="320" height="3" fill="hsl(44,72%,66%)" clip-path="url(#card-12)"/>
+<text x="1834" y="610" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="650" fill="#e8eaef">TestCases</text>
+<text x="1834" y="626" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#6d7482">test_cases</text>
+<line x1="1820" y1="636" x2="2140" y2="636" stroke="rgba(255, 255, 255, 0.08)"/>
+  <text x="1834" y="660" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#f2b64c">PK</text>
+  <text x="1856" y="660" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">id</text>
+  <text x="2126" y="660" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint</text>
+  <text x="1834" y="684" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff">FK</text>
+  <text x="1856" y="684" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">exercise_id</text>
+  <text x="2126" y="684" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint unsigned</text>
+  <text x="1834" y="708" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1856" y="708" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">input</text>
+  <text x="2126" y="708" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">text?</text>
+  <text x="1834" y="732" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1856" y="732" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">expected_output</text>
+  <text x="2126" y="732" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">text</text>
+  <text x="1834" y="756" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1856" y="756" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">weight</text>
+  <text x="2126" y="756" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int unsigned</text>
+  <text x="1834" y="780" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1856" y="780" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">is_hidden</text>
+  <text x="2126" y="780" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">boolean</text>
+  <text x="1834" y="804" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1856" y="804" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">is_active</text>
+  <text x="2126" y="804" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">boolean</text>
+  <text x="1834" y="828" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1856" y="828" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">sort_order</text>
+  <text x="2126" y="828" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int unsigned</text>
+  <text x="1834" y="852" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1856" y="852" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">created_at</text>
+  <text x="2126" y="852" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+  <text x="1834" y="876" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1856" y="876" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">updated_at</text>
+  <text x="2126" y="876" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+  <text x="1834" y="900" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1856" y="900" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">assertion_code</text>
+  <text x="2126" y="900" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">text?</text>
+</g>
+<g>
+<clipPath id="card-13"><rect x="1820" y="60" width="320" height="358" rx="12"/></clipPath>
+<rect x="1820" y="60" width="320" height="358" rx="12" fill="#171a20" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1"/>
+<rect x="1820" y="60" width="320" height="3" fill="hsl(170,72%,66%)" clip-path="url(#card-13)"/>
+<text x="1834" y="86" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="650" fill="#e8eaef">Submissions</text>
+<text x="1834" y="102" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#6d7482">submissions</text>
+<line x1="1820" y1="112" x2="2140" y2="112" stroke="rgba(255, 255, 255, 0.08)"/>
+  <text x="1834" y="136" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#f2b64c">PK</text>
+  <text x="1856" y="136" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">id</text>
+  <text x="2126" y="136" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint</text>
+  <text x="1834" y="160" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff">FK</text>
+  <text x="1856" y="160" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">user_id</text>
+  <text x="2126" y="160" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint unsigned</text>
+  <text x="1834" y="184" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff">FK</text>
+  <text x="1856" y="184" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">exercise_id</text>
+  <text x="2126" y="184" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint unsigned</text>
+  <text x="1834" y="208" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1856" y="208" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">source_code</text>
+  <text x="2126" y="208" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">text</text>
+  <text x="1834" y="232" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1856" y="232" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">status</text>
+  <text x="2126" y="232" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="1834" y="256" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1856" y="256" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">score</text>
+  <text x="2126" y="256" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">decimal</text>
+  <text x="1834" y="280" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1856" y="280" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">passed_tests</text>
+  <text x="2126" y="280" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int unsigned</text>
+  <text x="1834" y="304" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1856" y="304" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">total_tests</text>
+  <text x="2126" y="304" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int unsigned</text>
+  <text x="1834" y="328" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1856" y="328" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">execution_time_ms</text>
+  <text x="2126" y="328" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int unsigned?</text>
+  <text x="1834" y="352" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1856" y="352" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">submitted_at</text>
+  <text x="2126" y="352" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp</text>
+  <text x="1834" y="376" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1856" y="376" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">created_at</text>
+  <text x="2126" y="376" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+  <text x="1834" y="400" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1856" y="400" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">updated_at</text>
+  <text x="2126" y="400" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+</g>
+<g>
+<clipPath id="card-14"><rect x="2260" y="60" width="320" height="286" rx="12"/></clipPath>
+<rect x="2260" y="60" width="320" height="286" rx="12" fill="#171a20" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1"/>
+<rect x="2260" y="60" width="320" height="3" fill="hsl(328,72%,66%)" clip-path="url(#card-14)"/>
+<text x="2274" y="86" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="650" fill="#e8eaef">SubmissionResults</text>
+<text x="2274" y="102" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#6d7482">submission_results</text>
+<line x1="2260" y1="112" x2="2580" y2="112" stroke="rgba(255, 255, 255, 0.08)"/>
+  <text x="2274" y="136" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#f2b64c">PK</text>
+  <text x="2296" y="136" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">id</text>
+  <text x="2566" y="136" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint</text>
+  <text x="2274" y="160" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff">FK</text>
+  <text x="2296" y="160" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">submission_id</text>
+  <text x="2566" y="160" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint unsigned</text>
+  <text x="2274" y="184" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff">FK</text>
+  <text x="2296" y="184" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">test_case_id</text>
+  <text x="2566" y="184" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint unsigned</text>
+  <text x="2274" y="208" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="2296" y="208" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">status</text>
+  <text x="2566" y="208" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="2274" y="232" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="2296" y="232" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">actual_output</text>
+  <text x="2566" y="232" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">text?</text>
+  <text x="2274" y="256" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="2296" y="256" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">error_message</text>
+  <text x="2566" y="256" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">text?</text>
+  <text x="2274" y="280" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="2296" y="280" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">execution_time_ms</text>
+  <text x="2566" y="280" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int unsigned?</text>
+  <text x="2274" y="304" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="2296" y="304" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">created_at</text>
+  <text x="2566" y="304" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+  <text x="2274" y="328" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="2296" y="328" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">updated_at</text>
+  <text x="2566" y="328" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+</g>
+<g>
+<clipPath id="card-15"><rect x="1380" y="584" width="320" height="262" rx="12"/></clipPath>
+<rect x="1380" y="584" width="320" height="262" rx="12" fill="#171a20" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1"/>
+<rect x="1380" y="584" width="320" height="3" fill="hsl(258,72%,66%)" clip-path="url(#card-15)"/>
+<text x="1394" y="610" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="650" fill="#e8eaef">LessonProgress</text>
+<text x="1394" y="626" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#6d7482">lesson_progress</text>
+<line x1="1380" y1="636" x2="1700" y2="636" stroke="rgba(255, 255, 255, 0.08)"/>
+  <text x="1394" y="660" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#f2b64c">PK</text>
+  <text x="1416" y="660" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">id</text>
+  <text x="1686" y="660" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint</text>
+  <text x="1394" y="684" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff">FK</text>
+  <text x="1416" y="684" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">user_id</text>
+  <text x="1686" y="684" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint unsigned</text>
+  <text x="1394" y="708" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff">FK</text>
+  <text x="1416" y="708" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">lesson_id</text>
+  <text x="1686" y="708" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint unsigned</text>
+  <text x="1394" y="732" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1416" y="732" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">status</text>
+  <text x="1686" y="732" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="1394" y="756" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1416" y="756" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">last_accessed_at</text>
+  <text x="1686" y="756" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+  <text x="1394" y="780" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1416" y="780" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">completed_at</text>
+  <text x="1686" y="780" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+  <text x="1394" y="804" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1416" y="804" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">created_at</text>
+  <text x="1686" y="804" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+  <text x="1394" y="828" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="1416" y="828" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">updated_at</text>
+  <text x="1686" y="828" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+</g>
+<g>
+<clipPath id="card-16"><rect x="4320" y="60" width="320" height="334" rx="12"/></clipPath>
+<rect x="4320" y="60" width="320" height="334" rx="12" fill="#171a20" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1"/>
+<rect x="4320" y="60" width="320" height="3" fill="hsl(6,72%,66%)" clip-path="url(#card-16)"/>
+<text x="4334" y="86" font-family="system-ui, -apple-system, sans-serif" font-size="13.5" font-weight="650" fill="#e8eaef">TestCaseProgress</text>
+<text x="4334" y="102" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#6d7482">test_case_progress</text>
+<line x1="4320" y1="112" x2="4640" y2="112" stroke="rgba(255, 255, 255, 0.08)"/>
+  <text x="4334" y="136" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#f2b64c">PK</text>
+  <text x="4356" y="136" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">id</text>
+  <text x="4626" y="136" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint</text>
+  <text x="4334" y="160" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff">FK</text>
+  <text x="4356" y="160" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">user_id</text>
+  <text x="4626" y="160" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint unsigned</text>
+  <text x="4334" y="184" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff">FK</text>
+  <text x="4356" y="184" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">exercise_id</text>
+  <text x="4626" y="184" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint unsigned</text>
+  <text x="4334" y="208" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff">FK</text>
+  <text x="4356" y="208" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">test_case_id</text>
+  <text x="4626" y="208" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">bigint unsigned</text>
+  <text x="4334" y="232" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="4356" y="232" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">code_hash</text>
+  <text x="4626" y="232" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">char</text>
+  <text x="4334" y="256" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="4356" y="256" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">status</text>
+  <text x="4626" y="256" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">varchar</text>
+  <text x="4334" y="280" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="4356" y="280" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">actual_output</text>
+  <text x="4626" y="280" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">text?</text>
+  <text x="4334" y="304" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="4356" y="304" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">error_message</text>
+  <text x="4626" y="304" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">text?</text>
+  <text x="4334" y="328" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="4356" y="328" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">execution_time_ms</text>
+  <text x="4626" y="328" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">int unsigned?</text>
+  <text x="4334" y="352" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="4356" y="352" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">created_at</text>
+  <text x="4626" y="352" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+  <text x="4334" y="376" font-family="ui-monospace, Menlo, monospace" font-size="9" font-weight="700" fill="#6b9bff"></text>
+  <text x="4356" y="376" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e8eaef">updated_at</text>
+  <text x="4626" y="376" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="10.5" fill="#6d7482">timestamp?</text>
+</g>
+</svg>

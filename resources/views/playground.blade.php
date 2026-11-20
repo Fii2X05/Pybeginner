@@ -6,23 +6,23 @@
     <a href="{{ route('latihan.index', ['level' => $exercise->difficulty]) }}"
        class="text-sm font-medium text-emerald-700 hover:underline">&larr; Kembali ke daftar latihan</a>
 
-    <div class="mb-6 mt-3 flex flex-wrap items-center gap-3">
-        <h1 class="text-3xl font-extrabold text-slate-900">{{ $exercise->title }}</h1>
+    <div class="mb-6 mt-3 flex flex-wrap items-center gap-2 sm:gap-3">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">{{ $exercise->title }}</h1>
         <span class="rounded-full px-3 py-1 text-xs font-semibold {{ $badge }}">
             {{ $levels[$exercise->difficulty]['label'] ?? $exercise->difficulty }}
         </span>
     </div>
 
-    <div class="grid gap-6 lg:grid-cols-2">
+    <div class="grid gap-6 lg:grid-cols-2 items-start">
 
         {{-- KIRI: SOAL --}}
-        <section class="h-fit rounded-3xl bg-white p-7 shadow-sm ring-1 ring-emerald-100">
+        <section class="min-w-0 h-fit rounded-3xl bg-white p-5 sm:p-7 shadow-sm ring-1 ring-emerald-100">
             <h2 class="text-xs font-bold uppercase tracking-widest text-emerald-600">Deskripsi Tantangan</h2>
-            <p class="mt-2 leading-relaxed text-slate-700">{{ $exercise->description }}</p>
+            <p class="mt-2 leading-relaxed text-slate-700 text-sm sm:text-base">{{ $exercise->description }}</p>
 
             @if ($exercise->instructions)
                 <h2 class="mt-6 text-xs font-bold uppercase tracking-widest text-emerald-600">Instruksi</h2>
-                <p class="mt-2 leading-relaxed text-slate-700">{{ $exercise->instructions }}</p>
+                <p class="mt-2 leading-relaxed text-slate-700 text-sm sm:text-base">{{ $exercise->instructions }}</p>
             @endif
 
             <h2 class="mt-6 text-xs font-bold uppercase tracking-widest text-emerald-600">Contoh Uji Coba</h2>
@@ -31,20 +31,34 @@
                     <div class="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 font-mono text-xs text-slate-700">
                         <p class="mb-2 font-sans text-xs font-semibold text-emerald-700">Contoh {{ $i + 1 }}</p>
                         @if ($s->assertion_code)
-                            <pre class="whitespace-pre-wrap">{{ $s->assertion_code }}</pre>
+                            <pre class="whitespace-pre-wrap overflow-x-auto">{{ $s->assertion_code }}</pre>
                         @else
                             <p class="whitespace-pre-line"><span class="text-slate-400">Input &nbsp;:</span> {{ $s->input }}</p>
                             <p class="mt-1"><span class="text-slate-400">Output :</span> {{ $s->expected_output }}</p>
                         @endif
+                        @auth
+                            <div class="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 border-t border-emerald-100 pt-3">
+                                <span class="test-case-progress text-[11px] text-slate-500" data-test-case-progress="{{ $s->id }}">Belum diuji</span>
+                                <button type="button"
+                                        class="btn-test-case w-full sm:w-auto rounded-lg border border-emerald-300 px-3 py-1.5 font-sans text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50 text-center"
+                                        data-test-case-id="{{ $s->id }}"
+                                        data-test-case-url="{{ route('submissions.test-case.run', ['exerciseId' => $exercise->id, 'testCaseId' => $s->id]) }}">
+                                    Uji test case ini
+                                </button>
+                            </div>
+                        @endauth
                     </div>
                 @endforeach
             </div>
+            @auth
+                <p id="test-case-summary" class="mt-3 text-xs text-slate-500">Status test case memakai input acuan yang ditampilkan di kartu ini. Input Program hanya dipakai oleh Jalankan Kode dan tidak mengubah status test case.</p>
+            @endauth
         </section>
 
         {{-- KANAN: EDITOR + HASIL + MATERI --}}
-        <section class="space-y-5">
-            <div id="editor-wrap" class="overflow-hidden rounded-3xl bg-slate-900 shadow-sm">
-                <div class="flex items-center justify-between px-5 py-3 text-xs text-slate-300">
+        <section class="min-w-0 space-y-5">
+            <div id="editor-wrap" class="overflow-hidden rounded-3xl bg-slate-900 shadow-sm min-w-0 w-full">
+                <div class="flex items-center justify-between px-4 sm:px-5 py-3 text-xs text-slate-300">
                     <div class="flex items-center gap-2">
                         <span class="h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
                         <span class="h-2.5 w-2.5 rounded-full bg-yellow-300"></span>
@@ -53,28 +67,35 @@
                     <span>Python 3</span>
                 </div>
                 <div id="editor" style="height: 320px;"></div>
-                <div class="flex justify-end gap-3 bg-slate-800 px-5 py-3">
+                <div class="bg-slate-800 px-4 sm:px-5 pb-4">
+                    <label for="custom-stdin" class="mb-1 block text-xs font-semibold text-slate-300">Input Program (Jalankan Kode)</label>
+                    <p class="mb-2 text-[11px] text-slate-400">Untuk menguji input manual. Penilaian test case menggunakan input acuan di kartu sebelah kiri.</p>
+                    <textarea id="custom-stdin" rows="4" placeholder="Masukkan input : "
+                              class="w-full resize-y rounded-xl border border-slate-600 bg-slate-900 p-3 font-mono text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"></textarea>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:justify-end gap-2.5 sm:gap-3 bg-slate-800 px-4 sm:px-5 py-3">
                     <button id="btn-run"
                             type="button"
-                            class="rounded-xl border border-emerald-400/60 px-4 py-2 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-400/10 disabled:cursor-not-allowed disabled:opacity-50">
+                            class="w-full sm:w-auto rounded-xl border border-emerald-400/60 px-4 py-2.5 sm:py-2 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-400/10 disabled:cursor-not-allowed disabled:opacity-50">
                         Jalankan Kode
                     </button>
                     @auth
                         <button id="btn-submit"
                                 type="button"
-                                class="rounded-xl bg-yellow-400 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-50">
+                                class="w-full sm:w-auto rounded-xl bg-yellow-400 px-5 py-2.5 sm:py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-50"
+                                disabled>
                             Kirim &amp; Nilai Jawaban
                         </button>
                     @else
                         <a href="{{ route('login') }}"
-                           class="rounded-xl bg-yellow-400 px-5 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
+                           class="w-full sm:w-auto text-center rounded-xl bg-yellow-400 px-5 py-2.5 sm:py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
                             Masuk untuk Mengirim
                         </a>
                     @endauth
                 </div>
             </div>
 
-            <div id="hasil" class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-emerald-100">
+            <div id="hasil" class="rounded-3xl bg-white p-5 sm:p-6 shadow-sm ring-1 ring-emerald-100 min-w-0 overflow-hidden">
                 <p class="text-sm text-slate-500">Hasil akan tampil di sini setelah kamu menjalankan atau mengirim kode.</p>
             </div>
 
@@ -101,9 +122,11 @@
         const EXERCISE_ID = {{ $exercise->id }};
         const STARTER = @json($exercise->starter_code ?? '');
         const URL_LIST = @json(route('latihan.index', ['level' => $exercise->difficulty]));
-        const RUN_URL = @json(route('submissions.run'));
+        const RUN_URL = @json(route('submissions.execute'));
         const SUBMIT_URL = @json(route('submissions.submit'));
+        const TEST_CASE_PROGRESS_URL = @json(route('submissions.test-case.progress', ['exerciseId' => $exercise->id]));
         let editor;
+        const testCaseProgress = new Map();
 
         require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } });
         require(['vs/editor/editor.main'], function () {
@@ -111,6 +134,8 @@
                 value: STARTER, language: 'python', theme: 'vs-dark',
                 fontSize: 14, minimap: { enabled: false }, automaticLayout: true,
             });
+            editor.onDidChangeModelContent(() => renderTestCaseProgress());
+            loadTestCaseProgress();
         });
 
         const hasilEl  = document.getElementById('hasil');
@@ -119,6 +144,111 @@
 
         function esc(t) {
             return String(t ?? '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+        }
+
+        function renderTestCaseProgress(progress = null) {
+            const currentCode = editor?.getValue() ?? '';
+            if (progress) {
+                testCaseProgress.clear();
+                Object.entries(progress).forEach(([testCaseId, status]) => {
+                    testCaseProgress.set(String(testCaseId), { code: currentCode, status });
+                });
+            }
+
+            document.querySelectorAll('[data-test-case-progress]').forEach((element) => {
+                const state = testCaseProgress.get(element.dataset.testCaseProgress);
+                const isCurrentCode = state?.code === currentCode;
+                const status = isCurrentCode ? state.status : 'Belum diuji';
+                element.textContent = status === 'passed' ? 'Lolos' : status === 'failed' ? 'Belum lolos' : 'Belum diuji';
+                element.className = `test-case-progress text-[11px] ${status === 'passed' ? 'font-semibold text-emerald-700' : status === 'failed' ? 'font-semibold text-red-600' : 'text-slate-500'}`;
+            });
+
+            const total = document.querySelectorAll('[data-test-case-progress]').length;
+            const passed = [...testCaseProgress.entries()].filter(([testCaseId, state]) =>
+                state.code === currentCode && state.status === 'passed'
+            ).length;
+            const summary = document.getElementById('test-case-summary');
+            if (summary) {
+                summary.textContent = `${passed}/${total} test case terlihat lolos untuk kode saat ini. Status memakai input acuan di kartu; Input Program hanya untuk Jalankan Kode dan tidak mengubah status. Test case tersembunyi diperiksa saat pengiriman akhir.`;
+            }
+            const submitButton = document.getElementById('btn-submit');
+            if (submitButton) {
+                submitButton.disabled = passed < total;
+            }
+        }
+
+        async function loadTestCaseProgress() {
+            if (!editor || !document.getElementById('test-case-summary')) return;
+
+            try {
+                const res = await fetch(TEST_CASE_PROGRESS_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: JSON.stringify({ source_code: editor.getValue() }),
+                });
+                const data = await res.json();
+                if (res.ok && data.success) renderTestCaseProgress(data.progress);
+            } catch (e) {
+                const summary = document.getElementById('test-case-summary');
+                if (summary) summary.textContent = 'Progress test case tidak dapat dimuat. Coba muat ulang halaman.';
+            }
+        }
+
+        async function jalankanTestCase(button) {
+            if (!editor) {
+                hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Editor belum siap. Muat ulang halaman dan coba lagi.</p>';
+                return;
+            }
+
+            const testCaseId = button.dataset.testCaseId;
+            const sourceCode = editor.getValue();
+            const progressLabel = document.querySelector(`[data-test-case-progress="${testCaseId}"]`);
+            button.disabled = true;
+            button.textContent = 'Menguji...';
+            if (progressLabel) progressLabel.textContent = 'Sedang diuji...';
+            hasilEl.innerHTML = '<p class="text-sm text-slate-500">Menguji kode pada test case terpilih...</p>';
+
+            try {
+                const res = await fetch(button.dataset.testCaseUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: JSON.stringify({ source_code: sourceCode }),
+                });
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    hasilEl.innerHTML = `<p class="text-sm text-yellow-800">${esc(data.message || 'Test case tidak dapat dijalankan.')}</p>`;
+                    return;
+                }
+
+                testCaseProgress.set(String(testCaseId), {
+                    code: sourceCode,
+                    status: data.is_passed ? 'passed' : 'failed',
+                });
+                renderTestCaseProgress();
+                const resultStyle = data.is_passed
+                    ? { card: 'border-emerald-200 bg-emerald-50', title: 'text-emerald-800' }
+                    : { card: 'border-red-200 bg-red-50', title: 'text-red-800' };
+                hasilEl.innerHTML = `<div class="rounded-xl border p-4 text-sm ${resultStyle.card}">
+                    <p class="font-semibold ${resultStyle.title}">Test case ${data.is_passed ? 'lolos' : 'belum lolos'}</p>
+                    <p class="mt-2 whitespace-pre-wrap font-mono text-xs text-slate-700">Input: ${esc(data.input)}\nDiharapkan: ${esc(data.expected)}\nKeluaran: ${esc(data.actual)}</p>
+                    ${data.error ? `<p class="mt-2 whitespace-pre-wrap font-mono text-xs text-red-700">${esc(data.error)}</p>` : ''}
+                    <p class="mt-2 text-xs text-slate-500">${data.passed_tests}/${data.total_tests} test case terlihat lolos.</p>
+                </div>`;
+            } catch (e) {
+                hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Gagal terhubung ke server.</p>';
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Uji test case ini';
+                renderTestCaseProgress();
+            }
         }
 
         function tampilkanHasil(data, isSubmit) {
@@ -162,6 +292,57 @@
                 const tampil = isSubmit && !sempurna;
                 materiEl.classList.toggle('hidden', !tampil);
                 if (tampil) materiEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        function tampilkanHasilEksekusi(data, stdin) {
+            const status = data.status?.description || 'Status tidak diketahui';
+            const berhasil = Number(data.status?.id) === 3;
+            const keluaran = data.stdout || '';
+            const error = [data.compile_output, data.stderr, data.message].filter(Boolean).join('\n');
+
+            hasilEl.innerHTML = `<div class="flex items-center justify-between">
+                    <h2 class="text-sm font-bold text-slate-800">Hasil Eksekusi</h2>
+                    <span class="rounded-lg px-2.5 py-1 text-xs font-bold ${berhasil ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}">${esc(status)}</span>
+                </div>
+            <p class="mt-2 text-xs text-slate-500">Input manual: <span class="font-mono text-slate-700">${esc(stdin || '(kosong)')}</span>. Hasil ini terpisah dari test case acuan.</p>
+            <p class="mt-1 text-xs text-slate-500">Waktu: ${esc(data.time ?? '-')}s</p>
+                <div class="mt-4">
+                    <p class="mb-1 text-xs font-semibold text-slate-500">stdout</p>
+                    <pre class="overflow-x-auto whitespace-pre-wrap rounded-xl bg-slate-900 p-3 font-mono text-sm text-slate-100">${esc(keluaran || '(tidak ada output)')}</pre>
+                </div>
+                ${error ? `<div class="mt-3"><p class="mb-1 text-xs font-semibold text-red-600">stderr / error</p><pre class="overflow-x-auto whitespace-pre-wrap rounded-xl bg-red-50 p-3 font-mono text-sm text-red-800">${esc(error)}</pre></div>` : ''}`;
+            if (materiEl) materiEl.classList.add('hidden');
+        }
+
+        async function jalankanKode() {
+            hasilEl.innerHTML = '<p class="text-sm text-slate-500">Menjalankan kode...</p>';
+            if (materiEl) materiEl.classList.add('hidden');
+
+            if (!editor) {
+                hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Editor belum siap. Muat ulang halaman dan coba lagi.</p>';
+                return;
+            }
+
+            const stdin = document.getElementById('custom-stdin')?.value ?? '';
+            try {
+                const res = await fetch(RUN_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: JSON.stringify({ source_code: editor.getValue(), stdin }),
+                });
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    hasilEl.innerHTML = `<p class="text-sm text-yellow-800">${esc(data.message || 'Eksekusi kode gagal.')}</p>`;
+                    return;
+                }
+                tampilkanHasilEksekusi(data, stdin);
+            } catch (e) {
+                hasilEl.innerHTML = '<p class="text-sm text-yellow-800">Gagal terhubung ke server.</p>';
             }
         }
 
@@ -220,13 +401,16 @@
                     btnRun.innerText = originalRunText;
                 }
                 if (submitBtn) {
-                    submitBtn.disabled = false;
                     submitBtn.innerText = originalSubmitText;
                 }
+                renderTestCaseProgress();
             }
         }
 
-        document.getElementById('btn-run').addEventListener('click', () => kirim(RUN_URL, false));
+        document.getElementById('btn-run').addEventListener('click', jalankanKode);
+        document.querySelectorAll('.btn-test-case').forEach((button) => {
+            button.addEventListener('click', () => jalankanTestCase(button));
+        });
         const submitButton = document.getElementById('btn-submit');
         if (submitButton) {
             submitButton.addEventListener('click', () => kirim(SUBMIT_URL, true));

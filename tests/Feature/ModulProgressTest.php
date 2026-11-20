@@ -17,18 +17,16 @@ class ModulProgressTest extends TestCase
         $this->seed(ModulSeeder::class);
     }
 
-    public function test_guest_can_view_modul_list_with_default_belum_mulai_status(): void
+    public function test_guest_is_redirected_to_login_from_modul_list(): void
     {
         $response = $this->get(route('modul.index'));
 
-        $response->assertStatus(200);
-        $response->assertSee('Belum Mulai');
-        $response->assertSee('Mulai Modul');
+        $response->assertRedirect(route('login'));
     }
 
     public function test_authenticated_user_initial_status_is_belum_mulai(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'learner']);
 
         $response = $this->actingAs($user)->get(route('modul.index'));
 
@@ -53,7 +51,8 @@ class ModulProgressTest extends TestCase
 
     public function test_toggling_complete_marks_module_as_selesai_and_allows_toggling_back(): void
     {
-        $user = User::factory()->create();
+        $admin = User::factory()->create(['role' => 'admin']);
+        $user = User::factory()->create(['role' => 'learner']);
 
         // 1. Visit detail to initiate
         $this->actingAs($user)->get(route('modul.detail.01'));
@@ -61,6 +60,7 @@ class ModulProgressTest extends TestCase
         // 2. Toggle complete
         $postResponse = $this->actingAs($user)->post(route('modul.toggle-complete', ['nomor' => 1]));
         $postResponse->assertRedirect();
+        $this->assertSame('module_completed', $admin->notifications()->first()->data['type']);
 
         // 3. Check index shows 'Tinjau Ulang' and 'Selesai'
         $indexResponse = $this->actingAs($user)->get(route('modul.index'));

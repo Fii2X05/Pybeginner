@@ -5,10 +5,9 @@ JUDGE0_URL = "http://localhost:2358"
 
 @pytest.fixture(scope="session")
 def api_context(playwright: Playwright):
-    # Set timeout default HTTP Request ke 40 detik agar tidak terputus saat nunggu TLE 30s
     request_context = playwright.request.new_context(
         base_url=JUDGE0_URL,
-        timeout=40000  # 40.000 ms = 40 detik
+        timeout=40000  # Timeout 40 detik untuk mengantisipasi TLE 30s
     )
     yield request_context
     request_context.dispose()
@@ -18,11 +17,16 @@ def test_judge0_extra_python_accepted(api_context: APIRequestContext):
     """Skenario 1: Kode Python valid (ID 10 di judge0-extra)"""
     payload = {
         "source_code": "print('Hello World')",
-        "language_id": 10,  # ID Python untuk judge0-extra
-        "expected_output": "Hello World\n"
+        "language_id": 10,
+        "expected_output": "Hello World\n",
+        "max_processes_and_or_threads": 8
     }
 
-    response = api_context.post("/submissions?base64_encoded=false&wait=true", data=payload)
+    # Playwright serializes data as JSON and sets the application/json content type.
+    response = api_context.post(
+        "/submissions?base64_encoded=false&wait=true", 
+        data=payload
+    )
     assert response.ok, f"Gagal terhubung ke Judge0: {response.status}"
 
     data = response.json()
@@ -34,26 +38,22 @@ def test_judge0_extra_python_accepted(api_context: APIRequestContext):
 
 
 def test_judge0_extra_infinite_loop_tle(api_context: APIRequestContext):
-    """Skenario 2: Kode Infinite Loop (Menunggu TLE 30s dari container)"""
+    """Skenario 2: Kode Infinite Loop (Batas CPU maksimum Judge0)"""
     payload = {
         "source_code": "while True:\n    pass",
         "language_id": 10,
-        "cpu_time_limit": 30.0  # Limit 30 detik sesuai konfigurasi kamu
+        "cpu_time_limit": 20.0,
+        "max_processes_and_or_threads": 8
     }
 
-    # Request ini bakal hold selama ~30 detik sampai container menghentikan eksekusi
     response = api_context.post(
         "/submissions?base64_encoded=false&wait=true", 
         data=payload
     )
-    assert response.ok
+    assert response.ok, f"Gagal terhubung ke Judge0: {response.status}"
 
     data = response.json()
+    assert data["status"]["id"] == 5  # Status ID 5 = Time Limit Exceeded
     
-    # Assert bahwa Judge0 benar-benar menangkap TLE (Status ID 5 = Time Limit Exceeded)
-    assert data["status"]["id"] == 5
-    assert "Time Limit Exceeded" in data["status"]["description"]
-
-    # Kode TLE otomatis dapat nilai 0
     grade = 100 if data["status"]["id"] == 3 else 0
     assert grade == 0
