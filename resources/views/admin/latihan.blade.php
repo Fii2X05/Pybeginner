@@ -1,4 +1,4 @@
-<x-layouts.admin title="Latihan &amp; Soal - Admin" active="latihan">
+<x-layouts.admin title="Latihan & Soal - Admin" active="latihan">
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <div class="mb-1 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-700">
@@ -18,26 +18,7 @@
         </div>
     </div>
 
-    @if (session('status'))
-        <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-sm font-medium" style="padding: 0.75rem 1rem;">
-            {{ session('status') }}
-        </div>
-    @endif
-    @if (session('success'))
-        <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-sm font-medium" style="padding: 0.75rem 1rem;">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if (session('error'))
-        <div class="mb-4 rounded-xl border border-rose-200 bg-rose-50 text-rose-800 text-sm font-medium" style="padding: 0.75rem 1rem;">
-            {{ session('error') }}
-        </div>
-    @endif
-    @if ($errors->any())
-        <div role="alert" class="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-            @foreach ($errors->all() as $error)<p>{{ $error }}</p>@endforeach
-        </div>
-    @endif
+    <x-admin.flash />
 
     <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
         {{-- Bilah cari & filter --}}
@@ -111,9 +92,9 @@
                                 </span>
                             </td>
 
-                            {{-- Judul --}}
+                            {{-- Judul: tautan ke halaman edit, sama dengan ikon pensil --}}
                             <td class="align-middle" style="padding: 1rem; min-width: 16rem; overflow-wrap: anywhere;">
-                                <div class="font-semibold text-slate-900 leading-snug">{{ $exercise->title }}</div>
+                                <a href="{{ route('admin.latihan.edit', $exercise) }}" class="font-semibold text-slate-900 leading-snug hover:text-emerald-700 hover:underline">{{ $exercise->title }}</a>
                                 <div class="mt-0.5 text-xs text-slate-500">
                                     {{ $moduleTitle }}
                                     <span class="text-slate-300" style="margin: 0 0.35rem;">&rsaquo;</span>

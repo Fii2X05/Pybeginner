@@ -1,10 +1,19 @@
 @php
-    $links = [
-        'beranda'      => ['Beranda', '#beranda'],
-        'fitur'        => ['Fitur Unggulan', '#fitur'],
-        'metode'       => ['Metode Belajar', '#metode'],
-        'mulai-coding' => ['Mulai Coding', '#mulai-coding'],
-    ];
+    $isLoggedIn = auth()->check();
+
+    $links = $isLoggedIn
+        ? [
+            'beranda' => ['Beranda', route('beranda')],
+            'modul'   => ['Modul Belajar', route('modul.index')],
+            'latihan' => ['Latihan Coding', route('latihan.index')],
+            'riwayat' => ['Riwayat Submission', route('submissions.history')],
+            'bantuan' => ['Bantuan', route('support.create')],
+        ]
+        : [
+            'beranda' => ['Beranda', '#beranda'],
+            'fitur'   => ['Fitur Unggulan', '#fitur'],
+            'metode'  => ['Metode Belajar', '#metode'],
+        ];
 @endphp
 
 <header class="sticky top-0 z-50 border-b border-emerald-100 bg-white shadow-sm">
@@ -18,11 +27,21 @@
         {{-- Menu tengah (anchor ke section) --}}
         <div class="hidden items-center gap-6 xl:gap-10 text-sm lg:text-base font-medium lg:flex">
             @foreach ($links as $key => [$label, $href])
-                <a href="{{ $href }}" data-spy
-                   class="border-b-2 border-transparent py-2 text-slate-600 transition hover:border-emerald-200 hover:text-emerald-700">
+                <a href="{{ $href }}" @unless ($isLoggedIn) data-spy @endunless
+                class="border-b-2 py-2 transition {{ $isLoggedIn && $key === 'beranda'
+                        ? 'border-emerald-600 font-semibold text-slate-900'
+                        : 'border-transparent text-slate-600 hover:border-emerald-200 hover:text-emerald-700' }}">
                     {{ $label }}
                 </a>
             @endforeach
+            @auth
+                @if (auth()->user()->role === 'learner')
+                    <a href="{{ route('latihan.index') }}"
+                       class="border-b-2 border-transparent py-2 text-slate-600 transition hover:border-emerald-200 hover:text-emerald-700">
+                        Latihan Coding
+                    </a>
+                @endif
+            @endauth
         </div>
 
         {{-- Kanan --}}
@@ -78,8 +97,10 @@
         <div class="space-y-1">
             @foreach ($links as $key => [$label, $href])
                 <a href="{{ $href }}"
-                   onclick="document.getElementById('menu-mobile').classList.add('hidden')"
-                   class="block rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-emerald-50">
+                onclick="document.getElementById('menu-mobile').classList.add('hidden')"
+                class="block rounded-xl px-4 py-3 text-sm font-medium transition {{ $isLoggedIn && $key === 'beranda'
+                        ? 'bg-emerald-50 font-semibold text-emerald-800'
+                        : 'text-slate-700 hover:bg-emerald-50' }}">
                     {{ $label }}
                 </a>
             @endforeach

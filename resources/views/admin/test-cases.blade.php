@@ -3,15 +3,23 @@
     $visibleCount = $activeCases->where('is_hidden', false)->count();
     $hiddenCount = $activeCases->where('is_hidden', true)->count();
     $inactiveCount = $testCases->where('is_active', false)->count();
+
+    $secondaryBtn = 'inline-flex items-center gap-2 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm px-4 py-2 rounded-xl transition whitespace-nowrap';
+
+    $statusBox = match (true) {
+        $exercise->is_published && ! $canPublish => 'bg-rose-50 border-rose-200 text-rose-800',
+        $exercise->is_published => 'bg-emerald-50 border-emerald-200 text-emerald-800',
+        ! $canPublish => 'bg-amber-50 border-amber-200 text-amber-800',
+        default => 'bg-emerald-50 border-emerald-200 text-emerald-800',
+    };
 @endphp
 
 <x-layouts.admin :title="'Test Case - '.$exercise->title" active="latihan">
-    {{-- Breadcrumb --}}
-    <nav class="flex items-center gap-1.5 text-xs text-slate-400 mb-5">
-        <a href="{{ route('admin.latihan') }}" class="hover:text-emerald-600 font-semibold">Latihan &amp; Soal</a>
-        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-        <span class="text-slate-700 font-semibold">{{ $exercise->title }}</span>
-    </nav>
+    <x-admin.breadcrumb :items="[
+        ['Latihan & Soal', route('admin.latihan')],
+        [$exercise->title, route('admin.latihan.edit', $exercise)],
+        ['Test Case', null],
+    ]" />
 
     {{-- Header --}}
     <div class="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -23,13 +31,8 @@
             </p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-            <a href="{{ route('admin.latihan') }}"
-               class="inline-flex items-center gap-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm px-4 py-2.5 rounded-xl transition">
+            <a href="{{ route('admin.latihan') }}" class="{{ $secondaryBtn }}">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
-            </a>
-            <a href="{{ route('admin.latihan.answer-key', $exercise) }}"
-               class="inline-flex items-center gap-2 border border-violet-200 bg-violet-50 hover:bg-violet-100 text-violet-800 font-semibold text-sm px-4 py-2.5 rounded-xl transition">
-                <i data-lucide="flask-conical" class="w-4 h-4"></i> Uji Kunci Jawaban
             </a>
             <a href="{{ route('admin.latihan.test-cases.create', $exercise) }}"
                class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-4 py-2.5 rounded-xl transition">
@@ -38,36 +41,14 @@
         </div>
     </div>
 
-    @if (session('status'))
-        <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-sm font-medium" style="padding: 0.75rem 1rem;">
-            {{ session('status') }}
-        </div>
-    @endif
-    @if (session('success'))
-        <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-sm font-medium" style="padding: 0.75rem 1rem;">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if (session('error'))
-        <div class="mb-4 rounded-xl border border-rose-200 bg-rose-50 text-rose-800 text-sm font-medium" style="padding: 0.75rem 1rem;">
-            {{ session('error') }}
-        </div>
-    @endif
-    @if ($errors->any())
-        <div role="alert" class="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-            @foreach ($errors->all() as $error)<p>{{ $error }}</p>@endforeach
-        </div>
-    @endif
+    @unless ($exercise->is_published)
+        <x-admin.stepper :current="$canPublish ? 3 : 2" />
+    @endunless
+    <x-admin.exercise-tabs :exercise="$exercise" active="testcase" />
+
+    <x-admin.flash />
 
     {{-- Status soal dan pilihan simpan --}}
-    @php
-        $statusBox = match (true) {
-            $exercise->is_published && ! $canPublish => 'bg-rose-50 border-rose-200 text-rose-800',
-            $exercise->is_published => 'bg-emerald-50 border-emerald-200 text-emerald-800',
-            ! $canPublish => 'bg-amber-50 border-amber-200 text-amber-800',
-            default => 'bg-emerald-50 border-emerald-200 text-emerald-800',
-        };
-    @endphp
     <div class="mb-6 rounded-2xl px-5 py-4 text-sm border flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 {{ $statusBox }}">
         <span>
             @if ($exercise->is_published && ! $canPublish)
@@ -87,14 +68,13 @@
                     @csrf
                     @method('PUT')
                     <input type="hidden" name="is_published" value="0">
-                    <button type="submit" class="inline-flex items-center gap-2 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm px-4 py-2 rounded-xl transition whitespace-nowrap">
+                    <button type="submit" class="{{ $secondaryBtn }}">
                         <i data-lucide="eye-off" class="w-4 h-4"></i> Tarik ke Draft
                     </button>
                 </form>
             @else
-                <a href="{{ route('admin.latihan') }}"
-                   class="inline-flex items-center gap-2 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm px-4 py-2 rounded-xl transition whitespace-nowrap">
-                    <i data-lucide="file-edit" class="w-4 h-4"></i> Simpan Draft Saja
+                <a href="{{ route('admin.latihan') }}" class="{{ $secondaryBtn }}">
+                    <i data-lucide="check" class="w-4 h-4"></i> Selesai (tetap Draft)
                 </a>
                 <form method="POST" action="{{ route('admin.latihan.status.update', $exercise) }}">
                     @csrf
@@ -104,7 +84,7 @@
                             @disabled(! $canPublish)
                             title="{{ $canPublish ? 'Terbitkan agar bisa dikerjakan siswa' : 'Tambahkan minimal satu test case terlihat untuk menerbitkan' }}"
                             class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold text-sm px-4 py-2 rounded-xl transition whitespace-nowrap">
-                        <i data-lucide="upload" class="w-4 h-4"></i> Simpan &amp; Terbitkan Soal
+                        <i data-lucide="upload" class="w-4 h-4"></i> Simpan &amp; Terbitkan
                     </button>
                 </form>
             @endif

@@ -1,31 +1,32 @@
 @php
     $testCase = $testCase ?? null;
     $method = $method ?? 'POST';
-    $heading = $heading ?? 'Tambah Test Case';
+    $isCreate = $testCase === null;
+    $heading = $heading ?? ($isCreate ? 'Tambah Test Case' : 'Edit Test Case');
     $jenis = old('jenis', ($testCase && $testCase->assertion_code) ? 'assertion' : 'io');
     $inputClass = 'w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500';
+    $secondaryBtn = 'inline-flex items-center gap-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm px-4 py-2.5 rounded-xl transition';
+    $draftBtn = 'inline-flex items-center gap-2 border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold text-sm px-5 py-2.5 rounded-xl transition';
+    $primaryBtn = 'inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition';
 @endphp
 
 <x-layouts.admin :title="$heading" active="latihan">
-    {{-- Breadcrumb --}}
-    <nav class="flex items-center gap-1.5 text-xs text-slate-400 mb-5">
-        <a href="{{ route('admin.latihan') }}" class="hover:text-emerald-600 font-semibold">Latihan &amp; Soal</a>
-        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-        <a href="{{ route('admin.latihan.test-cases', $exercise) }}" class="hover:text-emerald-600 font-semibold">{{ $exercise->title }}</a>
-        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-        <span class="text-slate-700 font-semibold">{{ $heading }}</span>
-    </nav>
+    <x-admin.breadcrumb :items="[
+        ['Latihan & Soal', route('admin.latihan')],
+        [$exercise->title, route('admin.latihan.test-cases', $exercise)],
+        [$heading, null],
+    ]" />
 
     <div class="mb-6">
         <h1 class="text-xl font-black text-slate-900">{{ $heading }}</h1>
         <p class="text-sm text-slate-500 mt-0.5">Soal: {{ $exercise->title }}</p>
     </div>
 
-    @if ($errors->any())
-        <div role="alert" class="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 max-w-3xl">
-            @foreach ($errors->all() as $error)<p>{{ $error }}</p>@endforeach
-        </div>
-    @endif
+    @unless ($exercise->is_published)
+        <x-admin.stepper :current="2" />
+    @endunless
+
+    <x-admin.flash />
 
     <form action="{{ $action }}" method="POST" class="bg-white rounded-2xl border border-slate-200 p-6 space-y-5 max-w-3xl">
         @csrf
@@ -55,7 +56,7 @@
         </fieldset>
 
         {{-- Bagian Input / Output --}}
-        <div id="bagian-io" class="space-y-5">
+        <div id="bagian-io" class="space-y-5 {{ $jenis === 'assertion' ? 'hidden' : '' }}">
             <div>
                 <label for="input" class="block text-xs font-semibold text-slate-700 mb-1">Input (opsional)</label>
                 <textarea id="input" name="input" rows="3" spellcheck="false" class="{{ $inputClass }}">{{ old('input', $testCase->input ?? '') }}</textarea>
@@ -69,7 +70,7 @@
         </div>
 
         {{-- Bagian Assertion --}}
-        <div id="bagian-assertion">
+        <div id="bagian-assertion" class="{{ $jenis === 'assertion' ? '' : 'hidden' }}">
             <label for="assertion_code" class="block text-xs font-semibold text-slate-700 mb-1">Kode assertion <span class="text-red-500">*</span></label>
             <textarea id="assertion_code" name="assertion_code" rows="4" spellcheck="false" class="{{ $inputClass }}"
                       placeholder="assert jumlah(2, 3) == 5">{{ old('assertion_code', $testCase->assertion_code ?? '') }}</textarea>
@@ -98,14 +99,16 @@
         </div>
         <p class="text-[11px] text-slate-400">Test case yang tidak disembunyikan tampil sebagai "Contoh Uji Coba". Test case tersembunyi hanya dipakai saat penilaian akhir. Soal terbit wajib punya minimal satu test case terlihat.</p>
 
-        <div class="flex items-center justify-end gap-2 pt-2">
-            <a href="{{ route('admin.latihan.test-cases', $exercise) }}"
-               class="inline-flex items-center gap-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm px-4 py-2.5 rounded-xl transition">
-                Batal
-            </a>
-            <button type="submit"
-                    class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition">
-                <i data-lucide="save" class="w-4 h-4"></i> Simpan Test Case
+        {{-- Susunan tombol sama di semua form: Batal di kiri, aksi sekunder di tengah, aksi utama (hijau) di kanan --}}
+        <div class="flex flex-wrap items-center justify-end gap-2 pt-2">
+            <a href="{{ route('admin.latihan.test-cases', $exercise) }}" class="{{ $secondaryBtn }}">Batal</a>
+            @if ($isCreate)
+                <button type="submit" name="after" value="again" class="{{ $draftBtn }}">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Simpan &amp; Tambah Lagi
+                </button>
+            @endif
+            <button type="submit" class="{{ $primaryBtn }}">
+                <i data-lucide="save" class="w-4 h-4"></i> {{ $isCreate ? 'Simpan Test Case' : 'Simpan Perubahan' }}
             </button>
         </div>
     </form>
@@ -117,11 +120,19 @@
                 var io = document.getElementById('bagian-io');
                 var assertion = document.getElementById('bagian-assertion');
 
+                // Bagian yang disembunyikan juga dinonaktifkan agar nilainya tidak ikut terkirim.
+                function setSection(section, active) {
+                    section.classList.toggle('hidden', !active);
+                    section.querySelectorAll('input, textarea').forEach(function (field) {
+                        field.disabled = !active;
+                    });
+                }
+
                 function toggle() {
                     var selected = document.querySelector('input[name="jenis"]:checked');
                     var isAssertion = selected && selected.value === 'assertion';
-                    io.classList.toggle('hidden', isAssertion);
-                    assertion.classList.toggle('hidden', !isAssertion);
+                    setSection(io, !isAssertion);
+                    setSection(assertion, isAssertion);
                 }
 
                 radios.forEach(function (radio) { radio.addEventListener('change', toggle); });
