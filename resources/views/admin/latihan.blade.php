@@ -73,7 +73,9 @@
                             $visibleTotal = $visibleTestCaseCounts[$exercise->id] ?? 0;
                             $canPublish = $visibleTotal > 0;
                             // Batas efektif saat kode dijalankan (sisi siswa membatasi maks 5 detik dan 250 MB).
-                            $timeLimit = min(5000, max(1000, $exercise->time_limit_ms ?? 2000));
+                            // Bila kosong, otomatis menurut tingkat: Mudah 1000 ms, Sedang 2000 ms, Sulit 3000 ms; memori 128 MB.
+                            $defaultTime = ['mudah' => 1000, 'sedang' => 2000, 'sulit' => 3000][$level];
+                            $timeLimit = min(5000, max(1000, $exercise->time_limit_ms ?? $defaultTime));
                             $memoryLimit = min(250, max(16, $exercise->memory_limit_mb ?? 128));
                             $moduleTitle = $exercise->lesson->module->title ?? 'Umum';
                             $lessonTitle = $exercise->lesson->title ?? '-';

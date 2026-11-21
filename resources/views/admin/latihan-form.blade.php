@@ -95,7 +95,7 @@
                 <textarea id="starter_code" name="starter_code" rows="6" spellcheck="false" class="{{ $inputClass }} font-mono">{{ old('starter_code', $exercise->starter_code ?? '') }}</textarea>
             </div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label for="difficulty" class="block text-xs font-semibold text-slate-700 mb-1">Tingkat <span class="text-red-500">*</span></label>
                     <select id="difficulty" name="difficulty" required class="{{ $inputClass }}">
@@ -105,21 +105,15 @@
                     </select>
                 </div>
                 <div>
-                    <label for="time_limit_ms" class="block text-xs font-semibold text-slate-700 mb-1">Batas waktu (ms)</label>
-                    <input id="time_limit_ms" type="number" name="time_limit_ms" min="1000" max="5000" required
-                           value="{{ old('time_limit_ms', min(5000, max(1000, $exercise->time_limit_ms ?? 2000))) }}" class="{{ $inputClass }}">
-                </div>
-                <div>
-                    <label for="memory_limit_mb" class="block text-xs font-semibold text-slate-700 mb-1">Memori (MB)</label>
-                    <input id="memory_limit_mb" type="number" name="memory_limit_mb" min="16" max="250" required
-                           value="{{ old('memory_limit_mb', min(250, max(16, $exercise->memory_limit_mb ?? 128))) }}" class="{{ $inputClass }}">
-                </div>
-                <div>
                     <label for="sort_order" class="block text-xs font-semibold text-slate-700 mb-1">Urutan</label>
                     <input id="sort_order" type="number" name="sort_order" min="1"
                            value="{{ old('sort_order', $exercise->sort_order ?? '') }}" placeholder="Otomatis" class="{{ $inputClass }}">
                 </div>
             </div>
+
+            <p class="text-[11px] text-slate-400 -mt-2">
+                Batas waktu dan memori diatur otomatis menurut tingkat: Mudah 1000 ms, Sedang 2000 ms, Sulit 3000 ms, dengan memori 128 MB.
+            </p>
 
             @unless ($isCreate || $canPublish)
                 <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3.5 py-2.5">

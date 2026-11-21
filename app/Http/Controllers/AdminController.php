@@ -766,9 +766,12 @@ class AdminController extends Controller
     /**
      * @return array<string, mixed>
      */
+        /**
+     * @return array<string, mixed>
+     */
     private function validateExercise(Request $request, ?Exercise $exercise = null): array
     {
-        return $request->validate([
+        $validated = $request->validate([
             'lesson_id' => ['required', 'integer', Rule::exists('lessons', 'id')],
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('exercises', 'slug')->ignore($exercise?->id)],
@@ -776,11 +779,17 @@ class AdminController extends Controller
             'instructions' => ['nullable', 'string'],
             'starter_code' => ['nullable', 'string'],
             'difficulty' => ['required', Rule::in(['easy', 'medium', 'hard'])],
-            'time_limit_ms' => ['required', 'integer', 'between:1000,5000'],
-            'memory_limit_mb' => ['required', 'integer', 'between:16,250'],
             'sort_order' => ['nullable', 'integer', 'min:1'],
             'is_published' => ['nullable', 'boolean'],
         ]);
+
+        // Batas waktu dan memori diisi otomatis menurut tingkat, tidak lagi diinput admin.
+        $batasWaktu = ['easy' => 1000, 'medium' => 2000, 'hard' => 3000];
+
+        $validated['time_limit_ms'] = $batasWaktu[$validated['difficulty']] ?? 2000;
+        $validated['memory_limit_mb'] = 128;
+
+        return $validated;
     }
 
     /**
