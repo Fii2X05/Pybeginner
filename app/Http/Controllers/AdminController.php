@@ -10,18 +10,18 @@ use App\Models\Module;
 use App\Models\Submission;
 use App\Models\TestCase;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\JsonResponse;
 use App\Services\Judge0Service;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Throwable;
 
@@ -43,22 +43,55 @@ class AdminController extends Controller
         $totalSiswa = User::where('role', 'learner')->count();
         $totalSubmissions = Submission::count();
 
-        // Ambil aktivitas dari submission terbaru jika ada, atau gunakan mock aktivitas sesuai desain
-        $submissions = Submission::with(['user', 'exercise'])
-            ->latest()
-            ->take(5)
+        // Platform Summary Analytics
+        $avgScore = round((float) (Submission::avg('score') ?? 0), 1);
+        $passedSubmissions = Submission::where(function ($q) {
+            $q->where('status', 'accepted')
+                ->orWhere('score', '>=', 70);
+        })->count();
+        $passRate = $totalSubmissions > 0 ? round(($passedSubmissions / $totalSubmissions) * 100, 1) : 0;
+        $activeLearners = User::where('role', 'learner')->whereHas('submissions')->count();
+
+        // 1. Penilaian Persoal (Statistik Autograder & Evaluasi Tiap Latihan)
+        $exercisesStats = Exercise::query()
+            ->with(['lesson.module'])
+            ->withCount('submissions')
+            ->withCount([
+                'submissions as passed_count' => function ($q) {
+                    $q->where('status', 'accepted')->orWhere('score', '>=', 70);
+                },
+            ])
+            ->withAvg('submissions', 'score')
+            ->orderBy('sort_order')
+            ->get();
+
+        // 2. Penilaian per Learner / Siswa Monitoring (Siswa Teraktif dan Performa)
+        $learnerStats = User::where('role', 'learner')
+            ->has('submissions')
+            ->withCount('submissions')
+            ->withCount([
+                'submissions as passed_count' => function ($q) {
+                    $q->where('status', 'accepted')->orWhere('score', '>=', 70);
+                },
+            ])
+            ->withAvg('submissions', 'score')
+            ->orderByDesc('submissions_count')
+            ->take(8)
+            ->get();
+
+        // 3. Live Feed Evaluasi Submission Terbaru
+        $recentSubmissions = Submission::with(['user', 'exercise'])
+            ->latest('submitted_at')
+            ->take(8)
             ->get();
 
         $recentActivities = [];
-
-        if ($submissions->isNotEmpty()) {
-            foreach ($submissions as $sub) {
-                $recentActivities[] = [
-                    'name' => $sub->user->name ?? 'Siswa',
-                    'action' => 'Mengumpulkan solusi '.($sub->exercise->title ?? 'Latihan'),
-                    'time' => $sub->created_at ? $sub->created_at->diffForHumans() : 'Baru saja',
-                ];
-            }
+        foreach ($recentSubmissions->take(5) as $sub) {
+            $recentActivities[] = [
+                'name' => $sub->user->name ?? 'Siswa',
+                'action' => 'Mengumpulkan solusi '.($sub->exercise->title ?? 'Latihan'),
+                'time' => $sub->created_at ? $sub->created_at->diffForHumans() : 'Baru saja',
+            ];
         }
 
         return view('admin.dashboard', compact(
@@ -66,6 +99,12 @@ class AdminController extends Controller
             'totalLatihan',
             'totalSiswa',
             'totalSubmissions',
+            'avgScore',
+            'passRate',
+            'activeLearners',
+            'exercisesStats',
+            'learnerStats',
+            'recentSubmissions',
             'recentActivities'
         ));
     }
@@ -75,7 +114,10 @@ class AdminController extends Controller
      */
     public function materi(): View
     {
-        $modules = Module::withCount('lessons')->orderBy('sort_order')->get();
+        $modules = Module::with(['lessons' => fn ($q) => $q->orderBy('sort_order')])
+            ->withCount('lessons')
+            ->orderBy('sort_order')
+            ->get();
         $courses = Course::orderBy('sort_order')->get();
 
         return view('admin.materi', compact('modules', 'courses'));
@@ -308,6 +350,12 @@ class AdminController extends Controller
      */
     public function latihan(): View
     {
+        $duplicateSlugs = Exercise::select('slug')
+            ->groupBy('slug')
+            ->havingRaw('count(*) > 1')
+            ->pluck('slug')
+            ->toArray();
+
         $exercises = Exercise::with('lesson.module')
             ->withCount(['testCases', 'submissions', 'testCaseProgress'])
             ->orderBy('sort_order')
@@ -324,7 +372,7 @@ class AdminController extends Controller
             ->groupBy('exercise_id')
             ->pluck('total', 'exercise_id');
 
-        return view('admin.latihan', compact('exercises', 'testCaseCounts', 'visibleTestCaseCounts'));
+        return view('admin.latihan', compact('exercises', 'duplicateSlugs', 'testCaseCounts', 'visibleTestCaseCounts'));
     }
 
     /**
@@ -766,7 +814,7 @@ class AdminController extends Controller
     /**
      * @return array<string, mixed>
      */
-        /**
+    /**
      * @return array<string, mixed>
      */
     private function validateExercise(Request $request, ?Exercise $exercise = null): array
@@ -875,8 +923,9 @@ class AdminController extends Controller
         $query->orderBy('created_at', ($filters['joined'] ?? 'newest') === 'oldest' ? 'asc' : 'desc');
 
         $users = $query->orderBy('id')->paginate(15);
+        $students = (clone $query)->where('role', 'learner')->get();
 
-        return view('admin.siswa', compact('users', 'filters'));
+        return view('admin.siswa', compact('users', 'students', 'filters'));
     }
 
     public function siswaShow(User $user): View
@@ -994,7 +1043,7 @@ class AdminController extends Controller
     public function penilaian(): View
     {
         $submissions = Submission::with(['user', 'exercise'])
-            ->latest()
+            ->latest('submitted_at')
             ->paginate(15);
 
         return view('admin.penilaian', compact('submissions'));

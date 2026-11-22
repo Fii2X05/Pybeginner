@@ -13,7 +13,7 @@ return new class extends Migration
                 $table->boolean('is_hidden')->default(false);
             });
         }
-}
+    }
 
     public function down(): void
     {

@@ -259,6 +259,64 @@ class AuthTest extends TestCase
         ]);
     }
 
+    public function test_admin_dashboard_can_be_rendered(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->get('/admin/dashboard');
+
+        $response->assertStatus(200);
+        $response->assertSee('PyBeginner');
+        $response->assertDontSee('ADMIN WORKSPACE');
+        $response->assertSee('Keluar Akun');
+    }
+
+    public function test_admin_dashboard_shows_monitoring_metrics_and_evaluations(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->get('/admin/dashboard');
+
+        $response->assertStatus(200);
+        $response->assertSee('Dashboard Monitoring &amp; Penilaian', false);
+        $response->assertSee('Total Siswa Terdaftar');
+        $response->assertSee('Penilaian &amp; Performa per Latihan Coding', false);
+        $response->assertSee('Penilaian per Siswa Teraktif');
+        $response->assertSee('Riwayat Evaluasi Kode Submission Terbaru');
+    }
+
+    public function test_admin_materi_displays_synchronized_modules(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->get('/admin/materi');
+
+        $response->assertStatus(200);
+        $response->assertSee('Materi Belajar &amp; Modul Kurikulum', false);
+        $response->assertSee('Urutan Modul Terintegrasi &amp; Sinkron', false);
+    }
+
+    public function test_admin_latihan_displays_bank_soal_and_slug_guidance(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->get('/admin/latihan');
+
+        $response->assertStatus(200);
+        $response->assertSee('Pengaruh Slug pada Navigasi');
+        $response->assertSee('Memori Tujuan &amp; Batas Waktu', false);
+    }
+
+    public function test_web_shows_admin_dashboard_link_when_logged_in_as_admin(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('Dashboard Admin');
+    }
+
     public function test_google_callback_rejects_a_mismatched_oauth_state(): void
     {
         config([

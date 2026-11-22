@@ -1,22 +1,80 @@
 <x-layouts.admin title="Latihan & Soal - Admin" active="latihan">
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <div class="mb-1 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-700">
-                <span>Bank Soal</span><span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
+            <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 tracking-wider uppercase mb-1">
+                <span>MANAJEMEN BANK SOAL</span>
+                <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
             </div>
-            <h1 class="text-2xl font-black tracking-tight text-slate-900 lg:text-3xl">Latihan &amp; Soal</h1>
-            <p class="mt-1 text-sm text-slate-500">Buat latihan, kelola test case, dan atur soal yang diterbitkan untuk siswa.</p>
+            <h1 class="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
+                Latihan &amp; Bank Soal Coding
+            </h1>
+            <p class="text-sm text-slate-500 mt-1">Kelola latihan interaktif, slug navigasi, limit memori runtime Judge0, dan urutan soal.</p>
         </div>
         <div class="flex items-center gap-2">
-            <span class="px-3.5 py-1.5 rounded-xl bg-emerald-100/70 text-emerald-800 text-xs font-bold whitespace-nowrap">
+            <span class="rounded-xl bg-emerald-100/70 px-3.5 py-2 text-xs font-bold text-emerald-800">
                 Total {{ $exercises->count() }} Latihan
             </span>
-            <a href="{{ route('admin.latihan.create') }}"
-               class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-4 py-2.5 rounded-xl transition whitespace-nowrap">
-                <i data-lucide="plus" class="w-4 h-4"></i> Tambah Latihan
+            <a href="{{ route('admin.latihan.create') }}" class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-emerald-700 shadow-2xs">
+                <i data-lucide="plus" class="h-4 w-4"></i>
+                <span>Buat Latihan</span>
+            </a>
+            <a href="{{ route('latihan.index') }}" target="_blank"
+               class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition shadow-2xs">
+                <span>Buka di Web Siswa</span>
+                <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-400"></i>
             </a>
         </div>
     </div>
+
+    <!-- Banner Edukasi: Slug, Navigasi, & Memori Tujuan -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <!-- Info Slug & Navigasi -->
+        <div class="p-4 rounded-2xl bg-blue-50/70 border border-blue-100 flex items-start gap-3">
+            <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 mt-0.5">
+                <i data-lucide="link" class="w-4 h-4"></i>
+            </div>
+            <div>
+                <h4 class="text-xs font-bold text-blue-900">Pengaruh Slug pada Navigasi</h4>
+                <p class="text-xs text-blue-800/80 mt-0.5 leading-relaxed">
+                    Siswa mengakses soal melalui rute <code class="bg-blue-100/80 px-1 py-0.5 rounded font-mono text-[11px]">/latihan/{slug}</code>. Jika terdapat dua soal dengan <strong>slug yang sama</strong>, sistem hanya akan membuka soal yang pertama ditemukan, sehingga soal kedua <strong>tidak akan bisa diakses</strong>. Pastikan setiap slug unik!
+                </p>
+            </div>
+        </div>
+
+        <!-- Info Memori Tujuan Judge0 -->
+        <div class="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100 flex items-start gap-3">
+            <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+                <i data-lucide="cpu" class="w-4 h-4"></i>
+            </div>
+            <div>
+                <h4 class="text-xs font-bold text-emerald-900">Memori Tujuan &amp; Batas Waktu</h4>
+                <p class="text-xs text-emerald-800/80 mt-0.5 leading-relaxed">
+                    <strong>Memori Tujuan</strong> adalah batas alokasi RAM sandbox compiler Judge0 (standar 128 MB). Jika kode siswa melampaui memori ini, autograder akan mengembalikan status <em>Memory Limit Exceeded (MLE)</em>. Batas waktu standar adalah 2000 ms - 10000 ms.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Peringatan Jika Ada Slug Duplikat -->
+    @if (!empty($duplicateSlugs))
+        <div class="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 flex items-start gap-3">
+            <div class="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 mt-0.5">
+                <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+            </div>
+            <div>
+                <h4 class="text-xs font-bold text-rose-900">Peringatan: Ditemukan Slug Duplikat!</h4>
+                <p class="text-xs text-rose-800/90 mt-0.5 leading-relaxed">
+                    Slug berikut digunakan lebih dari satu latihan: <code class="bg-rose-200/60 px-1 py-0.5 rounded font-mono font-bold">{{ implode(', ', $duplicateSlugs) }}</code>. Harap ubah salah satu slug melalui tombol <strong>Edit</strong> agar kedua soal dapat dibuka secara normal oleh siswa.
+                </p>
+            </div>
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div role="alert" class="mb-5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            @foreach ($errors->all() as $error)<p>{{ $error }}</p>@endforeach
+        </div>
+    @endif
 
     <x-admin.flash />
 

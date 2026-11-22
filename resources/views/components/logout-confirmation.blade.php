@@ -1,7 +1,8 @@
 <dialog id="logout-confirmation"
+        data-modal="logout-confirmation-modal"
         aria-labelledby="logout-confirmation-title"
         aria-describedby="logout-confirmation-description"
-        class="fixed inset-0 m-auto max-h-[calc(100%-2rem)] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-3xl border border-slate-200 bg-white p-0 text-slate-800 shadow-2xl backdrop:bg-slate-950/60">
+        class="logout-confirmation-modal fixed inset-0 m-auto max-h-[calc(100%-2rem)] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-3xl border border-slate-200 bg-white p-0 text-slate-800 shadow-2xl backdrop:bg-slate-950/60">
     <div class="p-6 sm:p-7">
         <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-600">
             <i data-lucide="log-out" class="h-6 w-6"></i>
@@ -17,7 +18,7 @@
             </button>
             <button type="button" data-logout-confirm
                     class="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700">
-                Ya, Keluar
+                Ya, Keluar<span class="sr-only">Ya, keluar</span>
             </button>
         </div>
     </div>

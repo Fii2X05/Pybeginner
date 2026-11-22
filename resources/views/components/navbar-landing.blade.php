@@ -45,6 +45,16 @@
         {{-- Kanan --}}
         <div class="flex items-center gap-2 sm:gap-3 justify-self-end">
             @auth
+                @if (auth()->user()->role === 'admin')
+                    <a href="{{ route('admin.dashboard') }}" 
+                       class="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>
+                        </svg>
+                        <span>Dashboard Admin</span>
+                    </a>
+                @endif
+
                 <span class="hidden text-sm font-semibold text-slate-800 xl:inline">{{ auth()->user()->name }}</span>
 
                 <a href="{{ auth()->user()->role === 'admin' ? route('admin.dashboard') : route('profile') }}" title="{{ auth()->user()->role === 'admin' ? 'Dashboard Admin' : 'Profil' }}" class="shrink-0 flex items-center group">
@@ -62,7 +72,7 @@
                     @endif
                 </a>
 
-                <form method="POST" action="{{ route('logout') }}" class="hidden lg:inline" data-confirm-logout>
+                <form method="POST" action="{{ route('logout') }}" class="hidden lg:inline" data-confirm-logout onsubmit="/* showModal() */">
                     @csrf
                     <button type="submit" title="Keluar"
                             class="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 active:scale-95">
@@ -102,6 +112,15 @@
             @endforeach
 
             @auth
+                @if (auth()->user()->role === 'admin')
+                    <a href="{{ route('admin.dashboard') }}"
+                       class="flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800 transition hover:bg-emerald-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>
+                        </svg>
+                        <span>Dashboard Admin</span>
+                    </a>
+                @endif
                 <div class="border-t border-slate-100 pt-3 mt-2">
                     <div class="px-4 py-2 text-xs font-semibold text-slate-500">
                         Masuk sebagai <span class="font-bold text-slate-800">{{ auth()->user()->name }}</span>
