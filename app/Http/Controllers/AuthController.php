@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\AdminNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,7 +33,13 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (User::where('email', $credentials['email'])->where('is_suspended', true)->exists()) {
+            return back()->withErrors([
+                'email' => 'Akun Anda sedang dinonaktifkan. Hubungi administrator untuk bantuan.',
+            ])->onlyInput('email');
+        }
+
+        if (Auth::attempt($credentials + ['is_suspended' => false], $request->boolean('remember'))) {
             $request->session()->regenerate();
 
             if (Auth::user()->role === 'admin') {
@@ -58,7 +65,7 @@ class AuthController extends Controller
     /**
      * Handle an incoming registration request.
      */
-    public function register(Request $request): RedirectResponse
+    public function register(Request $request, AdminNotificationService $notifications): RedirectResponse
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -72,6 +79,13 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
             'role' => 'learner',
         ]);
+
+        $notifications->notifyAdmins(
+            'new_student',
+            'Siswa baru mendaftar',
+            "{$user->name} telah bergabung ke PyBeginner.",
+            route('admin.siswa.show', $user),
+        );
 
         Auth::login($user);
 
@@ -110,7 +124,7 @@ class AuthController extends Controller
     /**
      * Obtain the user information from Google and authenticate.
      */
-    public function handleGoogleCallback(Request $request): RedirectResponse
+    public function handleGoogleCallback(Request $request, AdminNotificationService $notifications): RedirectResponse
     {
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
@@ -118,6 +132,13 @@ class AuthController extends Controller
             $user = User::where('google_id', $googleUser->getId())
                 ->orWhere('email', $googleUser->getEmail())
                 ->first();
+            $isNewUser = $user === null;
+
+            if ($user?->is_suspended) {
+                return redirect()->route('login')->withErrors([
+                    'email' => 'Akun Anda sedang dinonaktifkan. Hubungi administrator untuk bantuan.',
+                ]);
+            }
 
             if ($user !== null) {
                 $user->update([
@@ -133,6 +154,15 @@ class AuthController extends Controller
                     'role' => 'learner',
                     'email_verified_at' => now(),
                 ]);
+            }
+
+            if ($isNewUser) {
+                $notifications->notifyAdmins(
+                    'new_student',
+                    'Siswa baru mendaftar',
+                    "{$user->name} telah bergabung melalui Google.",
+                    route('admin.siswa.show', $user),
+                );
             }
 
             Auth::login($user, true);

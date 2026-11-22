@@ -567,6 +567,40 @@ class SubmissionGradingTest extends TestCase
             ->assertDontSee(route('submissions.history', ['selected' => $submissionIds[2], 'page' => 2]));
     }
 
+    public function test_perfect_submission_notifies_admin(): void
+    {
+        Http::fake(fn () => Http::response([
+            'status' => ['id' => 3, 'description' => 'Accepted'],
+            'stdout' => "ok\n",
+            'time' => '0.01',
+        ]));
+
+        $admin = User::factory()->create(['role' => 'admin']);
+        $student = User::factory()->create(['role' => 'learner']);
+        $exerciseId = $this->createExercise([
+            [
+                'assertion_code' => 'assert True',
+                'is_hidden' => false,
+            ],
+        ]);
+        $sourceCode = 'print("ok")';
+        $testCaseId = DB::table('test_cases')->where('exercise_id', $exerciseId)->value('id');
+
+        $this->actingAs($student)
+            ->postJson(route('submissions.test-case.run', [
+                'exerciseId' => $exerciseId,
+                'testCaseId' => $testCaseId,
+            ]), ['source_code' => $sourceCode])
+            ->assertOk();
+
+        $this->postJson(route('submissions.submit'), [
+            'exercise_id' => $exerciseId,
+            'source_code' => $sourceCode,
+        ])->assertOk()->assertJsonPath('score', 100);
+
+        $this->assertSame('perfect_score', $admin->notifications()->first()->data['type']);
+    }
+
     /**
      * @param  array<int, array<string, mixed>>  $testCases
      */

@@ -29,4 +29,9 @@ class Lesson extends Model
     {
         return $this->hasMany(Exercise::class)->orderBy('sort_order');
     }
+
+    public function progress(): HasMany
+    {
+        return $this->hasMany(LessonProgress::class);
+    }
 }
