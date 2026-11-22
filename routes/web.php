@@ -58,8 +58,6 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     Route::get('/riwayat-submission', [SubmissionController::class, 'history'])->name('submissions.history');
     Route::post('/submissions', [SubmissionController::class, 'submit'])->name('submissions.submit');
-    Route::post('/run', [SubmissionController::class, 'run'])->name('submissions.run');
-    Route::post('/execute', [SubmissionController::class, 'execute'])->name('submissions.execute');
 
     Route::post('/exercises/{exerciseId}/test-cases/{testCaseId}/run', [SubmissionController::class, 'runTestCase'])
         ->name('submissions.test-case.run');
@@ -76,6 +74,9 @@ Route::middleware(['auth', 'active'])->group(function () {
         return redirect()->route('latihan.index');
     })->name('playground');
 });
+
+Route::post('/run', [SubmissionController::class, 'run'])->name('submissions.run');
+Route::post('/execute', [SubmissionController::class, 'execute'])->name('submissions.execute');
 
 // --- Panel Admin ---
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {

@@ -27,11 +27,6 @@ class Exercise extends Model
         return $this->belongsTo(Lesson::class);
     }
 
-    public function submissions(): HasMany
-    {
-        return $this->hasMany(Submission::class);
-    }
-
     public function testCases(): HasMany
     {
         return $this->hasMany(TestCase::class, 'exercise_id')

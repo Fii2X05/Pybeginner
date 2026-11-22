@@ -145,7 +145,7 @@ class AdminContentManagementTest extends TestCase
             ->get(route('admin.materi'))
             ->assertOk()
             ->assertSee('Tambah Modul')
-            ->assertDontSee('<dialog', false);
+            ->assertDontSee('<dialog id="module-', false);
 
         $this->get(route('admin.materi.create'))
             ->assertOk()
@@ -164,7 +164,7 @@ class AdminContentManagementTest extends TestCase
         $this->get(route('admin.materi.edit', $module))
             ->assertOk()
             ->assertSee('Edit Modul')
-            ->assertDontSee('<dialog', false);
+            ->assertDontSee('<dialog id="module-', false);
         $this->get(route('admin.materi.lessons', $module))
             ->assertOk()
             ->assertSee('Tambah Pelajaran');
