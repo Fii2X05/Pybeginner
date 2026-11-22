@@ -7,30 +7,34 @@
              alt=""
              class="absolute inset-0 w-full h-full object-cover object-left z-0">
 
-        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-10 sm:py-16 lg:py-24 grid lg:grid-cols-5 gap-8 lg:gap-12 items-center">
+        <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 py-16 lg:py-24 grid lg:grid-cols-5 gap-12 items-center">
 
             {{-- Kolom Kiri: Teks --}}
             <div class="relative z-10 lg:col-span-3 min-w-0">
-                <span class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 text-xs font-semibold px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full mb-6">
+                <span class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 text-xs font-semibold px-4 py-2 rounded-full mb-6">
                     <i data-lucide="zap" class="w-3.5 h-3.5 shrink-0"></i>
                     Belajar Python Interaktif & Gratis untuk Pemula
                 </span>
 
-                <h1 class="mb-4 sm:mb-6 text-2xl sm:text-4xl lg:text-5xl font-extrabold leading-tight text-slate-900">
-                    Belajar <span class="text-emerald-600">Python</span>. <span class="sm:whitespace-nowrap">Tulis Kode.</span>
+                <h1 class="mb-6 text-3xl font-extrabold leading-tight text-slate-900 sm:text-4xl">
+                    Belajar <span class="text-emerald-600">Python</span>. <span class="whitespace-nowrap">Tulis Kode.</span>
                     <br>
-                    Dapatkan <span class="inline-block rounded bg-yellow-300 px-2">Feedback Instan</span>.
+                    Dapatkan <span class="whitespace-nowrap rounded bg-yellow-300 px-2">Feedback Instan</span>.
                 </h1>
 
-                <p class="mb-6 sm:mb-8 max-w-md text-base sm:text-lg text-slate-600">
+                <p class="mb-8 max-w-md text-lg text-slate-600">
                     Pelajari Python dari nol langsung melalui browser tanpa perlu instalasi software atau konfigurasi environment yang rumit.
                 </p>
 
                 <div class="flex flex-col gap-4 sm:flex-row">
                     <a href="{{ auth()->check() ? route('modul.index') : route('login') }}"
-                       class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-6 py-3.5 font-bold text-white shadow-lg ring-4 ring-emerald-100 transition hover:bg-emerald-800 hover:shadow-xl">
+                       class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 font-semibold text-white shadow-sm transition hover:bg-emerald-700">
                         Mulai Belajar Sekarang
                         <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                    </a>
+                    <a href="{{ auth()->check() ? route('modul.index') : route('login') }}"
+                       class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-slate-800 shadow-sm ring-1 ring-emerald-100 transition hover:ring-emerald-300">
+                        Lihat Modul Pembelajaran
                     </a>
                 </div>
             </div>
@@ -85,7 +89,7 @@
     {{-- ===================== FITUR UNGGULAN ===================== --}}
     <section id="fitur" class="bg-emerald-50/70 py-12 sm:py-16 lg:py-20 scroll-mt-24">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
-            <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+            <div class="reveal text-center max-w-2xl mx-auto mb-10 sm:mb-14">
                 <span class="inline-block bg-indigo-100 text-indigo-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-4">
                     Fitur Unggulan
                 </span>
@@ -113,7 +117,7 @@
                     @php
                         $kuning = $i % 2 === 1;
                     @endphp
-                    <div class="reveal reveal-delay-{{ $i % 3 + 1 }} rounded-3xl bg-white p-6 shadow-sm ring-1 ring-emerald-100 transition duration-200 hover:-translate-y-1 hover:shadow-lg hover:ring-emerald-300">
+                    <div class="reveal reveal-delay-{{ $i + 1 }} rounded-3xl bg-white p-6 shadow-sm ring-1 ring-emerald-100 transition duration-200 hover:-translate-y-1 hover:shadow-md hover:ring-emerald-200">
                         <div class="mb-5 flex h-11 w-11 items-center justify-center rounded-xl {{ $kuning ? 'bg-yellow-100 text-yellow-600' : 'bg-emerald-100 text-emerald-700' }}">
                             <i data-lucide="{{ $item['icon'] }}" class="h-5 w-5"></i>
                         </div>
@@ -128,7 +132,7 @@
     {{-- ===================== METODE PEMBELAJARAN ===================== --}}
     <section id="metode" class="py-12 sm:py-16 lg:py-20 scroll-mt-24">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
-            <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+            <div class="reveal text-center max-w-2xl mx-auto mb-10 sm:mb-14">
                 <span class="inline-block bg-yellow-100 text-yellow-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-4">
                     Metode Pembelajaran
                 </span>
@@ -150,7 +154,7 @@
 
             <div class="grid gap-6 md:grid-cols-3">
                 @foreach ($langkah as $step)
-                    <div class="reveal reveal-delay-{{ $loop->iteration }} rounded-3xl bg-white p-6 shadow-sm ring-1 ring-emerald-100">
+                    <div class="reveal reveal-delay-{{ $loop->iteration }} rounded-3xl bg-white p-6 shadow-sm ring-1 ring-emerald-100 transition duration-200 hover:-translate-y-1 hover:shadow-md hover:ring-emerald-200">
                         <div class="mb-5 flex h-10 w-10 items-center justify-center rounded-xl font-bold {{ $loop->iteration === 2 ? 'bg-yellow-100 text-yellow-700' : 'bg-emerald-100 text-emerald-700' }}">
                             {{ $step['no'] }}
                         </div>
@@ -165,7 +169,7 @@
     {{-- ===================== CTA ===================== --}}
     <section id="mulai-coding" class="scroll-mt-24 bg-white pb-12 sm:pb-16 lg:pb-20">
         <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-10">
-            <div class="reveal relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-700 to-emerald-500 px-5 py-10 sm:px-12 sm:py-16 text-center">
+            <div class="reveal relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-700 to-emerald-500 px-5 py-10 sm:px-12 sm:py-16 text-center shadow-lg">
                 <div class="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full bg-white/10"></div>
                 <div class="pointer-events-none absolute -bottom-12 left-16 h-32 w-32 rounded-full bg-yellow-300/20"></div>
 
@@ -188,7 +192,7 @@
                             Mulai Belajar Gratis <i data-lucide="rocket" class="h-4 w-4"></i>
                         </a>
                         <a href="{{ auth()->check() ? route('latihan.index') : route('login') }}"
-                           class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-slate-900 transition hover:bg-emerald-50 text-sm sm:text-base">
+                           class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-slate-900 shadow-sm ring-1 ring-emerald-100 transition hover:bg-emerald-50 text-sm sm:text-base">
                             Coba Mulai Coding
                         </a>
                     </div>
@@ -196,5 +200,49 @@
             </div>
         </div>
     </section>
+
+    {{-- Animasi Scroll Reveal yang Halus & Tidak Berlebihan --}}
+    <style>
+        .reveal {
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+            will-change: opacity, transform;
+        }
+
+        .reveal.is-revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-delay-1 { transition-delay: 0.05s; }
+        .reveal-delay-2 { transition-delay: 0.1s; }
+        .reveal-delay-3 { transition-delay: 0.15s; }
+        .reveal-delay-4 { transition-delay: 0.2s; }
+        .reveal-delay-5 { transition-delay: 0.25s; }
+        .reveal-delay-6 { transition-delay: 0.3s; }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const reveals = document.querySelectorAll('.reveal');
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-revealed');
+                        }
+                    });
+                }, {
+                    threshold: 0.1
+                });
+
+                reveals.forEach((el) => observer.observe(el));
+            } else {
+                reveals.forEach((el) => el.classList.add('is-revealed'));
+            }
+        });
+    </script>
 
 </x-layouts.app>

@@ -10,38 +10,36 @@
             'bantuan' => ['Bantuan', route('support.create')],
         ]
         : [
-            'beranda' => ['Beranda', '#beranda'],
-            'fitur'   => ['Fitur Unggulan', '#fitur'],
-            'metode'  => ['Metode Belajar', '#metode'],
+            'beranda'      => ['Beranda', '#beranda'],
+            'fitur'        => ['Fitur Unggulan', '#fitur'],
+            'metode'       => ['Metode Belajar', '#metode'],
+            'mulai-coding' => ['Mulai Coding', '#mulai-coding'],
         ];
 @endphp
 
-<header class="sticky top-0 z-50 border-b border-emerald-100 bg-white shadow-sm">
+<header id="main-landing-navbar" class="fixed top-0 left-0 right-0 z-50 border-b border-emerald-100/90 bg-white/95 backdrop-blur-md shadow-xs transition-all duration-300">
     <nav class="mx-auto flex h-16 sm:h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:px-10">
 
         {{-- Logo --}}
-        <a href="{{ route('beranda') }}" class="flex items-center justify-self-start">
-            <img src="{{ asset('images/logo-pybeginner.png') }}" alt="PyBeginner" class="h-8 sm:h-9 w-auto">
+        <a href="{{ route('beranda') }}" class="flex items-center justify-self-start group transition-transform duration-200 active:scale-95">
+            <img src="{{ asset('images/logo-pybeginner.png') }}" alt="PyBeginner" class="h-8 sm:h-9 w-auto transition-transform duration-200 group-hover:opacity-90">
         </a>
 
-        {{-- Menu tengah (anchor ke section) --}}
-        <div class="hidden items-center gap-6 xl:gap-10 text-sm lg:text-base font-medium lg:flex">
+        {{-- Menu tengah (Teks bersih dengan garis indikator bawah tipis & halus sesuai referensi) --}}
+        <div id="landing-nav-menu" class="relative hidden items-center gap-6 xl:gap-8 text-sm lg:text-base font-medium lg:flex py-1">
+            {{-- Garis indikator tipis (2px) --}}
+            <span id="nav-indicator"
+                  class="absolute bottom-0 h-[2px] bg-emerald-600 rounded-full pointer-events-none opacity-0"></span>
+
             @foreach ($links as $key => [$label, $href])
                 <a href="{{ $href }}" @unless ($isLoggedIn) data-spy @endunless
-                class="border-b-2 py-2 transition {{ $isLoggedIn && $key === 'beranda'
-                        ? 'border-emerald-600 font-semibold text-slate-900'
-                        : 'border-transparent text-slate-600 hover:border-emerald-200 hover:text-emerald-700' }}">
-                    {{ $label }}
+                   data-nav-key="{{ $key }}"
+                   class="nav-tab-item relative py-2 text-slate-600 transition-colors duration-200 hover:text-emerald-700 select-none {{ $key === 'beranda' ? 'text-slate-900 font-semibold active-link' : '' }}">
+                    <span class="nav-tab-text inline-block">
+                        {{ $label }}
+                    </span>
                 </a>
             @endforeach
-            @auth
-                @if (auth()->user()->role === 'learner')
-                    <a href="{{ route('latihan.index') }}"
-                       class="border-b-2 border-transparent py-2 text-slate-600 transition hover:border-emerald-200 hover:text-emerald-700">
-                        Latihan Coding
-                    </a>
-                @endif
-            @endauth
         </div>
 
         {{-- Kanan --}}
@@ -49,16 +47,16 @@
             @auth
                 <span class="hidden text-sm font-semibold text-slate-800 xl:inline">{{ auth()->user()->name }}</span>
 
-                <a href="{{ auth()->user()->role === 'admin' ? route('admin.dashboard') : route('profile') }}" title="{{ auth()->user()->role === 'admin' ? 'Dashboard Admin' : 'Profil' }}" class="shrink-0 flex items-center">
+                <a href="{{ auth()->user()->role === 'admin' ? route('admin.dashboard') : route('profile') }}" title="{{ auth()->user()->role === 'admin' ? 'Dashboard Admin' : 'Profil' }}" class="shrink-0 flex items-center group">
                     @if (auth()->user()->avatar_url)
                         <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}"
-                             class="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover ring-2 ring-emerald-500 hover:ring-4 transition"
+                             class="h-9 w-9 sm:h-10 sm:w-10 rounded-full object-cover ring-2 ring-emerald-500 hover:ring-4 transition duration-200"
                              onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
-                        <div class="hidden h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-emerald-600 text-white font-bold text-xs sm:text-sm shadow-sm hover:bg-emerald-500 transition">
+                        <div class="hidden h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-emerald-600 text-white font-bold text-xs sm:text-sm shadow-sm hover:bg-emerald-500 transition duration-200">
                             {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                         </div>
                     @else
-                        <div class="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-emerald-600 text-white font-bold text-xs sm:text-sm shadow-sm hover:bg-emerald-500 transition">
+                        <div class="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-emerald-600 text-white font-bold text-xs sm:text-sm shadow-sm hover:bg-emerald-500 transition duration-200">
                             {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                         </div>
                     @endif
@@ -67,23 +65,23 @@
                 <form method="POST" action="{{ route('logout') }}" class="hidden lg:inline" data-confirm-logout>
                     @csrf
                     <button type="submit" title="Keluar"
-                            class="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-600">
+                            class="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 active:scale-95">
                         Keluar
                     </button>
                 </form>
             @else
                 <a href="{{ route('login') }}"
-                   class="hidden text-sm lg:text-base font-medium text-slate-700 transition hover:text-emerald-700 sm:inline">Masuk</a>
+                   class="hidden text-sm lg:text-base font-medium text-slate-700 transition hover:text-emerald-700 sm:inline active:scale-95">Masuk</a>
 
                 <a href="{{ route('register') }}"
-                   class="rounded-xl bg-yellow-400 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-300">
+                   class="rounded-xl bg-yellow-400 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-slate-900 shadow-sm transition duration-200 hover:bg-yellow-300 active:scale-95">
                     Daftar Gratis
                 </a>
             @endauth
 
             <button type="button" aria-label="Buka menu"
                     onclick="document.getElementById('menu-mobile').classList.toggle('hidden')"
-                    class="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl text-slate-700 transition hover:bg-emerald-50 lg:hidden">
+                    class="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl text-slate-700 transition hover:bg-emerald-50 active:scale-95 lg:hidden">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2" stroke-linecap="round">
                     <path d="M4 6h16M4 12h16M4 18h16"/>
@@ -93,14 +91,12 @@
     </nav>
 
     {{-- Menu mobile --}}
-    <div id="menu-mobile" class="hidden border-t border-emerald-100 bg-white px-4 sm:px-6 py-4 lg:hidden">
+    <div id="menu-mobile" class="hidden border-t border-emerald-100 bg-white px-4 sm:px-6 py-4 lg:hidden shadow-lg animate-in fade-in duration-200">
         <div class="space-y-1">
             @foreach ($links as $key => [$label, $href])
                 <a href="{{ $href }}"
-                onclick="document.getElementById('menu-mobile').classList.add('hidden')"
-                class="block rounded-xl px-4 py-3 text-sm font-medium transition {{ $isLoggedIn && $key === 'beranda'
-                        ? 'bg-emerald-50 font-semibold text-emerald-800'
-                        : 'text-slate-700 hover:bg-emerald-50' }}">
+                   onclick="document.getElementById('menu-mobile').classList.add('hidden')"
+                   class="mobile-nav-link block rounded-xl px-4 py-3 text-sm font-medium transition duration-200 active:scale-[0.98] {{ $key === 'beranda' ? 'bg-emerald-50 font-semibold text-emerald-800' : 'text-slate-700 hover:bg-emerald-50' }}">
                     {{ $label }}
                 </a>
             @endforeach
@@ -113,7 +109,7 @@
                     <form method="POST" action="{{ route('logout') }}" data-confirm-logout>
                         @csrf
                         <button type="submit"
-                                class="w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-red-600 transition hover:bg-red-50">
+                                class="w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-red-600 transition hover:bg-red-50 active:scale-[0.98]">
                             Keluar dari Akun
                         </button>
                     </form>
@@ -121,7 +117,7 @@
             @else
                 <div class="border-t border-slate-100 pt-3 mt-2 sm:hidden space-y-1">
                     <a href="{{ route('login') }}"
-                       class="block rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-emerald-50">Masuk ke Akun</a>
+                       class="block rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-emerald-50 active:scale-[0.98]">Masuk ke Akun</a>
                 </div>
             @endauth
         </div>
@@ -129,29 +125,141 @@
 </header>
 <x-logout-confirmation />
 
+<style>
+    /* Styling garis indikator tipis & meluncur halus */
+    #nav-indicator {
+        position: absolute;
+        bottom: 0;
+        height: 2px;
+        background-color: #059669;
+        border-radius: 9999px;
+        pointer-events: none;
+        transition: left 0.3s ease, width 0.3s ease, opacity 0.2s ease;
+        will-change: left, width;
+    }
+</style>
+
 @push('scripts')
 <script>
-    // Scroll spy: tandai menu sesuai section yang sedang dilihat
     (function () {
+        const navMenu = document.getElementById('landing-nav-menu');
+        const indicator = document.getElementById('nav-indicator');
+        const navLinks = document.querySelectorAll('.nav-tab-item');
         const sections = document.querySelectorAll('section[id]');
-        const links = document.querySelectorAll('[data-spy]');
-        const on  = ['border-emerald-600', 'font-semibold', 'text-slate-900'];
-        const off = ['border-transparent', 'text-slate-600'];
+        const header = document.getElementById('main-landing-navbar');
 
-        function update() {
-            let current = 'beranda';
-            const pos = window.scrollY + 140;
-            sections.forEach(s => { if (pos >= s.offsetTop) current = s.id; });
+        // Posisikan garis indikator tipis tepat di bawah teks
+        function moveIndicatorTo(linkEl) {
+            if (!linkEl || !navMenu || !indicator) return;
 
-            links.forEach(l => {
-                const aktif = l.getAttribute('href') === '#' + current;
-                l.classList.remove(...(aktif ? off : on));
-                l.classList.add(...(aktif ? on : off));
+            const menuRect = navMenu.getBoundingClientRect();
+            const textSpan = linkEl.querySelector('.nav-tab-text') || linkEl;
+            const textRect = textSpan.getBoundingClientRect();
+
+            indicator.style.left = `${textRect.left - menuRect.left}px`;
+            indicator.style.width = `${textRect.width}px`;
+            indicator.style.opacity = '1';
+        }
+
+        // Inisialisasi awal posisi garis
+        function initIndicator() {
+            const activeLink = navMenu?.querySelector('.nav-tab-item.active-link') || navLinks[0];
+            if (activeLink) {
+                moveIndicatorTo(activeLink);
+            }
+        }
+
+        initIndicator();
+        document.addEventListener('DOMContentLoaded', initIndicator);
+        window.addEventListener('load', initIndicator);
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(initIndicator);
+        }
+        setTimeout(initIndicator, 50);
+        setTimeout(initIndicator, 200);
+        window.addEventListener('resize', initIndicator);
+
+        // Hover halus: garis mengikuti link yang di-hover dan kembali ke link aktif saat keluar
+        navLinks.forEach(link => {
+            link.addEventListener('mouseenter', function () {
+                moveIndicatorTo(this);
+            });
+        });
+
+        navMenu?.addEventListener('mouseleave', function () {
+            const activeLink = navMenu.querySelector('.nav-tab-item.active-link');
+            if (activeLink) {
+                moveIndicatorTo(activeLink);
+            }
+        });
+
+        // Event Klik Teks Navbar
+        navLinks.forEach(link => {
+            link.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+
+                // Update status aktif & geser garis
+                navLinks.forEach(l => {
+                    l.classList.remove('text-slate-900', 'font-semibold', 'active-link');
+                    l.classList.add('text-slate-600');
+                });
+                this.classList.remove('text-slate-600');
+                this.classList.add('text-slate-900', 'font-semibold', 'active-link');
+                moveIndicatorTo(this);
+
+                // Smooth scroll ke section target
+                if (href && href.startsWith('#')) {
+                    const targetSection = document.querySelector(href);
+                    if (targetSection) {
+                        e.preventDefault();
+                        const headerOffset = header ? header.offsetHeight : 80;
+                        const targetY = targetSection.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+
+                        window.scrollTo({
+                            top: Math.max(0, targetY),
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            });
+        });
+
+        // Scroll spy untuk memperbarui menu aktif secara otomatis saat menggulir halaman
+        let isManualClick = false;
+        navLinks.forEach(l => l.addEventListener('click', () => {
+            isManualClick = true;
+            setTimeout(() => { isManualClick = false; }, 800);
+        }));
+
+        function updateScrollSpy() {
+            if (isManualClick || !sections.length) return;
+
+            let currentId = 'beranda';
+            const scrollPos = window.scrollY + 140;
+
+            sections.forEach(sec => {
+                if (scrollPos >= sec.offsetTop) {
+                    currentId = sec.id;
+                }
+            });
+
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                const isMatch = href === '#' + currentId;
+
+                if (isMatch && !link.classList.contains('active-link')) {
+                    navLinks.forEach(l => {
+                        l.classList.remove('text-slate-900', 'font-semibold', 'active-link');
+                        l.classList.add('text-slate-600');
+                    });
+                    link.classList.remove('text-slate-600');
+                    link.classList.add('text-slate-900', 'font-semibold', 'active-link');
+                    moveIndicatorTo(link);
+                }
             });
         }
 
-        window.addEventListener('scroll', update, { passive: true });
-        update();
+        window.addEventListener('scroll', updateScrollSpy, { passive: true });
     })();
 </script>
 @endpush
