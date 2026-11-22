@@ -33,6 +33,16 @@
         {{-- Kanan --}}
         <div class="flex items-center gap-3 justify-self-end">
             @auth
+                @if (auth()->user()->role === 'admin')
+                    <a href="{{ route('admin.dashboard') }}" 
+                       class="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>
+                        </svg>
+                        <span>Dashboard Admin</span>
+                    </a>
+                @endif
+
                 <span class="hidden text-base font-medium text-slate-900 sm:inline">{{ auth()->user()->name }}</span>
 
                 <a href="{{ route('profile') }}" title="Profil" class="shrink-0">
@@ -88,6 +98,15 @@
                 </a>
             @endforeach
             @auth
+                @if (auth()->user()->role === 'admin')
+                    <a href="{{ route('admin.dashboard') }}"
+                       class="flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800 transition hover:bg-emerald-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>
+                        </svg>
+                        <span>Dashboard Admin</span>
+                    </a>
+                @endif
                 <form method="POST" action="{{ route('logout') }}" class="pt-2">
                     @csrf
                     <button type="submit"

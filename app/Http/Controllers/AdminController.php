@@ -24,30 +24,59 @@ class AdminController extends Controller
         $totalSiswa = User::where('role', 'learner')->count();
         $totalSubmissions = Submission::count();
 
-        // Ambil aktivitas dari submission terbaru jika ada, atau gunakan mock aktivitas sesuai desain
-        $submissions = Submission::with(['user', 'exercise'])
-            ->latest()
-            ->take(5)
+        // Platform Summary Analytics
+        $avgScore = round((float) (Submission::avg('score') ?? 0), 1);
+        $passedSubmissions = Submission::where(function ($q) {
+            $q->where('status', 'accepted')
+                ->orWhere('score', '>=', 70);
+        })->count();
+        $passRate = $totalSubmissions > 0 ? round(($passedSubmissions / $totalSubmissions) * 100, 1) : 0;
+        $activeLearners = User::where('role', 'learner')->whereHas('submissions')->count();
+
+        // 1. Penilaian Persoal (Statistik Autograder & Evaluasi Tiap Latihan)
+        $exercisesStats = Exercise::query()
+            ->with(['lesson.module'])
+            ->withCount('submissions')
+            ->withCount([
+                'submissions as passed_count' => function ($q) {
+                    $q->where('status', 'accepted')->orWhere('score', '>=', 70);
+                },
+            ])
+            ->withAvg('submissions', 'score')
+            ->orderBy('sort_order')
             ->get();
 
-        $recentActivities = [];
+        // 2. Penilaian per Learner / Siswa Monitoring (Siswa Teraktif dan Performa)
+        $learnerStats = User::where('role', 'learner')
+            ->has('submissions')
+            ->withCount('submissions')
+            ->withCount([
+                'submissions as passed_count' => function ($q) {
+                    $q->where('status', 'accepted')->orWhere('score', '>=', 70);
+                },
+            ])
+            ->withAvg('submissions', 'score')
+            ->orderByDesc('submissions_count')
+            ->take(8)
+            ->get();
 
-        if ($submissions->isNotEmpty()) {
-            foreach ($submissions as $sub) {
-                $recentActivities[] = [
-                    'name' => $sub->user->name ?? 'Siswa',
-                    'action' => 'Mengumpulkan solusi '.($sub->exercise->title ?? 'Latihan'),
-                    'time' => $sub->created_at ? $sub->created_at->diffForHumans() : 'Baru saja',
-                ];
-            }
-        }
+        // 3. Live Feed Evaluasi Submission Terbaru
+        $recentSubmissions = Submission::with(['user', 'exercise'])
+            ->latest('submitted_at')
+            ->take(8)
+            ->get();
 
         return view('admin.dashboard', compact(
             'totalModul',
             'totalLatihan',
             'totalSiswa',
             'totalSubmissions',
-            'recentActivities'
+            'avgScore',
+            'passRate',
+            'activeLearners',
+            'exercisesStats',
+            'learnerStats',
+            'recentSubmissions'
         ));
     }
 
@@ -56,7 +85,10 @@ class AdminController extends Controller
      */
     public function materi(): View
     {
-        $modules = Module::withCount('lessons')->orderBy('sort_order')->get();
+        $modules = Module::with(['lessons' => fn ($q) => $q->orderBy('sort_order')])
+            ->withCount('lessons')
+            ->orderBy('sort_order')
+            ->get();
 
         return view('admin.materi', compact('modules'));
     }
@@ -66,11 +98,38 @@ class AdminController extends Controller
      */
     public function latihan(): View
     {
+        $duplicateSlugs = Exercise::select('slug')
+            ->groupBy('slug')
+            ->havingRaw('count(*) > 1')
+            ->pluck('slug')
+            ->toArray();
+
         $exercises = Exercise::with('lesson.module')
+            ->withCount('testCases')
+            ->withCount('submissions')
             ->orderBy('sort_order')
             ->get();
 
-        return view('admin.latihan', compact('exercises'));
+        return view('admin.latihan', compact('exercises', 'duplicateSlugs'));
+    }
+
+    /**
+     * Update Detail Latihan (Slug, Limit Eksekusi, Urutan)
+     */
+    public function updateExercise(Request $request, Exercise $exercise): RedirectResponse
+    {
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'slug' => ['required', 'string', 'max:255', 'unique:exercises,slug,'.$exercise->id],
+            'difficulty' => ['required', 'in:easy,medium,hard'],
+            'time_limit_ms' => ['required', 'integer', 'min:500', 'max:30000'],
+            'memory_limit_mb' => ['required', 'integer', 'min:16', 'max:1024'],
+            'sort_order' => ['required', 'integer', 'min:1'],
+        ]);
+
+        $exercise->update($validated);
+
+        return back()->with('status', "Latihan '{$exercise->title}' berhasil diperbarui!");
     }
 
     /**
@@ -91,7 +150,7 @@ class AdminController extends Controller
     public function penilaian(): View
     {
         $submissions = Submission::with(['user', 'exercise'])
-            ->latest()
+            ->latest('submitted_at')
             ->paginate(15);
 
         return view('admin.penilaian', compact('submissions'));

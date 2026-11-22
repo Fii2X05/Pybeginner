@@ -79,6 +79,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/materi', [AdminController::class, 'materi'])->name('materi');
     Route::get('/latihan', [AdminController::class, 'latihan'])->name('latihan');
+    Route::put('/latihan/{exercise}', [AdminController::class, 'updateExercise'])->name('latihan.update');
     Route::get('/siswa', [AdminController::class, 'siswa'])->name('siswa');
     Route::get('/penilaian', [AdminController::class, 'penilaian'])->name('penilaian');
     Route::get('/pengaturan', [AdminController::class, 'pengaturan'])->name('pengaturan');

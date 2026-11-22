@@ -2,18 +2,36 @@
     <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 tracking-wider uppercase mb-1">
-                <span>MANAJEMEN KONTEN</span>
+                <span>KURIKULUM &amp; SILABUS</span>
                 <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
             </div>
             <h1 class="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
-                Materi Belajar
+                Materi Belajar &amp; Modul Kurikulum
             </h1>
-            <p class="text-sm text-slate-500 mt-1">Daftar seluruh modul dan silabus kurikulum pembelajaran Python dasar.</p>
+            <p class="text-sm text-slate-500 mt-1">Daftar silabus kurikulum Python. Urutan modul dan materi telah disinkronkan sesuai urutan belajar siswa.</p>
         </div>
         <div class="flex items-center gap-2">
             <span class="px-3.5 py-1.5 rounded-xl bg-emerald-100/70 text-emerald-800 text-xs font-bold">
-                Total {{ $modules->count() }} Modul
+                Total {{ $modules->count() }} Modul Terurut
             </span>
+            <a href="{{ route('modul.index') }}" target="_blank"
+               class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition shadow-2xs">
+                <span>Tinjau di Web Siswa</span>
+                <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-400"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Info Banner Sinkronisasi -->
+    <div class="mb-6 p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100 flex items-start gap-3">
+        <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+        </div>
+        <div>
+            <h4 class="text-xs font-bold text-emerald-900">Urutan Modul Terintegrasi &amp; Sinkron</h4>
+            <p class="text-xs text-emerald-800/80 mt-0.5 leading-relaxed">
+                Setiap modul diurutkan secara konsisten menggunakan atribut <code class="bg-emerald-100/80 px-1 py-0.5 rounded font-mono text-[11px]">sort_order</code> mulai dari Modul 01 hingga Modul 07. Urutan ini sepenuhnya cocok dengan silabus pembelajaran yang dilihat oleh siswa di halaman publik.
+            </p>
         </div>
     </div>
 
@@ -26,20 +44,40 @@
                         <th class="py-3.5 px-6">Urutan</th>
                         <th class="py-3.5 px-6">Judul Modul</th>
                         <th class="py-3.5 px-6">Slug</th>
-                        <th class="py-3.5 px-6 text-center">Jumlah Lesson</th>
+                        <th class="py-3.5 px-6 text-center">Jumlah Pelajaran</th>
                         <th class="py-3.5 px-6 text-center">Status</th>
                         <th class="py-3.5 px-6 text-right">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse ($modules as $module)
+                        @php
+                            $routeDetail = \Illuminate\Support\Facades\Route::has(sprintf('modul.detail.%02d', $module->sort_order))
+                                ? route(sprintf('modul.detail.%02d', $module->sort_order))
+                                : route('modul.index');
+                        @endphp
                         <tr class="hover:bg-slate-50/50 transition">
-                            <td class="py-4 px-6 font-bold text-slate-400">
-                                #{{ sprintf('%02d', $module->sort_order) }}
+                            <td class="py-4 px-6 font-mono font-bold text-emerald-700 text-sm">
+                                <span class="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-100">
+                                    Modul {{ sprintf('%02d', $module->sort_order) }}
+                                </span>
                             </td>
                             <td class="py-4 px-6">
                                 <div class="font-bold text-slate-900">{{ $module->title }}</div>
                                 <div class="text-xs text-slate-400 line-clamp-1 mt-0.5">{{ $module->description }}</div>
+
+                                <!-- Preview Daftar Pelajaran di Dalam Modul -->
+                                @if ($module->lessons->isNotEmpty())
+                                    <div class="mt-2.5 pt-2 border-t border-slate-100 flex flex-wrap gap-1.5 items-center">
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">Urutan Lesson:</span>
+                                        @foreach ($module->lessons as $lesson)
+                                            <span class="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-50 border border-slate-200/70 text-slate-600">
+                                                <span class="font-bold text-emerald-700">{{ $lesson->sort_order }}.</span>
+                                                <span>{{ $lesson->title }}</span>
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </td>
                             <td class="py-4 px-6 font-mono text-xs text-slate-500">
                                 {{ $module->slug }}
@@ -60,10 +98,10 @@
                                     </span>
                                 @endif
                             </td>
-                            <td class="py-4 px-6 text-right">
-                                <a href="{{ route('modul.index') }}" target="_blank" 
+                            <td class="py-4 px-6 text-right whitespace-nowrap">
+                                <a href="{{ $routeDetail }}" target="_blank" 
                                    class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-50 transition">
-                                    <span>Buka Modul</span>
+                                    <span>Buka Modul Siswa</span>
                                     <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
                                 </a>
                             </td>
