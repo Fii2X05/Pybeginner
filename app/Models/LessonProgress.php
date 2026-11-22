@@ -13,11 +13,13 @@ class LessonProgress extends Model
         'user_id',
         'lesson_id',
         'status',
+        'progress_percent',
         'last_accessed_at',
         'completed_at',
     ];
 
     protected $casts = [
+        'progress_percent' => 'integer',
         'last_accessed_at' => 'datetime',
         'completed_at' => 'datetime',
     ];

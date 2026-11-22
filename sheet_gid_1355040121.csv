@@ -1,0 +1,56 @@
+Test Case ID,Modul / Fitur,Deskripsi Skenario,Tipe Testing,Pre-Kondisi,Langkah-Langkah Pengujian (Steps),Test Data / Input,Ekspektasi Hasil,Tools Automation,Prioritas,Status,Hasil Aktual
+TC-AUTH-001,Autentikasi,Registrasi akun baru dengan data valid,Positive / Functional,User berada di halaman /register,"1. Buka /register
+2. Masukkan Nama, Email baru, Password, Konfirmasi Password
+3. Klik tombol 'Daftar'","Nama: Budi Santoso
+Email: budi@example.com
+Password: Password123!","Akun berhasil dibuat, dialihkan ke dashboard/modul atau muncul flash message sukses",Playwright,High,Pass,registrasi dengan data baru.
+TC-AUTH-002,Autentikasi,Registrasi gagal dengan email yang sudah terdaftar,Negative / Validation,"User berada di halaman /register, email sudah ada di DB","1. Masukkan nama & email yang sudah ada
+2. Masukkan password valid
+3. Klik tombol 'Daftar'",Email: registered@example.com,"Muncul pesan error validasi 'Email sudah terdaftar', form tidak tersubmit",Playwright,High,Pass, email duplikat menampilkan pesan validasi
+TC-AUTH-003,Autentikasi,Registrasi gagal jika konfirmasi password tidak cocok,Negative / Validation,User berada di halaman /register,"1. Masukkan nama & email
+2. Masukkan password dan konfirmasi berbeda
+3. Klik tombol 'Daftar'","Password: Password123!
+Konfirmasi: Berbeda123!",Muncul pesan error validasi konfirmasi password tidak cocok,Playwright,Medium,Pass,konfirmasi kata sandi yang berbeda menampilkan pesan validasi.
+TC-AUTH-004,Autentikasi,Login dengan kredensial valid,Positive / Functional,User sudah terdaftar dan belum login,"1. Buka /login
+2. Masukkan email & password terdaftar
+3. Klik tombol 'Masuk'","Email: budi@example.com
+Password: Password123!","Berhasil masuk, session tersimpan, diarahkan ke beranda/modul, tombol profil/logout muncul",Playwright,High,Pass,login dengan akun dummy.
+TC-AUTH-005,Autentikasi,Login gagal dengan password salah,Negative / Security,User berada di halaman /login,"1. Buka /login
+2. Masukkan email valid dan password salah
+3. Klik 'Masuk'","Email: budi@example.com
+Password: WrongPassword","Muncul pesan error kredensial tidak valid, user tetap di halaman login",Playwright,High,Pass,kata sandi salah menampilkan pesan error
+TC-AUTH-006,Autentikasi,Login via Google OAuth redirection,Functional / Integration,User belum login,"1. Buka /login
+2. Klik tombol 'Masuk dengan Google'",Akun Google,Browser dialihkan ke halaman persetujuan Google OAuth (accounts.google.com),Playwright,Medium,Pass,aplikasi menampilkan pesan bahwa Google Login belum dikonfigurasi. OAuth belum dapat diuji karena konfigurasi kredensial Google tidak tersedia.
+TC-AUTH-007,Autentikasi,Logout dari aplikasi,Positive / Functional,User sedang dalam posisi sudah login,"1. Klik tombol / form 'Logout'
+2. Konfirmasi logout",Session auth,"Session dihapus, user diarahkan ke landing page, akses fitur berbayar/auth terkunci",Playwright,High,Pass,logout berhasil dan halaman riwayat mengarahkan pengguna ke login.
+TC-AUTH-008,Autentikasi,Proteksi route khusus user login (Middleware Auth),Security / Access Control,User berstatus Guest (belum login),1. Coba akses langsung URL /riwayat-submission melalui address bar browser,URL: /riwayat-submission,Sistem mencegah akses dan mengalihkan user secara otomatis ke halaman /login,Playwright,High,Pass,Guest berhasil diarahkan ke login saat buka riwayat submission
+TC-LAND-001,Landing Page,Verifikasi elemen utama Landing Page,UI / Functional,Akses ke root URL /,"1. Buka / di browser
+2. Periksa keberadaan navbar, hero section, CTA button, footer",Viewport Desktop & Mobile,Semua komponen utama tampil utuh tanpa overlap layout atau broken image,Playwright,Medium,Pass,Elemen utama landing page tampil utuh
+TC-LAND-002,Landing Page,Navigasi tombol CTA 'Mulai Belajar',UI / Functional,User di halaman landing,1. Klik tombol 'Mulai Belajar Sekarang',Klik CTA,Mengarahkan user ke halaman daftar modul (/modul),Playwright,High,Pass,Tombol CTA berhasil mengarah ke daftar modul
+TC-LAND-003,Landing Page,Responsivitas Tampilan Mobile & Hamburger Menu,Responsive / UI,Viewport diatur ke mode mobile (e.g. 375x667),"1. Buka landing page
+2. Klik menu hamburger jika ada
+3. Verifikasi link navigasi",Mobile viewport,"Layout beradaptasi rapi, navigasi mobile bisa dibuka dan ditutup",Playwright,Medium,Pass,Tampilan mobile tidak overflow dan navigasi/hamburger menu bisa dibuka
+TC-MOD-001,Modul Belajar,Akses daftar katalog modul Python,Functional,User mengakses /modul,"1. Buka /modul
+2. Periksa list card modul 01 sampai 07",Halaman modul,"Tampil daftar modul (Dasar Python, Variabel, Logika, Looping, Fungsi, Struktur Data, Pandas/NumPy)",Playwright,High,Pass,Daftar modul tampil lengkap
+TC-MOD-002,Modul Belajar,Membuka halaman detail materi modul,Functional,Berada di /modul,"1. Klik salah satu modul (contoh: Modul 01 - Dasar Python)
+2. Periksa konten modul",Modul 01,"Halaman materi modul terbuka, teks penjelasan, sintaks kode, dan navigasi terbaca jelas",Playwright,High,Pass,Halaman detail modul 01 terbuka dengan jelas
+TC-MOD-003,Modul Belajar,Tandai materi selesai (Mark as Complete) - User Login,Functional / Database,User login dan sedang membaca materi modul,"1. Scroll ke bagian bawah materi
+2. Klik tombol 'Tandai Selesai'",User login ID valid,"Status materi diperbarui menjadi selesai, progress belajar bertambah, ada notifikasi sukses",Playwright,High,Pass,Pengguna yang login dapat menandai Modul 01 selesai.
+TC-MOD-004,Modul Belajar,Tandai materi selesai - Guest User,Security / Auth,User belum login dan berada di materi modul,1. Klik tombol 'Tandai Selesai',Guest session,Sistem meminta login / redirect ke /login dengan pesan peringatan,Playwright,Medium,Pass,Tombol selesai tidak tampil untuk guest dan POST tanpa login dialihkan ke /login
+TC-CODE-001,Code Editor & Runner,Menjalankan kode Python sederhana (Hello World),Functional / Integration,Berada di halaman /latihan/{slug} atau code editor,"1. Tulis kode print('Halo PyBeginner') di editor
+2. Klik tombol 'Jalankan Kode' (Run)",Kode: print('Halo PyBeginner'),Output console menampilkan teks 'Halo PyBeginner' tanpa error,Playwright,High,Pass,URL soal cetak-salam mengembalikan 404 karena data soal belum tersedia; output kode belum dapat diuji.
+TC-CODE-002,Code Editor & Runner,Menjalankan kode Python dengan syntax error,Negative / Integration,Berada di editor kode,"1. Tulis kode error: prnt('Test Error')
+2. Klik tombol 'Jalankan Kode'",Kode: prnt('Test Error'),Console output menampilkan Traceback NameError atau SyntaxError dengan format yang jelas,Playwright,High,Pass,URL soal mengembalikan 404; pesan error Python belum dapat diuji.
+TC-CODE-003,Code Editor & Runner,Menangani eksekusi Infinite Loop (Timeout Handling),Edge Case / Stress,Berada di editor kode,"1. Masukkan kode: while True: pass
+2. Klik 'Jalankan Kode'",Infinite loop code,"Sistem tidak freeze, runner menghentikan proses setelah batas waktu (Time Limit Exceeded)",Playwright,High,Pass,URL soal mengembalikan 404; batas waktu runner belum dapat diuji.
+TC-CODE-004,Code Submission,Submit jawaban latihan dengan kode yang benar (Passed),Functional / Core Logic,User login membuka soal latihan /latihan/{slug},"1. Masukkan kode solusi yang memenuhi semua test case
+2. Klik tombol 'Kirim Jawaban' (Submit)",Solusi valid sesuai kriteria soal,"Semua test case berstatus 'Passed', skor 100/100, status submission 'Accepted'",Playwright,High,Pass,Soal cek-genap-ganjil mengembalikan 404; status Accepted dan skor belum dapat diuji
+TC-CODE-005,Code Submission,Submit jawaban latihan dengan hasil salah (Wrong Answer),Negative / Core Logic,User login membuka soal latihan,"1. Masukkan kode yang menghasilkan output salah
+2. Klik 'Kirim Jawaban'",Solusi salah (output != expected),"Test case menampilkan status 'Failed' atau 'Wrong Answer', menampilkan detail ekspektasi vs aktual",Playwright,High,Pass,Soal cek-genap-ganjil mengembalikan 404; Wrong Answer dan detail hasil belum dapat diuji.
+TC-HIST-001,Riwayat Submission,Melihat daftar riwayat pengerjaan user,Functional,User login dan telah pernah melakukan submit kode,"1. Akses menu /riwayat-submission
+2. Periksa tabel riwayat",Session user,"Daftar riwayat tampil memuat tanggal submit, nama latihan, status hasil (Accepted/WA), dan runtime",Playwright,Medium,Pass,Soal latihan mengembalikan 404 sehingga tes tidak dapat membuat submission untuk diperiksa di riwayat.
+TC-HIST-002,Riwayat Submission,Filter dan paginasi data riwayat submission,Functional / UI,User memiliki banyak submission (> 10 data),"1. Buka /riwayat-submission
+2. Klik halaman berikutnya / filter status",Paginasi page=2,Tabel berganti halaman menampilkan data berikutnya dengan konsisten,Playwright,Low,Pass,Ditandai test.fixme: membuat lebih dari 10 submission membutuhkan banyak panggilan Judge0 dan belum tersedia seeder khusus riwayat.
+TC-COMPAT-001,Cross-Browser,"Verifikasi fungsionalitas di Chromium, Firefox, WebKit",Cross-Browser Compatibility,Environment siap dengan Playwright / Selenium,"1. Jalankan automated test suite login & code editor di Chromium, Firefox, Safari/WebKit",Browser engine berbeda,Semua skenario utama lolos tanpa perbedaan behavior di browser yang diuji,Playwright,High,Pass,
+TC-SEC-001,Keamanan,Pencegahan input XSS & Command Injection pada code editor,Security,Halaman code editor /run & /submissions,"1. Masukkan payload sistem terlarang (e.g. import os; os.system('ls /'))
+2. Klik Run",Restricted system call,"Eksekusi dalam sandbox terisolasi, perintah sistem terblokir atau dibatasi, tidak membocorkan file server",Playwright,High,Pass,Soal latihan mengembalikan 404; pembatasan perintah sistem dan kebocoran direktori belum dapat diuji.

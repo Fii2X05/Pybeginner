@@ -9,7 +9,7 @@
         </div>
 
         @if (session('status'))
-            <div role="status" class="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{{ session('status') }}</div>
+            <div id="flash-status" role="status" class="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{{ session('status') }}</div>
         @endif
         @if ($errors->any())
             <div role="alert" class="mb-5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
@@ -65,25 +65,50 @@
                 </button>
             </div>
         </form>
-    </div>
-</x-layouts.app>
 
-@push('scripts')
+        {{-- Sesi Akun Pengguna --}}
+        <div class="mt-6 mb-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-xs sm:p-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h3 class="text-base font-bold text-red-600">Sesi Akun Pengguna</h3>
+                    <p class="mt-0.5 text-xs text-slate-500">Keluar dari akun Anda pada perangkat ini.</p>
+                </div>
+                <form method="POST" action="{{ route('logout') }}" data-confirm-logout>
+                    @csrf
+                    <button type="submit"
+                            class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-100">
+                        <i data-lucide="log-out" class="h-4 w-4"></i>
+                        Keluar Akun
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <x-logout-confirmation />
+
+    @push('scripts')
     <script>
         const avatarInput = document.getElementById('avatar');
         const avatarPreview = document.getElementById('avatar-preview');
         const avatarFallback = document.getElementById('avatar-fallback');
 
-        avatarInput.addEventListener('change', () => {
-            const [file] = avatarInput.files;
+        if (avatarInput) {
+            avatarInput.addEventListener('change', () => {
+                const [file] = avatarInput.files;
+                if (!file) return;
 
-            if (!file) {
-                return;
-            }
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('Ukuran file maksimal 2 MB. Silakan pilih gambar yang lebih kecil.');
+                    avatarInput.value = '';
+                    return;
+                }
 
-            avatarPreview.src = URL.createObjectURL(file);
-            avatarPreview.classList.remove('hidden');
-            avatarFallback.classList.add('hidden');
-        });
+                avatarPreview.src = URL.createObjectURL(file);
+                avatarPreview.classList.remove('hidden');
+                avatarFallback.classList.add('hidden');
+            });
+        }
     </script>
-@endpush
+    @endpush
+</x-layouts.app>

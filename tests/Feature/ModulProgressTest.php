@@ -17,7 +17,7 @@ class ModulProgressTest extends TestCase
         $this->seed(ModulSeeder::class);
     }
 
-    public function test_guest_is_redirected_to_login(): void
+    public function test_guest_is_redirected_to_login_from_modul_list(): void
     {
         $response = $this->get(route('modul.index'));
 

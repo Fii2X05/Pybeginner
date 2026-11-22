@@ -1,5 +1,5 @@
 <x-layouts.admin title="Latihan & Soal - Admin" active="latihan">
-    <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 tracking-wider uppercase mb-1">
                 <span>MANAJEMEN BANK SOAL</span>
@@ -76,110 +76,159 @@
         </div>
     @endif
 
-    <!-- Table of Exercises -->
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden">
+    <x-admin.flash />
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        {{-- Bilah cari & filter --}}
+        <div class="flex flex-col md:flex-row md:items-center gap-3 border-b border-slate-100" style="padding: 1rem 1.5rem;">
+            <div class="relative flex-1" style="min-width: 0;">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400" style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); pointer-events: none;"></i>
+                <input id="filter-search" type="search" placeholder="Cari judul, materi, atau slug..."
+                       class="w-full rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white"
+                       style="height: 2.5rem; padding: 0 0.85rem 0 2.5rem;">
+            </div>
+            <div class="flex items-center gap-2">
+                <select id="filter-level" aria-label="Filter tingkat"
+                        class="rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        style="height: 2.5rem; padding: 0 0.75rem;">
+                    <option value="">Semua tingkat</option>
+                    <option value="mudah">Mudah</option>
+                    <option value="sedang">Sedang</option>
+                    <option value="sulit">Sulit</option>
+                </select>
+                <select id="filter-status" aria-label="Filter status"
+                        class="rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        style="height: 2.5rem; padding: 0 0.75rem;">
+                    <option value="">Semua status</option>
+                    <option value="terbit">Terbit</option>
+                    <option value="draft">Draft</option>
+                </select>
+            </div>
+        </div>
+
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-sm">
+            <table class="w-full text-left text-sm" style="min-width: 860px; border-collapse: collapse;">
                 <thead>
-                    <tr class="bg-slate-50/80 border-b border-slate-100 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                        <th class="py-3.5 px-6">Urutan</th>
-                        <th class="py-3.5 px-6">Judul Latihan &amp; Slug</th>
-                        <th class="py-3.5 px-6">Modul / Pelajaran</th>
-                        <th class="py-3.5 px-6 text-center">Tingkat</th>
-                        <th class="py-3.5 px-6 text-center">Test Case</th>
-                        <th class="py-3.5 px-6 text-center">Batas Memori &amp; Waktu</th>
-                        <th class="py-3.5 px-6 text-center">Status</th>
-                        <th class="py-3.5 px-6 text-right">Aksi</th>
+                    <tr class="bg-slate-50 border-b border-slate-100 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                        <th class="whitespace-nowrap text-center" style="width: 1%; padding: 0.875rem 0.5rem 0.875rem 1.5rem;">No</th>
+                        <th style="padding: 0.875rem 1rem;">Judul latihan</th>
+                        <th class="text-center whitespace-nowrap" style="width: 1%; padding: 0.875rem 1rem;">Tingkat</th>
+                        <th class="text-center whitespace-nowrap" style="width: 1%; padding: 0.875rem 1rem;">Test case</th>
+                        <th class="text-center whitespace-nowrap" style="width: 1%; padding: 0.875rem 1rem;">Status</th>
+                        <th class="text-right whitespace-nowrap" style="width: 1%; padding: 0.875rem 1.5rem 0.875rem 1rem;">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-slate-100" id="exercise-rows">
                     @forelse ($exercises as $exercise)
                         @php
-                            $isDuplicateSlug = in_array($exercise->slug, $duplicateSlugs ?? []);
+                            $rawLevel = strtolower($exercise->difficulty);
+                            $level = match (true) {
+                                in_array($rawLevel, ['easy', 'mudah'], true) => 'mudah',
+                                in_array($rawLevel, ['medium', 'sedang'], true) => 'sedang',
+                                default => 'sulit',
+                            };
+                            $testCaseTotal = $testCaseCounts[$exercise->id] ?? 0;
+                            $visibleTotal = $visibleTestCaseCounts[$exercise->id] ?? 0;
+                            $canPublish = $visibleTotal > 0;
+                            // Batas efektif saat kode dijalankan (sisi siswa membatasi maks 5 detik dan 250 MB).
+                            // Bila kosong, otomatis menurut tingkat: Mudah 1000 ms, Sedang 2000 ms, Sulit 3000 ms; memori 128 MB.
+                            $defaultTime = ['mudah' => 1000, 'sedang' => 2000, 'sulit' => 3000][$level];
+                            $timeLimit = min(5000, max(1000, $exercise->time_limit_ms ?? $defaultTime));
+                            $memoryLimit = min(250, max(16, $exercise->memory_limit_mb ?? 128));
+                            $moduleTitle = $exercise->lesson->module->title ?? 'Umum';
+                            $lessonTitle = $exercise->lesson->title ?? '-';
+                            $iconButton = 'inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition';
+                            $btnSize = 'width: 2.25rem; height: 2.25rem; flex: none;';
                         @endphp
-                        <tr class="hover:bg-slate-50/50 transition">
-                            <td class="py-4 px-6 font-mono font-bold text-slate-600 whitespace-nowrap">
-                                <span class="px-2 py-1 rounded-md bg-slate-100 text-slate-700 font-bold text-xs">
-                                    #{{ sprintf('%02d', $exercise->sort_order) }}
+                        <tr class="hover:bg-slate-50/70 transition exercise-row"
+                            data-search="{{ strtolower($exercise->title . ' ' . $moduleTitle . ' ' . $lessonTitle . ' ' . $exercise->slug) }}"
+                            data-level="{{ $level }}"
+                            data-status="{{ $exercise->is_published ? 'terbit' : 'draft' }}">
+
+                            {{-- Urutan --}}
+                            <td class="align-middle whitespace-nowrap text-center" style="padding: 1rem 0.5rem 1rem 1.5rem;">
+                                <span class="inline-flex items-center justify-center rounded-lg bg-slate-100 text-xs font-bold text-slate-500" style="width: 2rem; height: 2rem;">
+                                    {{ sprintf('%02d', $exercise->sort_order) }}
                                 </span>
                             </td>
-                            <td class="py-4 px-6">
-                                <div class="font-bold text-slate-900 flex items-center gap-2">
-                                    <span>{{ $exercise->title }}</span>
-                                    @if ($isDuplicateSlug)
-                                        <span class="inline-flex items-center gap-1 text-[10px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200" title="Slug ini bentrok dengan soal lain!">
-                                            <i data-lucide="alert-circle" class="w-3 h-3"></i>
-                                            <span>Duplikat</span>
-                                        </span>
-                                    @endif
+
+                            {{-- Judul: tautan ke halaman edit, sama dengan ikon pensil --}}
+                            <td class="align-middle" style="padding: 1rem; min-width: 16rem; overflow-wrap: anywhere;">
+                                <a href="{{ route('admin.latihan.edit', $exercise) }}" class="font-semibold text-slate-900 leading-snug hover:text-emerald-700 hover:underline">{{ $exercise->title }}</a>
+                                <div class="mt-0.5 text-xs text-slate-500">
+                                    {{ $moduleTitle }}
+                                    <span class="text-slate-300" style="margin: 0 0.35rem;">&rsaquo;</span>
+                                    {{ $lessonTitle }}
                                 </div>
-                                <div class="text-xs font-mono {{ $isDuplicateSlug ? 'text-rose-600 font-bold' : 'text-slate-400' }} mt-0.5">
-                                    /latihan/{{ $exercise->slug }}
+                                <div class="mt-1 flex flex-wrap items-center text-[11px] text-slate-400" style="gap: 0.375rem;">
+                                    <span class="font-mono rounded bg-slate-100 text-slate-500" style="padding: 0.05rem 0.4rem;">{{ $exercise->slug }}</span>
+                                    <span title="Batas efektif saat kode dijalankan">{{ $timeLimit }} ms &middot; {{ $memoryLimit }} MB</span>
                                 </div>
                             </td>
-                            <td class="py-4 px-6 text-slate-600 text-xs">
-                                <div class="font-semibold text-slate-800">{{ $exercise->lesson?->title ?? 'Pelajaran Umum' }}</div>
-                                <div class="text-[11px] text-slate-400">{{ $exercise->lesson?->module?->title ?? 'Python Dasar' }}</div>
-                            </td>
-                            <td class="py-4 px-6 text-center whitespace-nowrap">
-                                @if (strtolower($exercise->difficulty) === 'easy')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
-                                        Pemula
-                                    </span>
-                                @elseif (strtolower($exercise->difficulty) === 'medium')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100">
-                                        Menengah
-                                    </span>
+
+                            {{-- Tingkat --}}
+                            <td class="text-center align-middle whitespace-nowrap" style="padding: 1rem;">
+                                @if ($level === 'mudah')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">Mudah</span>
+                                @elseif ($level === 'sedang')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100">Sedang</span>
                                 @else
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-100">
-                                        Sulit
-                                    </span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-100">Sulit</span>
                                 @endif
                             </td>
-                            <td class="py-4 px-6 text-center whitespace-nowrap">
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-bold">
-                                    <i data-lucide="check-square" class="w-3 h-3"></i>
-                                    <span>{{ $exercise->test_cases_count ?? 0 }} Test Case</span>
-                                </span>
-                                <div class="text-[10px] text-slate-400 mt-1">{{ $exercise->submissions_count ?? 0 }} submission</div>
+
+                            {{-- Test case --}}
+                            <td class="text-center align-middle whitespace-nowrap" style="padding: 1rem;">
+                                <a href="{{ route('admin.latihan.test-cases', $exercise) }}"
+                                   title="{{ $canPublish ? 'Kelola test case' : 'Belum ada test case yang terlihat siswa' }}"
+                                   class="inline-flex items-center justify-center gap-1.5 rounded-lg border text-xs font-semibold transition {{ $canPublish ? 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200' : 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200' }}"
+                                   style="height: 2.25rem; padding: 0 0.75rem; white-space: nowrap;">
+                                    <i data-lucide="{{ $canPublish ? 'list-checks' : 'alert-triangle' }}" class="w-3.5 h-3.5"></i>
+                                    Test Case ({{ $testCaseTotal }})
+                                </a>
                             </td>
-                            <td class="py-4 px-6 text-center text-xs text-slate-600 whitespace-nowrap">
-                                <div class="font-bold text-slate-800 font-mono">
-                                    {{ $exercise->memory_limit_mb ?? 128 }} MB
-                                </div>
-                                <div class="text-[11px] text-slate-400 font-mono">
-                                    {{ ($exercise->time_limit_ms ?? 2000) / 1000 }} detik ({{ $exercise->time_limit_ms ?? 2000 }}ms)
-                                </div>
-                            </td>
-                            <td class="py-4 px-6 whitespace-nowrap">
+
+                            {{-- Status --}}
+                            <td class="text-center align-middle whitespace-nowrap" style="padding: 1rem;">
                                 <form method="POST" action="{{ route('admin.latihan.status.update', $exercise) }}">
                                     @csrf
                                     @method('PUT')
-                                    <label class="sr-only" for="exercise-status-{{ $exercise->id }}">Status {{ $exercise->title }}</label>
-                                    <select id="exercise-status-{{ $exercise->id }}" name="is_published" onchange="this.form.submit()" class="mx-auto block rounded-full border-0 px-2.5 py-1 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 {{ $exercise->is_published ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600' }}">
-                                        <option value="1" @selected($exercise->is_published)>Terbit</option>
+                                    <select name="is_published" aria-label="Status {{ $exercise->title }}"
+                                            @if (! $exercise->is_published && ! $canPublish) title="Tambahkan test case yang terlihat agar soal bisa diterbitkan" @endif
+                                            onchange="this.form.submit()"
+                                            class="rounded-lg border text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 {{ $exercise->is_published ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-50 border-slate-200 text-slate-500' }}"
+                                            style="height: 2.25rem; min-width: 5.5rem; padding: 0 0.625rem;">
+                                        <option value="1" @selected($exercise->is_published) @disabled(! $exercise->is_published && ! $canPublish)>Terbit</option>
                                         <option value="0" @selected(! $exercise->is_published)>Draft</option>
                                     </select>
                                 </form>
                             </td>
-                            <td class="py-4 px-6 text-right whitespace-nowrap">
-                                <div class="flex items-center justify-end gap-1">
-                                    <a href="{{ route('admin.latihan.test-cases', $exercise) }}" title="Kelola Test Case" class="rounded-lg p-2 text-indigo-600 hover:bg-indigo-50 transition">
-                                        <i data-lucide="list-checks" class="h-4 w-4"></i>
+
+                            {{-- Aksi: tiga slot ikon dengan ukuran tetap supaya lurus antar baris --}}
+                            <td class="align-middle whitespace-nowrap" style="padding: 1rem 1.5rem 1rem 1rem;">
+                                <div class="flex items-center justify-end" style="gap: 0.375rem;">
+                                    <a href="{{ route('admin.latihan.edit', $exercise) }}" title="Edit latihan" aria-label="Edit {{ $exercise->title }}"
+                                       class="{{ $iconButton }} hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600" style="{{ $btnSize }}">
+                                        <i data-lucide="pencil" class="w-4 h-4"></i>
                                     </a>
-                                    <a href="{{ route('admin.latihan.edit', $exercise) }}" title="Edit Latihan" class="rounded-lg p-2 text-blue-600 hover:bg-blue-50 transition">
-                                        <i data-lucide="pencil" class="h-4 w-4"></i>
-                                    </a>
+
                                     @if ($exercise->is_published)
-                                        <a href="{{ route('latihan.show', $exercise->slug) }}" target="_blank" rel="noopener" title="Pratinjau Soal Siswa" class="rounded-lg p-2 text-emerald-600 hover:bg-emerald-50 transition">
-                                            <i data-lucide="external-link" class="h-4 w-4"></i>
+                                        <a href="{{ route('latihan.show', $exercise->slug) }}" target="_blank" rel="noopener" title="Tinjau di halaman siswa" aria-label="Tinjau {{ $exercise->title }}"
+                                           class="{{ $iconButton }} hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-600" style="{{ $btnSize }}">
+                                            <i data-lucide="external-link" class="w-4 h-4"></i>
                                         </a>
+                                    @else
+                                        {{-- Slot kosong: harus inline-block agar width/height berlaku --}}
+                                        <span aria-hidden="true" style="display: inline-block; {{ $btnSize }}"></span>
                                     @endif
-                                    <form method="POST" action="{{ route('admin.latihan.destroy', $exercise) }}" onsubmit="return confirm('Hapus latihan ini?')">
+
+                                    <form method="POST" action="{{ route('admin.latihan.destroy', $exercise) }}" style="margin: 0; flex: none;"
+                                          onsubmit="return confirm('Hapus latihan ini? Test case dan riwayat submission siswa untuk soal ini ikut terhapus.')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" @disabled($exercise->submissions_count || $exercise->test_case_progress_count) title="{{ $exercise->submissions_count || $exercise->test_case_progress_count ? 'Tidak dapat dihapus karena sudah digunakan siswa' : 'Hapus latihan' }}" class="rounded-lg p-2 text-rose-600 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-30 transition">
-                                            <i data-lucide="trash-2" class="h-4 w-4"></i>
+                                        <button type="submit" title="Hapus latihan" aria-label="Hapus {{ $exercise->title }}"
+                                                class="{{ $iconButton }} hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600" style="{{ $btnSize }}">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -187,13 +236,56 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="py-8 px-6 text-center text-slate-400 text-sm">
-                                Belum ada latihan coding. Tambahkan latihan baru dengan tombol Buat Latihan di atas.
+                            <td colspan="6" class="text-center text-slate-400 text-sm" style="padding: 3rem 1.5rem;">
+                                Belum ada latihan coding. Klik "Tambah Latihan" atau jalankan seeder latihan.
                             </td>
                         </tr>
                     @endforelse
+
+                    {{-- Muncul saat hasil pencarian/filter kosong --}}
+                    <tr id="no-result-row" style="display: none;">
+                        <td colspan="6" class="text-center text-slate-400 text-sm" style="padding: 3rem 1.5rem;">
+                            Tidak ada latihan yang cocok. Coba ubah kata kunci atau filter.
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
+
+        <div class="border-t border-slate-100 bg-slate-50/60 text-xs text-slate-500" style="padding: 0.75rem 1.5rem;">
+            Menampilkan <span id="visible-count" class="font-semibold text-slate-700">{{ $exercises->count() }}</span>
+            dari {{ $exercises->count() }} latihan
+        </div>
     </div>
+
+    <script>
+        (function () {
+            const search = document.getElementById('filter-search');
+            const level = document.getElementById('filter-level');
+            const status = document.getElementById('filter-status');
+            const rows = Array.from(document.querySelectorAll('.exercise-row'));
+            const empty = document.getElementById('no-result-row');
+            const counter = document.getElementById('visible-count');
+            if (!search || !rows.length) return;
+
+            function apply() {
+                const q = search.value.trim().toLowerCase();
+                let shown = 0;
+                rows.forEach(function (row) {
+                    const ok =
+                        (!q || row.dataset.search.indexOf(q) !== -1) &&
+                        (!level.value || row.dataset.level === level.value) &&
+                        (!status.value || row.dataset.status === status.value);
+                    row.style.display = ok ? '' : 'none';
+                    if (ok) shown++;
+                });
+                counter.textContent = shown;
+                empty.style.display = shown === 0 ? '' : 'none';
+            }
+
+            search.addEventListener('input', apply);
+            level.addEventListener('change', apply);
+            status.addEventListener('change', apply);
+        })();
+    </script>
 </x-layouts.admin>

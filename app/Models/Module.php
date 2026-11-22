@@ -16,6 +16,7 @@ class Module extends Model
         'title',
         'slug',
         'description',
+        'level',
         'sort_order',
         'is_published',
     ];

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Exercise;
+use App\Models\Module;
 use App\Models\Submission;
 use App\Models\TestCase;
 use App\Models\TestCaseProgress;
@@ -12,7 +13,10 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 use Throwable;
 
 class SubmissionController extends Controller
@@ -22,22 +26,65 @@ class SubmissionController extends Controller
         private AdminNotificationService $adminNotifications,
     ) {}
 
-    public function history(Request $request)
+    public function history(Request $request): View
     {
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'status' => ['nullable', Rule::in(['perfect', 'improvement'])],
+            'module_id' => ['nullable', 'integer'],
+        ]);
         $userSubmissions = Submission::where('user_id', Auth::id());
         $totalSubmissions = (clone $userSubmissions)->count();
         $perfectScores = (clone $userSubmissions)->where('score', 100)->count();
         $needsImprovement = (clone $userSubmissions)->where('score', '<', 100)->count();
         $averageScore = round((float) ((clone $userSubmissions)->avg('score') ?? 0), 1);
+        $submissionsThisWeek = (clone $userSubmissions)
+            ->where('submitted_at', '>=', now()->subDays(7))
+            ->count();
 
-        $submissions = (clone $userSubmissions)
+        $filteredSubmissions = (clone $userSubmissions);
+
+        if (filled($filters['search'] ?? null)) {
+            $search = trim($filters['search']);
+            $normalizedSearch = mb_strtolower($search);
+            preg_match('/^(?:#?SUB-)?(\d+)$/i', $search, $submissionNumber);
+            $filteredSubmissions->where(function ($query) use ($normalizedSearch, $submissionNumber): void {
+                if (isset($submissionNumber[1])) {
+                    $query->where('id', (int) $submissionNumber[1]);
+                }
+
+                $query->orWhereHas('exercise', function ($exerciseQuery) use ($normalizedSearch): void {
+                    $exerciseQuery
+                        ->whereRaw('LOWER(title) LIKE ?', ['%'.$normalizedSearch.'%'])
+                        ->orWhereRaw('LOWER(slug) LIKE ?', ['%'.$normalizedSearch.'%']);
+                });
+            });
+        }
+
+        if (($filters['status'] ?? null) === 'perfect') {
+            $filteredSubmissions->where('score', 100);
+        } elseif (($filters['status'] ?? null) === 'improvement') {
+            $filteredSubmissions->whereNotNull('score')->where('score', '<', 100);
+        }
+
+        if (filled($filters['module_id'] ?? null)) {
+            $filteredSubmissions->whereHas('exercise.lesson', fn ($query) => $query
+                ->where('module_id', $filters['module_id']));
+        }
+
+        $submissions = $filteredSubmissions
             ->with(['exercise.lesson.module', 'results.testCase'])
             ->latest('submitted_at')
             ->paginate(5)
             ->withQueryString();
 
+        $modules = Module::query()
+            ->whereHas('lessons.exercises.submissions', fn ($query) => $query->where('user_id', Auth::id()))
+            ->orderBy('sort_order')
+            ->get(['id', 'title']);
+
         $selectedSubmissionId = (int) $request->query('selected', $submissions->first()?->id);
-        $selectedSubmission = (clone $userSubmissions)
+        $selectedSubmission = (clone $filteredSubmissions)
             ->with(['exercise.lesson.module', 'results.testCase'])
             ->find($selectedSubmissionId) ?? $submissions->first();
 
@@ -47,6 +94,9 @@ class SubmissionController extends Controller
             'perfectScores',
             'needsImprovement',
             'averageScore',
+            'submissionsThisWeek',
+            'modules',
+            'filters',
             'selectedSubmission'
         ));
     }
@@ -146,11 +196,7 @@ class SubmissionController extends Controller
 
         $isPassed = (int) $execution['status']['id'] === 3;
         $output = (string) ($execution['stdout'] ?? '');
-        $error = trim(implode("\n", array_filter([
-            $execution['stderr'] ?? null,
-            $execution['compile_output'] ?? null,
-            $execution['message'] ?? null,
-        ])));
+        $error = $this->executionError($execution);
         $codeHash = hash('sha256', $data['source_code']);
 
         TestCaseProgress::updateOrCreate(
@@ -224,9 +270,10 @@ class SubmissionController extends Controller
             return response()->json(['success' => false, 'message' => 'Soal ini belum memiliki test case aktif.'], 404);
         }
 
+        $userId = (int) Auth::id();
         $publicTestCaseIds = $exercise->publicTestCases()->pluck('test_cases.id');
         $codeHash = hash('sha256', $data['source_code']);
-        $passedTestCases = TestCaseProgress::where('user_id', Auth::id())
+        $passedTestCases = TestCaseProgress::where('user_id', $userId)
             ->where('exercise_id', $exercise->id)
             ->where('code_hash', $codeHash)
             ->where('status', 'passed')
@@ -242,54 +289,103 @@ class SubmissionController extends Controller
             ], 422);
         }
 
+        $lockKey = "submission_lock:{$userId}:{$exercise->id}";
+        $lock = Cache::lock($lockKey, 15);
+
+        if (! $lock->get()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Submission sedang diproses, silakan tunggu beberapa saat.',
+            ], 429);
+        }
+
         try {
+            $recentSubmission = Submission::where('user_id', $userId)
+                ->where('exercise_id', $exercise->id)
+                ->where('source_code', $data['source_code'])
+                ->where('submitted_at', '>=', now()->subSeconds(5))
+                ->latest('submitted_at')
+                ->first();
+
+            if ($recentSubmission) {
+                $testCasesById = $testCases->keyBy('id');
+                $recentResults = $recentSubmission->results()->get()->map(function ($res) use ($testCasesById) {
+                    $tc = $testCasesById->get($res->test_case_id);
+                    $isHidden = (bool) ($tc?->is_hidden ?? false);
+
+                    return [
+                        'is_hidden' => $isHidden,
+                        'is_passed' => $res->status === 'passed',
+                        'input' => $isHidden ? null : $tc?->input,
+                        'expected' => $isHidden ? null : ($tc?->assertion_code ? 'Semua assertion harus lolos' : $tc?->expected_output),
+                        'actual' => $res->actual_output,
+                        'error' => $res->error_message,
+                    ];
+                })->all();
+
+                return response()->json([
+                    'success' => true,
+                    'submission_id' => $recentSubmission->id,
+                    'status' => $recentSubmission->status,
+                    'score' => (float) $recentSubmission->score,
+                    'passed_tests' => $recentSubmission->passed_tests,
+                    'total_tests' => $recentSubmission->total_tests,
+                    'results' => $recentResults,
+                    'message' => $recentSubmission->status === 'accepted'
+                        ? 'Selamat! Semua test case lolos.'
+                        : 'Belum tepat. Periksa hasil test case dan coba lagi.',
+                ]);
+            }
+
             $evaluated = $this->evaluate($data['source_code'], $testCases, $exercise);
+
+            $submission = DB::transaction(function () use ($data, $evaluated, $userId): Submission {
+                $submission = Submission::create([
+                    'user_id' => $userId,
+                    'exercise_id' => $data['exercise_id'],
+                    'source_code' => $data['source_code'],
+                    'status' => $evaluated['score'] === 100.0 ? 'accepted' : 'failed',
+                    'score' => $evaluated['score'],
+                    'passed_tests' => $evaluated['passed'],
+                    'total_tests' => $evaluated['total'],
+                    'execution_time_ms' => $evaluated['execution_time_ms'],
+                    'submitted_at' => now(),
+                ]);
+
+                $submission->results()->createMany($evaluated['stored_results']);
+
+                return $submission;
+            });
+
+            if ($evaluated['score'] === 100.0 && Auth::user()->role === 'learner') {
+                $this->adminNotifications->notifyAdmins(
+                    'perfect_score',
+                    'Siswa meraih skor sempurna',
+                    Auth::user()->name.' mendapatkan skor 100 pada latihan '.$exercise->title.'.',
+                    route('admin.penilaian'),
+                );
+            }
+
+            return response()->json([
+                'success' => true,
+                'submission_id' => $submission->id,
+                'status' => $submission->status,
+                'score' => $evaluated['score'],
+                'passed_tests' => $evaluated['passed'],
+                'total_tests' => $evaluated['total'],
+                'results' => $evaluated['results'],
+                'message' => $submission->status === 'accepted'
+                    ? 'Selamat! Semua test case lolos.'
+                    : 'Belum tepat. Periksa hasil test case dan coba lagi.',
+            ]);
         } catch (Throwable $e) {
             report($e);
             $this->notifyJudge0Failure($e);
 
             return response()->json(['success' => false, 'message' => 'Layanan penilai (Judge0) tidak dapat dihubungi.'], 502);
+        } finally {
+            $lock->release();
         }
-
-        $submission = DB::transaction(function () use ($data, $evaluated): Submission {
-            $submission = Submission::create([
-                'user_id' => Auth::id(),
-                'exercise_id' => $data['exercise_id'],
-                'source_code' => $data['source_code'],
-                'status' => $evaluated['score'] === 100.0 ? 'accepted' : 'failed',
-                'score' => $evaluated['score'],
-                'passed_tests' => $evaluated['passed'],
-                'total_tests' => $evaluated['total'],
-                'execution_time_ms' => $evaluated['execution_time_ms'],
-                'submitted_at' => now(),
-            ]);
-
-            $submission->results()->createMany($evaluated['stored_results']);
-
-            return $submission;
-        });
-
-        if ($evaluated['score'] === 100.0 && Auth::user()->role === 'learner') {
-            $this->adminNotifications->notifyAdmins(
-                'perfect_score',
-                'Siswa meraih skor sempurna',
-                Auth::user()->name.' mendapatkan skor 100 pada latihan '.$exercise->title.'.',
-                route('admin.penilaian'),
-            );
-        }
-
-        return response()->json([
-            'success' => true,
-            'submission_id' => $submission->id,
-            'status' => $submission->status,
-            'score' => $evaluated['score'],
-            'passed_tests' => $evaluated['passed'],
-            'total_tests' => $evaluated['total'],
-            'results' => $evaluated['results'],
-            'message' => $submission->status === 'accepted'
-                ? 'Selamat! Semua test case lolos.'
-                : 'Belum tepat. Periksa hasil test case dan coba lagi.',
-        ]);
     }
 
     /**
@@ -331,11 +427,7 @@ class SubmissionController extends Controller
             $weight = max(0, (int) $testCase->weight);
             $timeMs = (int) round(((float) ($execution['time'] ?? 0)) * 1000);
             $output = (string) ($execution['stdout'] ?? '');
-            $error = trim(implode("\n", array_filter([
-                $execution['stderr'] ?? null,
-                $execution['compile_output'] ?? null,
-                $execution['message'] ?? null,
-            ])));
+            $error = $this->executionError($execution);
 
             $passedCount += $isPassed ? 1 : 0;
             $passedWeight += $isPassed ? $weight : 0;
@@ -381,5 +473,23 @@ class SubmissionController extends Controller
             : null;
 
         $this->adminNotifications->notifyJudge0Failure($statusCode);
+    }
+    private function executionError(array $execution): ?string
+    {
+        $details = trim(implode("\n", array_filter([
+            $execution['stderr'] ?? null,
+            $execution['compile_output'] ?? null,
+            $execution['message'] ?? null,
+        ])));
+
+        if ($details !== '') {
+            return $details;
+        }
+
+        if ((int) $execution['status']['id'] === 3) {
+            return null;
+        }
+
+        return (string) ($execution['status']['description'] ?? 'Eksekusi gagal.');
     }
 }

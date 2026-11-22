@@ -1,103 +1,147 @@
 @php
-    $isEditing = $exercise !== null;
-    $action = $isEditing ? route('admin.latihan.update', $exercise) : route('admin.latihan.store');
-    $inputClass = 'w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100';
+    $exercise = $exercise ?? null;
+    $method = $method ?? 'POST';
+    $isCreate = $exercise === null;
+    $heading = $heading ?? ($isCreate ? 'Tambah Latihan' : 'Edit Latihan');
+    $canPublish = $canPublish ?? false;
+    $lessonGroups = $lessons->groupBy(fn ($lesson) => $lesson->module->title ?? 'Tanpa Modul');
+    $inputClass = 'w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500';
+    $secondaryBtn = 'inline-flex items-center gap-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm px-4 py-2.5 rounded-xl transition';
+    $draftBtn = 'inline-flex items-center gap-2 border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold text-sm px-5 py-2.5 rounded-xl transition';
+    $primaryBtn = 'inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition';
 @endphp
 
-<x-layouts.admin :title="($isEditing ? 'Edit' : 'Buat') . ' Latihan - Admin'" active="latihan">
-    <a href="{{ route('admin.latihan') }}" class="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 hover:text-emerald-800">
-        <i data-lucide="arrow-left" class="h-4 w-4"></i> Kembali ke Latihan &amp; Soal
-    </a>
+<x-layouts.admin :title="$heading" active="latihan">
+    <x-admin.breadcrumb :items="$isCreate
+        ? [['Latihan & Soal', route('admin.latihan')], [$heading, null]]
+        : [['Latihan & Soal', route('admin.latihan')], [$exercise->title, route('admin.latihan.test-cases', $exercise)], ['Detail Soal', null]]" />
+
     <div class="mb-6">
-        <h1 class="text-2xl font-black text-slate-900">{{ $isEditing ? 'Edit Latihan' : 'Buat Latihan' }}</h1>
-        <p class="mt-1 text-sm text-slate-500">Atur detail soal. Setelah disimpan sebagai draft, tambahkan test case input/output atau assertion.</p>
+        <h1 class="text-xl font-black text-slate-900">{{ $heading }}</h1>
+        <p class="text-sm text-slate-500 mt-0.5">
+            @if ($isCreate)
+                Soal baru disimpan sebagai draft. Setelah itu tambahkan test case, lalu terbitkan agar tampil untuk siswa.
+            @else
+                Simpan sebagai draft, atau terbitkan bila soal sudah punya test case yang terlihat oleh siswa.
+            @endif
+        </p>
     </div>
 
-    <form method="POST" action="{{ $action }}" class="max-w-4xl space-y-5 rounded-2xl border border-slate-100 bg-white p-5 shadow-xs sm:p-7">
-        @csrf
-        @if ($isEditing) @method('PUT') @endif
-        @if ($errors->any())
-            <div role="alert" class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                @foreach ($errors->all() as $error)<p>{{ $error }}</p>@endforeach
-            </div>
-        @endif
-        <div>
-            <label for="lesson_id" class="mb-1.5 block text-sm font-semibold text-slate-700">Materi pelajaran</label>
-            <select id="lesson_id" name="lesson_id" required class="{{ $inputClass }}">
-                <option value="">Pilih pelajaran</option>
-                @foreach ($lessons->groupBy(fn ($lesson) => $lesson->module?->title ?? 'Tanpa Modul') as $moduleTitle => $moduleLessons)
-                    <optgroup label="{{ $moduleTitle }}">
-                        @foreach ($moduleLessons as $lesson)
-                            <option value="{{ $lesson->id }}" @selected((string) old('lesson_id', $exercise?->lesson_id) === (string) $lesson->id)>{{ $lesson->title }}</option>
-                        @endforeach
-                    </optgroup>
-                @endforeach
-            </select>
+    @if ($isCreate)
+        <x-admin.stepper :current="1" />
+    @else
+        <x-admin.exercise-tabs :exercise="$exercise" active="detail" />
+    @endif
+
+    <x-admin.flash />
+
+    @if ($lessons->isEmpty())
+        <div class="bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl px-5 py-4 text-sm">
+            Belum ada pelajaran, jadi latihan belum bisa dibuat.
+            Tambahkan materi terlebih dahulu di menu
+            <a href="{{ route('admin.materi') }}" class="font-bold underline">Materi Belajar</a>.
         </div>
-        <div class="grid gap-4 sm:grid-cols-2">
+    @else
+        <form action="{{ $action }}" method="POST" class="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
+            @csrf
+            @if ($method !== 'POST')
+                @method($method)
+            @endif
+
             <div>
-                <label for="title" class="mb-1.5 block text-sm font-semibold text-slate-700">Judul latihan</label>
-                <input id="title" name="title" required maxlength="255" value="{{ old('title', $exercise?->title) }}" class="{{ $inputClass }}">
-            </div>
-            <div>
-                <label for="slug" class="mb-1.5 block text-sm font-semibold text-slate-700">Slug {{ $isEditing ? '(kosongkan agar tidak berubah)' : '(opsional)' }}</label>
-                <input id="slug" name="slug" maxlength="255" value="{{ old('slug', $exercise?->slug) }}" pattern="[a-z0-9]+(-[a-z0-9]+)*" class="{{ $inputClass }} font-mono">
-            </div>
-        </div>
-        <div>
-            <label for="description" class="mb-1.5 block text-sm font-semibold text-slate-700">Deskripsi soal</label>
-            <textarea id="description" name="description" required rows="4" class="{{ $inputClass }}">{{ old('description', $exercise?->description) }}</textarea>
-        </div>
-        <div>
-            <label for="instructions" class="mb-1.5 block text-sm font-semibold text-slate-700">Instruksi tambahan</label>
-            <textarea id="instructions" name="instructions" rows="3" class="{{ $inputClass }}">{{ old('instructions', $exercise?->instructions) }}</textarea>
-        </div>
-        <div>
-            <label for="starter_code" class="mb-1.5 block text-sm font-semibold text-slate-700">Kode awal</label>
-            <textarea id="starter_code" name="starter_code" rows="6" spellcheck="false" class="{{ $inputClass }} font-mono">{{ old('starter_code', $exercise?->starter_code) }}</textarea>
-        </div>
-        <div class="grid gap-4 sm:grid-cols-4">
-            <div>
-                <label for="difficulty" class="mb-1.5 block text-sm font-semibold text-slate-700">Kesulitan</label>
-                <select id="difficulty" name="difficulty" required class="{{ $inputClass }}">
-                    @foreach (['easy' => 'Mudah', 'medium' => 'Sedang', 'hard' => 'Sulit'] as $value => $label)
-                        <option value="{{ $value }}" @selected(old('difficulty', $exercise?->difficulty ?? 'easy') === $value)>{{ $label }}</option>
+                <label for="lesson_id" class="block text-xs font-semibold text-slate-700 mb-1">Pelajaran <span class="text-red-500">*</span></label>
+                <select id="lesson_id" name="lesson_id" required class="{{ $inputClass }}">
+                    <option value="">Pilih pelajaran...</option>
+                    @foreach ($lessonGroups as $moduleTitle => $group)
+                        <optgroup label="{{ $moduleTitle }}">
+                            @foreach ($group as $lesson)
+                                <option value="{{ $lesson->id }}" @selected((string) old('lesson_id', $exercise->lesson_id ?? '') === (string) $lesson->id)>
+                                    {{ $lesson->title }}
+                                </option>
+                            @endforeach
+                        </optgroup>
                     @endforeach
                 </select>
             </div>
-            <div>
-                <label for="time_limit_ms" class="mb-1.5 block text-sm font-semibold text-slate-700">Batas waktu (ms)</label>
-                <input id="time_limit_ms" name="time_limit_ms" type="number" min="1000" max="5000" required value="{{ old('time_limit_ms', $exercise?->time_limit_ms ?? 10000) }}" class="{{ $inputClass }}">
-            </div>
-            <div>
-                <label for="memory_limit_mb" class="mb-1.5 block text-sm font-semibold text-slate-700">Memori (MB)</label>
-                <input id="memory_limit_mb" name="memory_limit_mb" type="number" min="16" max="250" required value="{{ old('memory_limit_mb', $exercise?->memory_limit_mb ?? 128) }}" class="{{ $inputClass }}">
-            </div>
-            <div>
-                <label for="sort_order" class="mb-1.5 block text-sm font-semibold text-slate-700">Urutan</label>
-                <input id="sort_order" name="sort_order" type="number" min="1" value="{{ old('sort_order', $exercise?->sort_order) }}" class="{{ $inputClass }}">
-            </div>
-        </div>
 
-        @if ($isEditing)
-            <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
-                <input type="hidden" name="is_published" value="0">
-                <input type="checkbox" name="is_published" value="1" @checked(old('is_published', $exercise->is_published)) class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
-                Terbitkan untuk siswa
-            </label>
-            <div class="flex flex-wrap justify-between gap-3 border-t border-slate-100 pt-4">
-                <a href="{{ route('admin.latihan.test-cases', $exercise) }}" class="inline-flex items-center gap-2 rounded-xl border border-indigo-200 px-4 py-2.5 text-sm font-semibold text-indigo-700 hover:bg-indigo-50">
-                    <i data-lucide="list-checks" class="h-4 w-4"></i> Kelola Test Case
-                </a>
-                <button type="submit" class="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">Simpan Perubahan</button>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="title" class="block text-xs font-semibold text-slate-700 mb-1">Judul latihan <span class="text-red-500">*</span></label>
+                    <input id="title" type="text" name="title" required maxlength="255"
+                           value="{{ old('title', $exercise->title ?? '') }}"
+                           placeholder="Contoh: Jumlah Dua Bilangan" class="{{ $inputClass }}">
+                </div>
+                <div>
+                    <label for="slug" class="block text-xs font-semibold text-slate-700 mb-1">Slug (opsional)</label>
+                    <input id="slug" type="text" name="slug" maxlength="255"
+                           value="{{ old('slug', $exercise->slug ?? '') }}"
+                           placeholder="Kosongkan untuk dibuat otomatis dari judul" class="{{ $inputClass }} font-mono">
+                    <p class="text-[11px] text-slate-400 mt-1">Huruf kecil, angka, dan tanda hubung. Harus unik.</p>
+                </div>
             </div>
-        @else
-            <input type="hidden" name="is_published" value="0">
-            <p class="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800">Latihan dibuat sebagai draft. Tambahkan sedikitnya satu test case publik sebelum menerbitkannya.</p>
-            <div class="flex justify-end gap-3 border-t border-slate-100 pt-4">
-                <a href="{{ route('admin.latihan') }}" class="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600">Batal</a>
-                <button type="submit" class="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">Simpan &amp; Kelola Test Case</button>
+
+            <div>
+                <label for="description" class="block text-xs font-semibold text-slate-700 mb-1">Deskripsi soal <span class="text-red-500">*</span></label>
+                <textarea id="description" name="description" rows="4" required class="{{ $inputClass }}">{{ old('description', $exercise->description ?? '') }}</textarea>
             </div>
-        @endif
-    </form>
+
+            <div>
+                <label for="instructions" class="block text-xs font-semibold text-slate-700 mb-1">Instruksi (opsional)</label>
+                <textarea id="instructions" name="instructions" rows="3" class="{{ $inputClass }}">{{ old('instructions', $exercise->instructions ?? '') }}</textarea>
+            </div>
+
+            <div>
+                <label for="starter_code" class="block text-xs font-semibold text-slate-700 mb-1">Kode awal (opsional)</label>
+                <textarea id="starter_code" name="starter_code" rows="6" spellcheck="false" class="{{ $inputClass }} font-mono">{{ old('starter_code', $exercise->starter_code ?? '') }}</textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="difficulty" class="block text-xs font-semibold text-slate-700 mb-1">Tingkat <span class="text-red-500">*</span></label>
+                    <select id="difficulty" name="difficulty" required class="{{ $inputClass }}">
+                        @foreach (['easy' => 'Mudah', 'medium' => 'Sedang', 'hard' => 'Sulit'] as $value => $label)
+                            <option value="{{ $value }}" @selected(old('difficulty', $exercise->difficulty ?? 'easy') === $value)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="sort_order" class="block text-xs font-semibold text-slate-700 mb-1">Urutan</label>
+                    <input id="sort_order" type="number" name="sort_order" min="1"
+                           value="{{ old('sort_order', $exercise->sort_order ?? '') }}" placeholder="Otomatis" class="{{ $inputClass }}">
+                </div>
+            </div>
+
+            <p class="text-[11px] text-slate-400 -mt-2">
+                Batas waktu dan memori diatur otomatis menurut tingkat: Mudah 1000 ms, Sedang 2000 ms, Sulit 3000 ms, dengan memori 128 MB.
+            </p>
+
+            @unless ($isCreate || $canPublish)
+                <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3.5 py-2.5">
+                    Soal ini belum bisa diterbitkan karena belum punya test case aktif yang terlihat siswa.
+                    <a href="{{ route('admin.latihan.test-cases.create', $exercise) }}" class="font-bold underline">Tambah test case</a>
+                    dulu, lalu terbitkan.
+                </p>
+            @endunless
+
+            {{-- Susunan tombol sama di semua form: Batal di kiri, aksi sekunder di tengah, aksi utama (hijau) di kanan --}}
+            <div class="flex flex-wrap items-center justify-end gap-2 pt-2">
+                <a href="{{ $isCreate ? route('admin.latihan') : route('admin.latihan.test-cases', $exercise) }}" class="{{ $secondaryBtn }}">Batal</a>
+
+                @if ($isCreate)
+                    <button type="submit" class="{{ $primaryBtn }}">
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i> Simpan &amp; Lanjut ke Test Case
+                    </button>
+                @else
+                    <button type="submit" name="is_published" value="0" class="{{ $draftBtn }}">
+                        <i data-lucide="file-edit" class="w-4 h-4"></i> Simpan sebagai Draft
+                    </button>
+                    <button type="submit" name="is_published" value="1" class="{{ $primaryBtn }}"
+                            @disabled(! $canPublish)
+                            title="{{ $canPublish ? 'Simpan perubahan dan terbitkan untuk siswa' : 'Tambahkan minimal satu test case terlihat untuk menerbitkan' }}">
+                        <i data-lucide="upload" class="w-4 h-4"></i> Simpan &amp; Terbitkan
+                    </button>
+                @endif
+            </div>
+        </form>
+    @endif
 </x-layouts.admin>
