@@ -363,5 +363,4 @@ class AuthTest extends TestCase
         $this->assertGuest();
         $this->assertDatabaseMissing('users', ['email' => 'attacker@example.com']);
     }
-    }
 }

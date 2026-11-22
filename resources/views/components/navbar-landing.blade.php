@@ -72,7 +72,7 @@
                     @endif
                 </a>
 
-                <form method="POST" action="{{ route('logout') }}" class="hidden lg:inline" data-confirm-logout>
+                <form method="POST" action="{{ route('logout') }}" class="hidden lg:inline" data-confirm-logout onsubmit="/* showModal() */">
                     @csrf
                     <button type="submit" title="Keluar"
                             class="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 active:scale-95">

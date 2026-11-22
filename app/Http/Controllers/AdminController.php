@@ -10,18 +10,18 @@ use App\Models\Module;
 use App\Models\Submission;
 use App\Models\TestCase;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\JsonResponse;
 use App\Services\Judge0Service;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Throwable;
 
@@ -85,6 +85,15 @@ class AdminController extends Controller
             ->take(8)
             ->get();
 
+        $recentActivities = [];
+        foreach ($recentSubmissions->take(5) as $sub) {
+            $recentActivities[] = [
+                'name' => $sub->user->name ?? 'Siswa',
+                'action' => 'Mengumpulkan solusi '.($sub->exercise->title ?? 'Latihan'),
+                'time' => $sub->created_at ? $sub->created_at->diffForHumans() : 'Baru saja',
+            ];
+        }
+
         return view('admin.dashboard', compact(
             'totalModul',
             'totalLatihan',
@@ -95,7 +104,8 @@ class AdminController extends Controller
             'activeLearners',
             'exercisesStats',
             'learnerStats',
-            'recentSubmissions'
+            'recentSubmissions',
+            'recentActivities'
         ));
     }
 
@@ -804,7 +814,7 @@ class AdminController extends Controller
     /**
      * @return array<string, mixed>
      */
-        /**
+    /**
      * @return array<string, mixed>
      */
     private function validateExercise(Request $request, ?Exercise $exercise = null): array
@@ -913,8 +923,9 @@ class AdminController extends Controller
         $query->orderBy('created_at', ($filters['joined'] ?? 'newest') === 'oldest' ? 'asc' : 'desc');
 
         $users = $query->orderBy('id')->paginate(15);
+        $students = (clone $query)->where('role', 'learner')->get();
 
-        return view('admin.siswa', compact('users', 'filters'));
+        return view('admin.siswa', compact('users', 'students', 'filters'));
     }
 
     public function siswaShow(User $user): View

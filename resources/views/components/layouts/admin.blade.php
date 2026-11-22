@@ -92,11 +92,14 @@
                             </div>
                         </div>
 
-                        <button type="button" onclick="document.getElementById('logout-confirmation-modal').showModal()"
-                                class="w-full bg-white hover:bg-red-50 text-red-500 hover:text-red-600 border border-red-100 text-xs font-semibold py-1.5 px-3 rounded-lg flex items-center justify-center gap-1.5 transition shadow-2xs">
-                            <i data-lucide="log-out" class="w-3.5 h-3.5 text-red-500"></i>
-                            <span>Keluar Akun</span>
-                        </button>
+                        <form method="POST" action="{{ route('logout') }}" data-confirm-logout onsubmit="/* showModal() */">
+                            @csrf
+                            <button type="submit"
+                                    class="w-full bg-white hover:bg-red-50 text-red-500 hover:text-red-600 border border-red-100 text-xs font-semibold py-1.5 px-3 rounded-lg flex items-center justify-center gap-1.5 transition shadow-2xs">
+                                <i data-lucide="log-out" class="w-3.5 h-3.5 text-red-500"></i>
+                                <span>Keluar Akun</span>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
