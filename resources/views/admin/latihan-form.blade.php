@@ -1,20 +1,20 @@
 @php
     $exercise = $exercise ?? null;
     $method = $method ?? 'POST';
-    $heading = $heading ?? 'Tambah Latihan';
     $isCreate = $exercise === null;
+    $heading = $heading ?? ($isCreate ? 'Tambah Latihan' : 'Edit Latihan');
     $canPublish = $canPublish ?? false;
     $lessonGroups = $lessons->groupBy(fn ($lesson) => $lesson->module->title ?? 'Tanpa Modul');
     $inputClass = 'w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500';
+    $secondaryBtn = 'inline-flex items-center gap-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm px-4 py-2.5 rounded-xl transition';
+    $draftBtn = 'inline-flex items-center gap-2 border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold text-sm px-5 py-2.5 rounded-xl transition';
+    $primaryBtn = 'inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition';
 @endphp
 
 <x-layouts.admin :title="$heading" active="latihan">
-    {{-- Breadcrumb --}}
-    <nav class="flex items-center gap-1.5 text-xs text-slate-400 mb-5">
-        <a href="{{ route('admin.latihan') }}" class="hover:text-emerald-600 font-semibold">Latihan &amp; Soal</a>
-        <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-        <span class="text-slate-700 font-semibold">{{ $heading }}</span>
-    </nav>
+    <x-admin.breadcrumb :items="$isCreate
+        ? [['Latihan & Soal', route('admin.latihan')], [$heading, null]]
+        : [['Latihan & Soal', route('admin.latihan')], [$exercise->title, route('admin.latihan.test-cases', $exercise)], ['Detail Soal', null]]" />
 
     <div class="mb-6">
         <h1 class="text-xl font-black text-slate-900">{{ $heading }}</h1>
@@ -27,6 +27,14 @@
         </p>
     </div>
 
+    @if ($isCreate)
+        <x-admin.stepper :current="1" />
+    @else
+        <x-admin.exercise-tabs :exercise="$exercise" active="detail" />
+    @endif
+
+    <x-admin.flash />
+
     @if ($lessons->isEmpty())
         <div class="bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl px-5 py-4 text-sm">
             Belum ada pelajaran, jadi latihan belum bisa dibuat.
@@ -34,7 +42,7 @@
             <a href="{{ route('admin.materi') }}" class="font-bold underline">Materi Belajar</a>.
         </div>
     @else
-        <form action="{{ $action }}" method="POST" class="bg-white rounded-2xl border border-slate-200 p-6 space-y-5 max-w-3xl">
+        <form action="{{ $action }}" method="POST" class="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
             @csrf
             @if ($method !== 'POST')
                 @method($method)
@@ -87,7 +95,7 @@
                 <textarea id="starter_code" name="starter_code" rows="6" spellcheck="false" class="{{ $inputClass }} font-mono">{{ old('starter_code', $exercise->starter_code ?? '') }}</textarea>
             </div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label for="difficulty" class="block text-xs font-semibold text-slate-700 mb-1">Tingkat <span class="text-red-500">*</span></label>
                     <select id="difficulty" name="difficulty" required class="{{ $inputClass }}">
@@ -97,49 +105,40 @@
                     </select>
                 </div>
                 <div>
-                    <label for="time_limit_ms" class="block text-xs font-semibold text-slate-700 mb-1">Batas waktu (ms)</label>
-                    <input id="time_limit_ms" type="number" name="time_limit_ms" min="1000" max="5000" required
-                           value="{{ old('time_limit_ms', min(5000, max(1000, $exercise->time_limit_ms ?? 2000))) }}" class="{{ $inputClass }}">
-                </div>
-                <div>
-                    <label for="memory_limit_mb" class="block text-xs font-semibold text-slate-700 mb-1">Memori (MB)</label>
-                    <input id="memory_limit_mb" type="number" name="memory_limit_mb" min="16" max="250" required
-                           value="{{ old('memory_limit_mb', min(250, max(16, $exercise->memory_limit_mb ?? 128))) }}" class="{{ $inputClass }}">
-                </div>
-                <div>
                     <label for="sort_order" class="block text-xs font-semibold text-slate-700 mb-1">Urutan</label>
                     <input id="sort_order" type="number" name="sort_order" min="1"
                            value="{{ old('sort_order', $exercise->sort_order ?? '') }}" placeholder="Otomatis" class="{{ $inputClass }}">
                 </div>
             </div>
 
+            <p class="text-[11px] text-slate-400 -mt-2">
+                Batas waktu dan memori diatur otomatis menurut tingkat: Mudah 1000 ms, Sedang 2000 ms, Sulit 3000 ms, dengan memori 128 MB.
+            </p>
 
             @unless ($isCreate || $canPublish)
                 <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3.5 py-2.5">
-                    Soal ini belum bisa diterbitkan karena belum punya test case aktif yang terlihat.
-                    Jika kamu klik Simpan &amp; Terbitkan, perubahan disimpan sebagai draft lalu kamu diarahkan ke
-                    <a href="{{ route('admin.latihan.test-cases', $exercise) }}" class="font-bold underline">halaman test case</a>.
+                    Soal ini belum bisa diterbitkan karena belum punya test case aktif yang terlihat siswa.
+                    <a href="{{ route('admin.latihan.test-cases.create', $exercise) }}" class="font-bold underline">Tambah test case</a>
+                    dulu, lalu terbitkan.
                 </p>
             @endunless
 
-            <div class="flex items-center justify-end gap-2 pt-2">
-                <a href="{{ route('admin.latihan') }}"
-                   class="inline-flex items-center gap-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm px-4 py-2.5 rounded-xl transition">
-                    Batal
-                </a>
+            {{-- Susunan tombol sama di semua form: Batal di kiri, aksi sekunder di tengah, aksi utama (hijau) di kanan --}}
+            <div class="flex flex-wrap items-center justify-end gap-2 pt-2">
+                <a href="{{ $isCreate ? route('admin.latihan') : route('admin.latihan.test-cases', $exercise) }}" class="{{ $secondaryBtn }}">Batal</a>
+
                 @if ($isCreate)
-                    <button type="submit"
-                            class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition">
+                    <button type="submit" class="{{ $primaryBtn }}">
                         <i data-lucide="arrow-right" class="w-4 h-4"></i> Simpan &amp; Lanjut ke Test Case
                     </button>
                 @else
-                    <button type="submit" name="is_published" value="0"
-                            class="inline-flex items-center gap-2 border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold text-sm px-5 py-2.5 rounded-xl transition">
+                    <button type="submit" name="is_published" value="0" class="{{ $draftBtn }}">
                         <i data-lucide="file-edit" class="w-4 h-4"></i> Simpan sebagai Draft
                     </button>
-                    <button type="submit" name="is_published" value="1"
-                            class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition">
-                        <i data-lucide="save" class="w-4 h-4"></i> Simpan &amp; Terbitkan
+                    <button type="submit" name="is_published" value="1" class="{{ $primaryBtn }}"
+                            @disabled(! $canPublish)
+                            title="{{ $canPublish ? 'Simpan perubahan dan terbitkan untuk siswa' : 'Tambahkan minimal satu test case terlihat untuk menerbitkan' }}">
+                        <i data-lucide="upload" class="w-4 h-4"></i> Simpan &amp; Terbitkan
                     </button>
                 @endif
             </div>

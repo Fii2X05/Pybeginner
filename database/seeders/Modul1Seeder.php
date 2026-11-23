@@ -32,7 +32,7 @@ class Modul1Seeder extends Seeder
         ]);
 
         foreach ($m['lessons'] as $li => $l) {
-            $module->lessons()->firstOrCreate(['slug' => $l['slug']], [
+            $module->lessons()->updateOrCreate(['slug' => $l['slug']], [
                 'title' => $l['title'],
                 'content' => $l['content'],
                 'sort_order' => $li + 1,

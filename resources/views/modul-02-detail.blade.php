@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Modul 02: Variabel dan Tipe Data - PyBeginner</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -36,31 +37,7 @@
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased">
 
-    {{-- ===================== NAVBAR ===================== --}}
-    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100">
-        <nav class="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-10">
-                <a href="{{ url('/') }}" class="flex items-center">
-                    <img src="{{ asset('images/logo-pybeginner.png') }}" alt="PyBeginner" class="h-8 w-auto">
-                </a>
-                <ul class="hidden md:flex items-center gap-7 text-sm font-medium text-gray-600">
-                    <li><a href="{{ route('beranda') }}" class="hover:text-emerald-600 transition-colors">Beranda</a></li>
-                    <li><a href="{{ route('modul.index') }}" class="text-gray-900 border-b-2 border-gray-900 pb-1 font-semibold">Modul Belajar</a></li>
-                    <li><a href="{{ route('latihan.index') }}" class="hover:text-emerald-600 transition-colors">Latihan Coding</a></li>
-                    <li><a href="#" class="hover:text-emerald-600 transition-colors">Riwayat Submission</a></li>
-                </ul>
-            </div>
-            <div class="flex items-center gap-5">
-                <button type="button" class="relative text-gray-500 hover:text-gray-700">
-                    <i data-lucide="bell" class="w-5 h-5"></i>
-                </button>
-                <span class="hidden sm:inline text-sm font-medium text-gray-700">{{ auth()->user()->name ?? 'Sukma Ananda' }}</span>
-                <span class="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center text-white">
-                    <i data-lucide="user" class="w-4 h-4"></i>
-                </span>
-            </div>
-        </nav>
-    </header>
+    <x-navbar-learner active="modul" />
 
     {{-- ===================== BREADCRUMB & HEADER ===================== --}}
     <section class="relative overflow-hidden bg-gradient-to-b from-white via-emerald-50/70 to-emerald-50 border-b border-gray-100">
@@ -947,27 +924,13 @@ keliling = <span class="number">4</span> * sisi
                             <i data-lucide="arrow-left" class="w-4 h-4"></i> Modul Sebelumnya (Modul 01)
                         </a>
 
-                        @auth
-                            <form action="{{ route('modul.toggle-complete', 2) }}" method="POST" class="w-full sm:w-auto">
-                                @csrf
-                                @if (($status ?? 'belum') === 'selesai')
-                                    <button type="submit"
-                                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-5 py-2.5 rounded-xl transition-colors">
-                                        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i> Modul Selesai (Klik untuk Ulangi)
-                                    </button>
-                                @else
-                                    <button type="submit"
-                                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 rounded-xl transition-colors shadow-sm">
-                                        <i data-lucide="check" class="w-4 h-4"></i> Tandai Modul Selesai
-                                    </button>
-                                @endif
-                            </form>
-                        @endauth
-
-                        <a href="{{ route('modul.detail.03') }}"
+                        <form action="{{ route('modul.complete-and-continue', 2) }}" method="POST" class="w-full sm:w-auto">
+                            @csrf
+                            <button type="submit"
                            class="w-full sm:w-auto flex items-center justify-center gap-2 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-800 px-5 py-2.5 rounded-xl transition-colors">
                             Modul Selanjutnya (Modul 03) <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </a>
+                        </button>
+                        </form>
                     </div>
 
                 </main>
@@ -990,18 +953,18 @@ keliling = <span class="number">4</span> * sisi
             <div>
                 <h4 class="font-semibold text-gray-900 mb-4">Kurikulum</h4>
                 <ul class="space-y-2 text-sm text-gray-600">
-                    <li><a href="#" class="hover:text-emerald-600">Python Dasar</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">Struktur Data</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">Algoritma & Logika</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">OOP Python</a></li>
+                    <li><a href="{{ route('modul.detail.01') }}" class="hover:text-emerald-600">Python Dasar</a></li>
+                    <li><a href="{{ route('modul.detail.06') }}" class="hover:text-emerald-600">Struktur Data</a></li>
+                    <li><a href="{{ route('modul.detail.03') }}" class="hover:text-emerald-600">Algoritma &amp; Logika</a></li>
+                    <li><span aria-disabled="true" class="text-slate-400" title="Belum tersedia">OOP Python (Belum tersedia)</span></li>
                 </ul>
             </div>
 
             <div>
                 <h4 class="font-semibold text-gray-900 mb-4">Fitur Belajar</h4>
                 <ul class="space-y-2 text-sm text-gray-600">
-                    <li><a href="#" class="hover:text-emerald-600">Pembelajaran Interaktif</a></li>
-                    <li><a href="#" class="hover:text-emerald-600">Kuis & Tantangan</a></li>
+                    <li><a href="{{ route('modul.index') }}" class="hover:text-emerald-600">Pembelajaran Interaktif</a></li>
+                    <li><a href="{{ route('latihan.index') }}" class="hover:text-emerald-600">Latihan Coding</a></li>
                 </ul>
             </div>
         </div>

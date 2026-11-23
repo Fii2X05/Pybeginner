@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\LessonProgress;
 use App\Models\Module;
+use App\Services\AdminNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -170,9 +171,14 @@ class ModulController extends Controller
         $selesaiCount = 0;
         $totalMateri = max($meta['materiCount'], $module?->lessons->count() ?? 0);
         $progress = 0;
-        $lessonProgressUrls = $module
-            ? $module->lessons->mapWithKeys(fn ($lesson) => [$lesson->sort_order => route('lesson.progress', $lesson)])->all()
-            : [];
+        $lessonProgressUrls = [];
+        if ($module) {
+            foreach ($module->lessons->values() as $idx => $lesson) {
+                $url = route('lesson.progress', $lesson);
+                $lessonProgressUrls[$lesson->sort_order] = $url;
+                $lessonProgressUrls[$idx + 1] = $url;
+            }
+        }
         $lessonProgressValues = [];
         $additionalLessons = $module
             ? $module->lessons->filter(fn ($lesson) => $lesson->sort_order > $meta['materiCount'])->values()
@@ -218,9 +224,12 @@ class ModulController extends Controller
             $progressValues = $lessons->mapWithKeys(fn ($lesson) => [
                 $lesson->id => (int) ($userProgress[$lesson->id]->progress_percent ?? (($userProgress[$lesson->id]->status ?? null) === 'completed' ? 100 : 0)),
             ]);
-            $lessonProgressValues = $lessons->mapWithKeys(fn ($lesson) => [
-                $lesson->sort_order => $progressValues[$lesson->id],
-            ])->all();
+            $lessonProgressValues = [];
+            foreach ($lessons->values() as $idx => $lesson) {
+                $val = $progressValues[$lesson->id];
+                $lessonProgressValues[$lesson->sort_order] = $val;
+                $lessonProgressValues[$idx + 1] = $val;
+            }
             $completedLessons = $lessons->filter(fn ($lesson) => $progressValues[$lesson->id] >= 100)->count();
             $readLessons = $lessons->filter(fn ($lesson) => $progressValues[$lesson->id] > 0)->count();
             $hasStarted = $lessons->contains(fn ($lesson) => isset($userProgress[$lesson->id]));
@@ -295,7 +304,7 @@ class ModulController extends Controller
     /**
      * Tandai modul selesai atau kembali ke sedang berjalan.
      */
-    public function toggleComplete(int $no): RedirectResponse
+    public function toggleComplete(int $no, AdminNotificationService $notifications): RedirectResponse
     {
         $meta = $this->getModuleMeta($no);
         abort_unless($meta, 404);
@@ -328,10 +337,44 @@ class ModulController extends Controller
                     ['status' => 'completed', 'progress_percent' => 100, 'completed_at' => now(), 'last_accessed_at' => now()]
                 );
             }
+            if ($lessons->isNotEmpty() && auth()->user()->role === 'learner') {
+                $notifications->notifyAdmins(
+                    'module_completed',
+                    'Siswa menyelesaikan modul',
+                    auth()->user()->name.' telah menyelesaikan modul '.$module->title.'.',
+                    route('admin.siswa.show', auth()->user()),
+                );
+            }
             $msg = "Selamat! Modul {$no} berhasil diselesaikan.";
         }
 
         return back()->with('status', $msg);
+    }
+
+    /**
+     * Tandai modul selesai saat siswa memilih untuk lanjut ke modul berikutnya.
+     */
+    public function completeAndContinue(int $no): RedirectResponse
+    {
+        $meta = $this->getModuleMeta($no);
+        abort_unless($meta, 404);
+
+        $module = Module::where('slug', $meta['slug'])
+            ->with(['lessons' => fn ($query) => $query->where('is_published', true)->orderBy('sort_order')])
+            ->firstOrFail();
+
+        foreach ($module->lessons as $lesson) {
+            LessonProgress::updateOrCreate(
+                ['user_id' => auth()->id(), 'lesson_id' => $lesson->id],
+                ['status' => 'completed', 'progress_percent' => 100, 'completed_at' => now(), 'last_accessed_at' => now()]
+            );
+        }
+
+        $nextModuleNumber = $no + 1;
+
+        return $nextModuleNumber <= 7
+            ? redirect()->route(sprintf('modul.detail.%02d', $nextModuleNumber))
+            : redirect()->route('modul.index');
     }
 
     /**
@@ -354,13 +397,42 @@ class ModulController extends Controller
     /**
      * Tandai materi selesai (butuh login).
      */
-    public function complete(Course $course, Module $module, Lesson $lesson): RedirectResponse
+    public function complete(Course $course, Module $module, Lesson $lesson, AdminNotificationService $notifications): RedirectResponse
     {
+        $wasCompleted = LessonProgress::where('user_id', auth()->id())
+            ->where('lesson_id', $lesson->id)
+            ->where('status', 'completed')
+            ->exists();
+
         LessonProgress::updateOrCreate(
             ['user_id' => auth()->id(), 'lesson_id' => $lesson->id],
             ['status' => 'completed', 'progress_percent' => 100, 'completed_at' => now(), 'last_accessed_at' => now()]
         );
 
+        $publishedLessonIds = $module->lessons()->where('is_published', true)->pluck('id');
+        $completedLessonCount = LessonProgress::where('user_id', auth()->id())
+            ->whereIn('lesson_id', $publishedLessonIds)
+            ->where('status', 'completed')
+            ->count();
+
+        if (
+            auth()->user()->role === 'learner'
+            && ! $wasCompleted
+            && $publishedLessonIds->isNotEmpty()
+            && $completedLessonCount === $publishedLessonIds->count()
+        ) {
+            $notifications->notifyAdmins(
+                'module_completed',
+                'Siswa menyelesaikan modul',
+                auth()->user()->name.' telah menyelesaikan modul '.$module->title.'.',
+                route('admin.siswa.show', auth()->user()),
+            );
+        }
+
+        $next = $module->lessons()
+            ->where('is_published', true)
+            ->where('sort_order', '>', $lesson->sort_order)
+            ->first();
         $legacyRoute = $this->legacyModuleRoute($module);
         $moduleUrl = $legacyRoute
             ? route($legacyRoute)
@@ -401,7 +473,10 @@ class ModulController extends Controller
         DB::table('lesson_progress')
             ->where('user_id', auth()->id())
             ->where('lesson_id', $lesson->id)
-            ->where('progress_percent', '<', $progressPercent)
+            ->where(function ($query) use ($progressPercent) {
+                $query->where('progress_percent', '<', $progressPercent)
+                    ->orWhereNull('progress_percent');
+            })
             ->update($progressData);
 
         $progressPercent = (int) LessonProgress::query()

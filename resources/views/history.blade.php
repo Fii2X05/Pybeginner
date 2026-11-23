@@ -1,10 +1,10 @@
-<x-layouts.app title="Riwayat Submission" active="riwayat">
+<x-layouts.app title="Riwayat Submission" active="riwayat" :flush="true">
 
     {{-- ===================== HEADER SECTION ===================== --}}
     <section class="relative overflow-hidden bg-gradient-to-b from-white via-emerald-50/70 to-emerald-50">
         <div class="hidden lg:block absolute top-0 right-0 w-96 h-96 bg-yellow-100/50 rounded-full blur-3xl z-0"></div>
 
-        <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 py-10">
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-8 sm:py-10">
             <div class="flex items-center gap-3 mb-4 text-xs font-semibold">
                 <span class="inline-flex items-center gap-1.5 bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
                     <span class="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
@@ -12,45 +12,76 @@
                 </span>
             </div>
 
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                <div class="flex items-center gap-4">
-                    <img src="{{ asset('images/mascot-python.png') }}" alt="Mascot" class="w-16 h-16 object-contain object-top drop-shadow-sm transition duration-300 hover:-rotate-6 hover:scale-105">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <img src="{{ asset('images/mascot-python.png') }}" alt="Mascot" class="w-12 h-12 sm:w-16 sm:h-16 object-contain object-top drop-shadow-sm transition duration-300 hover:-rotate-6 hover:scale-105">
                     <div>
-                        <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900">Riwayat Submission</h1>
-                        <p class="text-gray-600 mt-2 max-w-2xl">Pantau progres pengiriman kode, hasil evaluasi test case, dan umpan balik langsung.</p>
+                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900">Riwayat Submission</h1>
+                        <p class="text-gray-600 mt-1 sm:mt-2 text-xs sm:text-sm max-w-2xl">Pantau progres pengiriman kode, hasil evaluasi test case, dan umpan balik langsung.</p>
                     </div>
                 </div>
-                <a href="{{ route('latihan.index') }}" class="inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white font-semibold px-5 py-2.5 rounded-xl transition-colors whitespace-nowrap">
+                <a href="{{ route('latihan.index') }}" class="inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2.5 rounded-xl transition-colors whitespace-nowrap self-start sm:self-auto">
                     <i data-lucide="square-code" class="w-4 h-4"></i>
-                    Lanjutkan Latihan Terakhir
+                    Lihat Semua Latihan
                 </a>
             </div>
         </div>
     </section>
 
     {{-- ===================== KONTEN UTAMA ===================== --}}
-    <section class="bg-emerald-50 py-10 flex-grow pb-20">
-        <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <section class="bg-emerald-50 py-8 sm:py-10 flex-grow pb-20 w-full">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
             
-            <!-- Search & Filter Bar -->
-            <div class="bg-white p-2 rounded-2xl border border-gray-200 shadow-sm flex flex-wrap justify-between items-center mb-6 gap-4">
-                <div class="flex items-center px-4 w-full md:w-auto flex-grow max-w-md text-sm">
-                    <i data-lucide="search" class="w-4 h-4 text-gray-400 mr-2"></i>
-                    <input type="text" placeholder="Cari berdasarkan judul latihan atau nomor submission..." class="w-full focus:outline-none text-gray-600 placeholder-gray-400 bg-transparent py-2">
-                </div>
-                <div class="flex items-center gap-4 text-xs font-medium overflow-x-auto whitespace-nowrap pb-1 md:pb-0 px-2">
-                    <span class="text-brand-600 cursor-pointer font-bold">Semua ({{ $totalSubmissions }})</span>
-                    <span class="text-gray-500 hover:text-gray-700 cursor-pointer">Berhasil ({{ $perfectScores }})</span>
-                    <span class="text-gray-500 hover:text-gray-700 cursor-pointer">Perbaikan ({{ $needsImprovement }})</span>
-                    <div class="h-4 w-px bg-gray-200 hidden md:block"></div>
-                    <select class="bg-gray-50 border border-gray-200 text-gray-700 rounded-lg px-3 py-2 outline-none cursor-pointer focus:ring-2 focus:ring-emerald-500">
-                        <option>Modul 03: Percabangan Python</option>
-                    </select>
-                </div>
+            <div class="mb-6 space-y-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+                <form method="GET" action="{{ route('submissions.history') }}" class="flex flex-col gap-3 md:flex-row">
+                    @if (filled($filters['status'] ?? null))
+                        <input type="hidden" name="status" value="{{ $filters['status'] }}">
+                    @endif
+                    <label class="flex min-w-0 flex-1 items-center px-3 text-sm">
+                        <i data-lucide="search" class="mr-2 h-4 w-4 flex-none text-gray-400"></i>
+                        <input type="search" name="search" value="{{ $filters['search'] ?? '' }}"
+                               placeholder="Cari judul latihan atau nomor submission..."
+                               aria-label="Cari riwayat submission"
+                               class="w-full bg-transparent py-2 text-gray-700 placeholder-gray-400 focus:outline-none">
+                    </label>
+                    <label class="flex items-center gap-2 text-sm text-gray-600">
+                        <span class="sr-only">Filter modul</span>
+                        <select name="module_id" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="">Semua modul</option>
+                            @foreach ($modules as $module)
+                                <option value="{{ $module->id }}" @selected((string) ($filters['module_id'] ?? '') === (string) $module->id)>
+                                    {{ $module->title }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </label>
+                    <button type="submit" class="rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-black">
+                        Terapkan
+                    </button>
+                </form>
+
+                @php
+                    $baseFilters = request()->except(['status', 'page']);
+                    $submissionFilters = array_filter($filters, fn ($value) => filled($value));
+                    $allFilterUrl = route('submissions.history', $baseFilters);
+                    $perfectFilterUrl = route('submissions.history', array_merge($baseFilters, ['status' => 'perfect']));
+                    $improvementFilterUrl = route('submissions.history', array_merge($baseFilters, ['status' => 'improvement']));
+                @endphp
+                <nav aria-label="Filter status submission" class="flex flex-wrap gap-4 border-t border-gray-100 pt-3 text-xs font-medium">
+                    <a href="{{ $allFilterUrl }}" @class(['font-bold text-emerald-700' => ! filled($filters['status'] ?? null), 'text-gray-500 hover:text-gray-700' => filled($filters['status'] ?? null)])>
+                        Semua ({{ $totalSubmissions }})
+                    </a>
+                    <a href="{{ $perfectFilterUrl }}" @class(['font-bold text-emerald-700' => ($filters['status'] ?? null) === 'perfect', 'text-gray-500 hover:text-gray-700' => ($filters['status'] ?? null) !== 'perfect'])>
+                        Berhasil ({{ $perfectScores }})
+                    </a>
+                    <a href="{{ $improvementFilterUrl }}" @class(['font-bold text-emerald-700' => ($filters['status'] ?? null) === 'improvement', 'text-gray-500 hover:text-gray-700' => ($filters['status'] ?? null) !== 'improvement'])>
+                        Perlu Perbaikan ({{ $needsImprovement }})
+                    </a>
+                </nav>
             </div>
 
             <!-- Statistik Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
                 <!-- Total Pengiriman -->
                 <div class="group relative overflow-hidden bg-white p-6 rounded-3xl border border-gray-100 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg hover:ring-1 hover:ring-emerald-200 flex justify-between items-start z-10">
                     <div class="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-blue-50 transition duration-300 group-hover:scale-150 -z-10"></div>
@@ -58,7 +89,7 @@
                         <p class="text-xs text-gray-500 font-semibold tracking-wide mb-1">TOTAL PENGIRIMAN</p>
                         <h2 class="text-3xl font-extrabold text-gray-900">{{ $totalSubmissions }} <span class="text-sm font-medium text-gray-400">Kali</span></h2>
                         <p class="text-[11px] font-medium text-blue-600 mt-2 flex items-center gap-1">
-                            <i data-lucide="trending-up" class="w-3 h-3"></i> +8 minggu ini
+                            <i data-lucide="trending-up" class="w-3 h-3"></i> {{ $submissionsThisWeek }} dalam 7 hari terakhir
                         </p>
                     </div>
                     <div class="relative bg-blue-100 p-3 rounded-2xl text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white">
@@ -116,7 +147,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
                 <!-- KIRI: Daftar Submission -->
-                <div class="lg:col-span-1 flex flex-col h-full">
+                <div class="lg:col-span-1 flex flex-col h-full min-w-0">
                     <div class="flex justify-between items-center mb-4 px-1">
                         <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
                             DAFTAR SUBMISSION
@@ -127,14 +158,14 @@
                             @endif
                         </p>
                         <p class="text-[10px] font-bold text-brand-600 flex items-center gap-1">
-                            <span class="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse"></span> Realtime
+                        <span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span> Submission terbaru
                         </p>
                     </div>
                     
                     <div class="space-y-4 flex-grow">
                         @forelse($submissions as $sub)
                             @php $isActive = $selectedSubmission && $selectedSubmission->id === $sub->id; @endphp
-                            <a href="{{ route('submissions.history', ['selected' => $sub->id, 'page' => $submissions->currentPage()]) }}" 
+                            <a href="{{ route('submissions.history', array_merge($submissionFilters, ['selected' => $sub->id, 'page' => $submissions->currentPage()])) }}"
                                class="block group relative overflow-hidden bg-white rounded-3xl p-6 shadow-sm ring-1 transition duration-200 hover:-translate-y-1 hover:shadow-md hover:ring-emerald-300 z-10 {{ $isActive ? 'ring-emerald-400 shadow-md bg-emerald-50/20' : 'ring-emerald-100' }}">
                                 
                                 <!-- Hover Blob untuk item list -->
@@ -160,7 +191,7 @@
                                     <div class="flex justify-between items-center text-xs pt-4 border-t border-gray-100">
                                         <span class="flex items-center gap-1.5 text-gray-500 font-medium">
                                             <i data-lucide="clock" class="w-3.5 h-3.5"></i> 
-                                            {{ $sub->execution_time_ms ? ($sub->execution_time_ms / 1000) . 's' : '0.05s' }}
+                                            {{ $sub->execution_time_ms !== null ? ($sub->execution_time_ms / 1000).'s' : '—' }}
                                         </span>
                                         <span class="{{ $isActive ? 'text-brand-700 font-bold flex items-center gap-1' : 'text-gray-500 font-semibold group-hover:text-brand-600 transition flex items-center gap-1' }}">
                                             {{ $isActive ? 'Sedang Dilihat' : 'Lihat Detail' }} 
@@ -171,7 +202,12 @@
                             </a>
                         @empty
                             <div class="bg-white p-8 rounded-3xl border border-gray-200 text-center text-gray-400 text-sm">
-                                Belum ada riwayat submission.
+                                @if ($totalSubmissions > 0)
+                                    Tidak ada submission yang cocok dengan pencarian atau filter.
+                                    <a href="{{ route('submissions.history') }}" class="ml-1 font-semibold text-emerald-700 underline">Hapus filter</a>
+                                @else
+                                    Belum ada riwayat submission.
+                                @endif
                             </div>
                         @endforelse
                     </div>
@@ -184,7 +220,7 @@
                 </div>
 
                 <!-- KANAN: Detail Submission Terpilih -->
-                <div class="lg:col-span-2">
+                <div class="lg:col-span-2 min-w-0">
                     @if($selectedSubmission)
                         <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 lg:p-8">
                             
@@ -219,12 +255,14 @@
                                         <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
                                     </div>
                                     <span class="text-xs font-mono-code text-gray-400">solution.py</span>
-                                    <button class="text-xs font-mono-code text-gray-500 flex items-center gap-2 hover:text-white transition">
-                                        Python 3.11 <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                    <button type="button" data-copy-target="submission-source-code" aria-label="Salin kode submission"
+                                            class="text-xs font-mono-code text-gray-500 flex items-center gap-2 hover:text-white transition">
+                                        Python <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                        <span data-copy-feedback aria-live="polite"></span>
                                     </button>
                                 </div>
                                 <div class="p-6 text-sm font-mono-code overflow-x-auto leading-relaxed">
-                                    <pre><code class="text-gray-300">{{ $selectedSubmission->source_code }}</code></pre>
+                                    <pre><code id="submission-source-code" class="text-gray-300">{{ $selectedSubmission->source_code }}</code></pre>
                                 </div>
                             </div>
 
@@ -251,7 +289,7 @@
                                                 Test Case {{ $index + 1 }}: {{ $isPassed ? 'Input Sesuai Ekspektasi' : 'Output Tidak Cocok' }}
                                             </span>
                                             <span class="text-xs font-bold px-2.5 py-1 rounded-lg {{ $isPassed ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50' }}">
-                                                {{ $isPassed ? 'Lolos' : 'Gagal' }} • {{ $result->execution_time_ms ?? '12' }}ms
+                                                {{ $isPassed ? 'Lolos' : 'Gagal' }} • {{ $result->execution_time_ms !== null ? $result->execution_time_ms.'ms' : '—' }}
                                             </span>
                                         </div>
 
@@ -277,17 +315,26 @@
                                     <i data-lucide="lightbulb" class="w-5 h-5"></i>
                                 </div>
                                 <div>
-                                    <h4 class="text-sm font-bold text-gray-900 mb-2">Umpan Balik Cepat</h4>
-                                    <p class="text-sm text-gray-600 leading-relaxed">Penggunaan operator modulus <span class="bg-white border border-gray-200 px-1.5 py-0.5 rounded text-gray-800 font-mono-code text-xs shadow-sm">% 2</span> tepat dan efisien dalam membagi ruang bilangan genap/ganjil.</p>
+                                    <h4 class="text-sm font-bold text-gray-900 mb-2">Ringkasan Hasil</h4>
+                                    <p class="text-sm text-gray-600 leading-relaxed">
+                                        @if ($selectedSubmission->score == 100)
+                                            Semua test case berhasil. Kamu dapat melanjutkan ke latihan lain atau meninjau solusi ini.
+                                        @else
+                                            {{ $selectedSubmission->passed_tests }} dari {{ $selectedSubmission->total_tests }} test case berhasil. Tinjau hasil evaluasi di atas, perbaiki kode, lalu jalankan kembali test case.
+                                        @endif
+                                    </p>
                                 </div>
                             </div>
 
                             <!-- Action Footer -->
                             <div class="flex flex-col sm:flex-row justify-between items-center border-t border-gray-100 pt-8 gap-4">
-                                <span class="text-sm text-gray-500">Poin XP Modul: <span class="font-extrabold text-brand-600 bg-emerald-50 px-2.5 py-1 rounded-lg ml-1">+25 XP</span></span>
-                                <button class="group w-full sm:w-auto bg-yellow-400 text-gray-900 px-6 py-3 rounded-xl text-sm font-bold hover:bg-yellow-300 hover:shadow-md transition flex items-center justify-center gap-2">
-                                    Lanjut ke Latihan Berikutnya <i data-lucide="arrow-right" class="w-4 h-4 transition group-hover:translate-x-1"></i>
-                                </button>
+                                <span class="text-sm text-gray-500">
+                                    Skor submission:
+                                    <span class="font-extrabold text-brand-600 bg-emerald-50 px-2.5 py-1 rounded-lg ml-1">{{ $selectedSubmission->score ?? 0 }}/100</span>
+                                </span>
+                                <a href="{{ route('latihan.index') }}" class="group w-full sm:w-auto bg-yellow-400 text-gray-900 px-6 py-3 rounded-xl text-sm font-bold hover:bg-yellow-300 hover:shadow-md transition flex items-center justify-center gap-2">
+                                    Lihat Latihan Lainnya <i data-lucide="arrow-right" class="w-4 h-4 transition group-hover:translate-x-1"></i>
+                                </a>
                             </div>
                         </div>
                     @else
@@ -295,8 +342,17 @@
                             <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-5 text-gray-300">
                                 <i data-lucide="mouse-pointer-click" class="w-10 h-10"></i>
                             </div>
-                            <h3 class="text-xl font-bold text-gray-900 mb-2">Belum Ada yang Dipilih</h3>
-                            <p class="text-sm text-gray-500 max-w-sm leading-relaxed">Pilih salah satu riwayat submission di panel sebelah kiri untuk melihat detail eksekusi kode dan hasil test case.</p>
+                            @if ($totalSubmissions > 0)
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Tidak Ada Submission yang Cocok</h3>
+                                <p class="text-sm text-gray-500 max-w-sm leading-relaxed">
+                                    Coba ubah pencarian atau filter.
+                                    <a href="{{ route('submissions.history') }}" class="font-semibold text-emerald-700 underline">Hapus filter</a>
+                                </p>
+                            @else
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Belum Ada Riwayat Submission</h3>
+                                <p class="text-sm text-gray-500 max-w-sm leading-relaxed">Submission latihan yang sudah dinilai akan muncul di halaman ini.</p>
+                                <a href="{{ route('latihan.index') }}" class="mt-4 font-semibold text-emerald-700 underline">Lihat latihan</a>
+                            @endif
                         </div>
                     @endif
                 </div>
@@ -304,4 +360,25 @@
         </div>
     </section>
 
+    @push('scripts')
+        <script>
+            document.querySelectorAll('[data-copy-target]').forEach((button) => {
+                button.addEventListener('click', async () => {
+                    const source = document.getElementById(button.dataset.copyTarget);
+                    const feedback = button.querySelector('[data-copy-feedback]');
+
+                    try {
+                        if (!source || !navigator.clipboard) {
+                            throw new Error('Clipboard tidak tersedia.');
+                        }
+
+                        await navigator.clipboard.writeText(source.textContent ?? '');
+                        feedback.textContent = 'Tersalin';
+                    } catch {
+                        feedback.textContent = 'Gagal menyalin';
+                    }
+                });
+            });
+        </script>
+    @endpush
 </x-layouts.app>

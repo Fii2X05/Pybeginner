@@ -9,15 +9,15 @@ use Illuminate\Support\Facades\DB;
 class ExerciseController extends Controller
 {
     public const LEVELS = [
-        'easy'   => ['label' => 'Pemula',   'desc' => 'Input, output, dan percabangan dasar.', 'badge' => 'bg-emerald-100 text-emerald-700'],
+        'easy' => ['label' => 'Pemula',   'desc' => 'Input, output, dan percabangan dasar.', 'badge' => 'bg-emerald-100 text-emerald-700'],
         'medium' => ['label' => 'Menengah', 'desc' => 'Perulangan, string, dan perhitungan.',   'badge' => 'bg-amber-100 text-amber-700'],
-        'hard'   => ['label' => 'Sulit',    'desc' => 'Logika algoritma dasar.',                'badge' => 'bg-rose-100 text-rose-700'],
+        'hard' => ['label' => 'Sulit',    'desc' => 'Logika algoritma dasar.',                'badge' => 'bg-rose-100 text-rose-700'],
     ];
 
     public function index(Request $request)
     {
         $level = $request->query('level');
-        if (!isset(self::LEVELS[$level])) {
+        if (! isset(self::LEVELS[$level])) {
             $level = null;
         }
 
@@ -31,9 +31,9 @@ class ExerciseController extends Controller
             : collect();
 
         return view('latihan', [
-            'levels'    => self::LEVELS,
-            'counts'    => $counts,
-            'level'     => $level,
+            'levels' => self::LEVELS,
+            'counts' => $counts,
+            'level' => $level,
             'exercises' => $exercises,
         ]);
     }
@@ -41,14 +41,14 @@ class ExerciseController extends Controller
     public function show(string $slug)
     {
         $exercise = Exercise::where('slug', $slug)->where('is_published', true)->firstOrFail();
-        $samples  = $exercise->publicTestCases()->get();
-        $lesson   = DB::table('lessons')->where('id', $exercise->lesson_id)->first();
+        $samples = $exercise->publicTestCases()->get();
+        $lesson = DB::table('lessons')->where('id', $exercise->lesson_id)->first();
 
         return view('playground', [
             'exercise' => $exercise,
-            'samples'  => $samples,
-            'lesson'   => $lesson,
-            'levels'   => self::LEVELS,
+            'samples' => $samples,
+            'lesson' => $lesson,
+            'levels' => self::LEVELS,
         ]);
     }
 }

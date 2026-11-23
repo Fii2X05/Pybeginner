@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -16,18 +17,15 @@ class LatihanSeeder extends Seeder
             return;
         }
 
-        if (! DB::table('users')->where('id', 1)->exists()) {
-            DB::table('users')->insert([
-                'id' => 1,
+        User::firstOrCreate(
+            ['email' => 'learner@pybeginner.test'],
+            [
                 'name' => 'Sukma Ananda',
-                'email' => 'learner@pybeginner.test',
                 'password' => Hash::make('password'),
                 'role' => 'learner',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]);
-            DB::statement("SELECT setval(pg_get_serial_sequence('users','id'), (SELECT MAX(id) FROM users))");
-        }
+                'email_verified_at' => $now,
+            ],
+        );
 
         $course = DB::table('courses')->where('slug', 'python-dasar')->first();
         if (! $course) {
@@ -88,12 +86,12 @@ class LatihanSeeder extends Seeder
         ];
 
         $lessonIds = [];
-        $order = 1;
+        $order = 6;
         foreach ($lessons as $level => $l) {
             $existingLesson = DB::table('lessons')->where('module_id', $moduleId)->where('slug', $l['slug'])->first();
             $lessonIds[$level] = $existingLesson ? $existingLesson->id : DB::table('lessons')->insertGetId([
                 'module_id' => $moduleId, 'title' => $l['title'], 'slug' => $l['slug'],
-                'content' => $l['content'], 'sort_order' => $order++, 'is_published' => true,
+                'content' => $l['content'], 'sort_order' => $order++, 'is_published' => false,
                 'created_at' => $now, 'updated_at' => $now,
             ]);
         }

@@ -1,7 +1,7 @@
 export const USER = {
-  name: 'Budi Santoso',
-  email: 'budi@example.com',
-  password: 'Password123!',
+  name: 'Sukma Ananda',
+  email: 'learner@pybeginner.test',
+  password: 'password',
 };
 
 export async function login(page, user = USER) {

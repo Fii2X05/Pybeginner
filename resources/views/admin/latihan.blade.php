@@ -2,38 +2,83 @@
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 tracking-wider uppercase mb-1">
-                <span>BANK SOAL</span>
+                <span>MANAJEMEN BANK SOAL</span>
                 <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
             </div>
             <h1 class="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
-                Latihan &amp; Soal
+                Latihan &amp; Bank Soal Coding
             </h1>
-            <p class="text-sm text-slate-500 mt-1">Daftar soal coding interaktif yang dikerjakan oleh siswa pada platform.</p>
+            <p class="text-sm text-slate-500 mt-1">Kelola latihan interaktif, slug navigasi, limit memori runtime Judge0, dan urutan soal.</p>
         </div>
         <div class="flex items-center gap-2">
-            <span class="px-3.5 py-1.5 rounded-xl bg-emerald-100/70 text-emerald-800 text-xs font-bold whitespace-nowrap">
+            <span class="rounded-xl bg-emerald-100/70 px-3.5 py-2 text-xs font-bold text-emerald-800">
                 Total {{ $exercises->count() }} Latihan
             </span>
-            <a href="{{ route('admin.latihan.create') }}"
-               class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-4 py-2 rounded-xl transition whitespace-nowrap">
-                <i data-lucide="plus" class="w-4 h-4"></i> Tambah Latihan
+            <a href="{{ route('admin.latihan.create') }}" class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-emerald-700 shadow-2xs">
+                <i data-lucide="plus" class="h-4 w-4"></i>
+                <span>Buat Latihan</span>
+            </a>
+            <a href="{{ route('latihan.index') }}" target="_blank"
+               class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition shadow-2xs">
+                <span>Buka di Web Siswa</span>
+                <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-400"></i>
             </a>
         </div>
     </div>
 
-    @if (session('success'))
-        <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-sm font-medium" style="padding: 0.75rem 1rem;">
-            {{ session('success') }}
+    <!-- Banner Edukasi: Slug, Navigasi, & Memori Tujuan -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <!-- Info Slug & Navigasi -->
+        <div class="p-4 rounded-2xl bg-blue-50/70 border border-blue-100 flex items-start gap-3">
+            <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 mt-0.5">
+                <i data-lucide="link" class="w-4 h-4"></i>
+            </div>
+            <div>
+                <h4 class="text-xs font-bold text-blue-900">Pengaruh Slug pada Navigasi</h4>
+                <p class="text-xs text-blue-800/80 mt-0.5 leading-relaxed">
+                    Siswa mengakses soal melalui rute <code class="bg-blue-100/80 px-1 py-0.5 rounded font-mono text-[11px]">/latihan/{slug}</code>. Jika terdapat dua soal dengan <strong>slug yang sama</strong>, sistem hanya akan membuka soal yang pertama ditemukan, sehingga soal kedua <strong>tidak akan bisa diakses</strong>. Pastikan setiap slug unik!
+                </p>
+            </div>
+        </div>
+
+        <!-- Info Memori Tujuan Judge0 -->
+        <div class="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100 flex items-start gap-3">
+            <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+                <i data-lucide="cpu" class="w-4 h-4"></i>
+            </div>
+            <div>
+                <h4 class="text-xs font-bold text-emerald-900">Memori Tujuan &amp; Batas Waktu</h4>
+                <p class="text-xs text-emerald-800/80 mt-0.5 leading-relaxed">
+                    <strong>Memori Tujuan</strong> adalah batas alokasi RAM sandbox compiler Judge0 (standar 128 MB). Jika kode siswa melampaui memori ini, autograder akan mengembalikan status <em>Memory Limit Exceeded (MLE)</em>. Batas waktu standar adalah 2000 ms - 10000 ms.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Peringatan Jika Ada Slug Duplikat -->
+    @if (!empty($duplicateSlugs))
+        <div class="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 flex items-start gap-3">
+            <div class="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 mt-0.5">
+                <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+            </div>
+            <div>
+                <h4 class="text-xs font-bold text-rose-900">Peringatan: Ditemukan Slug Duplikat!</h4>
+                <p class="text-xs text-rose-800/90 mt-0.5 leading-relaxed">
+                    Slug berikut digunakan lebih dari satu latihan: <code class="bg-rose-200/60 px-1 py-0.5 rounded font-mono font-bold">{{ implode(', ', $duplicateSlugs) }}</code>. Harap ubah salah satu slug melalui tombol <strong>Edit</strong> agar kedua soal dapat dibuka secara normal oleh siswa.
+                </p>
+            </div>
         </div>
     @endif
-    @if (session('error'))
-        <div class="mb-4 rounded-xl border border-rose-200 bg-rose-50 text-rose-800 text-sm font-medium" style="padding: 0.75rem 1rem;">
-            {{ session('error') }}
+
+    @if ($errors->any())
+        <div role="alert" class="mb-5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            @foreach ($errors->all() as $error)<p>{{ $error }}</p>@endforeach
         </div>
     @endif
+
+    <x-admin.flash />
 
     <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-
         {{-- Bilah cari & filter --}}
         <div class="flex flex-col md:flex-row md:items-center gap-3 border-b border-slate-100" style="padding: 1rem 1.5rem;">
             <div class="relative flex-1" style="min-width: 0;">
@@ -86,7 +131,9 @@
                             $visibleTotal = $visibleTestCaseCounts[$exercise->id] ?? 0;
                             $canPublish = $visibleTotal > 0;
                             // Batas efektif saat kode dijalankan (sisi siswa membatasi maks 5 detik dan 250 MB).
-                            $timeLimit = min(5000, max(1000, $exercise->time_limit_ms ?? 2000));
+                            // Bila kosong, otomatis menurut tingkat: Mudah 1000 ms, Sedang 2000 ms, Sulit 3000 ms; memori 128 MB.
+                            $defaultTime = ['mudah' => 1000, 'sedang' => 2000, 'sulit' => 3000][$level];
+                            $timeLimit = min(5000, max(1000, $exercise->time_limit_ms ?? $defaultTime));
                             $memoryLimit = min(250, max(16, $exercise->memory_limit_mb ?? 128));
                             $moduleTitle = $exercise->lesson->module->title ?? 'Umum';
                             $lessonTitle = $exercise->lesson->title ?? '-';
@@ -105,9 +152,9 @@
                                 </span>
                             </td>
 
-                            {{-- Judul --}}
+                            {{-- Judul: tautan ke halaman edit, sama dengan ikon pensil --}}
                             <td class="align-middle" style="padding: 1rem; min-width: 16rem; overflow-wrap: anywhere;">
-                                <div class="font-semibold text-slate-900 leading-snug">{{ $exercise->title }}</div>
+                                <a href="{{ route('admin.latihan.edit', $exercise) }}" class="font-semibold text-slate-900 leading-snug hover:text-emerald-700 hover:underline">{{ $exercise->title }}</a>
                                 <div class="mt-0.5 text-xs text-slate-500">
                                     {{ $moduleTitle }}
                                     <span class="text-slate-300" style="margin: 0 0.35rem;">&rsaquo;</span>
@@ -137,7 +184,7 @@
                                    class="inline-flex items-center justify-center gap-1.5 rounded-lg border text-xs font-semibold transition {{ $canPublish ? 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200' : 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200' }}"
                                    style="height: 2.25rem; padding: 0 0.75rem; white-space: nowrap;">
                                     <i data-lucide="{{ $canPublish ? 'list-checks' : 'alert-triangle' }}" class="w-3.5 h-3.5"></i>
-                                    Test case ({{ $testCaseTotal }})
+                                    Test Case ({{ $testCaseTotal }})
                                 </a>
                             </td>
 

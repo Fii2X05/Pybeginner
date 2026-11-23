@@ -53,9 +53,18 @@ test.describe('Autentikasi', () => {
     await expect(page.getByText(/fitur google login belum dikonfigurasi/i)).toBeVisible();
   });
 
-  test('TC-AUTH-007: logout', async ({ page }) => {
+  test('TC-AUTH-007: logout harus dikonfirmasi dan dapat dibatalkan', async ({ page }) => {
     await login(page);
     await page.getByRole('button', { name: 'Keluar', exact: true }).click();
+
+    const confirmation = page.getByRole('dialog', { name: 'Keluar dari akun?' });
+    await expect(confirmation).toBeVisible();
+    await confirmation.getByRole('button', { name: 'Batal' }).click();
+    await expect(confirmation).not.toBeVisible();
+    await expect(page).not.toHaveURL(/\/login/);
+
+    await page.getByRole('button', { name: 'Keluar', exact: true }).click();
+    await confirmation.getByRole('button', { name: 'Ya, Keluar' }).click();
     await page.goto('/riwayat-submission');
     await expect(page).toHaveURL(/\/login/);
   });

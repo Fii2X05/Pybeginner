@@ -26,7 +26,7 @@
             </a>
             <button type="button" onclick="document.getElementById('modal-add').classList.remove('hidden')"
                     class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-4 py-2.5 rounded-xl transition">
-                <i data-lucide="plus" class="w-4 h-4"></i> Tambah Bagian
+                <i data-lucide="plus" class="w-4 h-4"></i> Tambah Pelajaran
             </button>
         </div>
     </div>
@@ -89,7 +89,7 @@
                 @empty
                     <tr>
                         <td colspan="4" class="px-5 py-16 text-center text-slate-400 text-sm">
-                            Belum ada bagian materi. Klik "Tambah Bagian" untuk menambahkan materi pertama.
+                            Belum ada bagian materi. Klik "Tambah Pelajaran" untuk menambahkan materi pertama.
                         </td>
                     </tr>
                 @endforelse
@@ -101,7 +101,7 @@
     <div id="modal-add" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 hidden">
         <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
             <div class="flex items-center justify-between mb-5">
-                <h3 class="font-bold text-slate-900">Tambah Bagian Materi</h3>
+                <h3 class="font-bold text-slate-900">Tambah Pelajaran</h3>
                 <button onclick="document.getElementById('modal-add').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>

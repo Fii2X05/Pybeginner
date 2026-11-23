@@ -21,29 +21,30 @@
         }
     </style>
 </head>
-<body class="bg-white text-gray-900 antialiased h-screen flex flex-col overflow-hidden">
+<body class="bg-white text-gray-900 antialiased min-h-screen flex flex-col">
 
     {{-- ===================== NAVBAR AUTH ===================== --}}
     <header class="border-b border-gray-100 flex-shrink-0 bg-white">
-        <nav class="max-w-7xl mx-auto px-6 lg:px-10 h-20 flex items-center justify-between">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 h-16 sm:h-20 flex items-center justify-between">
             {{-- Logo + Kembali ke Beranda --}}
-            <div class="flex items-center gap-4 sm:gap-5">
+            <div class="flex items-center gap-3 sm:gap-5">
                 <a href="{{ url('/') }}" class="flex items-center">
-                    <img src="{{ asset('images/logo-pybeginner.png') }}" alt="PyBeginner" class="h-9 w-auto">
+                    <img src="{{ asset('images/logo-pybeginner.png') }}" alt="PyBeginner" class="h-8 sm:h-9 w-auto">
                 </a>
-                <span class="w-px h-6 bg-gray-200"></span>
-                <a href="{{ route('beranda') }}" class="flex items-center gap-2 text-sm font-normal text-gray-600 hover:text-gray-900 transition-colors">
+                <span class="w-px h-5 sm:h-6 bg-gray-200"></span>
+                <a href="{{ route('beranda') }}" class="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-normal text-gray-600 hover:text-gray-900 transition-colors">
                     <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    Kembali ke Beranda
+                    <span class="hidden xs:inline">Kembali ke Beranda</span>
+                    <span class="xs:hidden">Beranda</span>
                 </a>
             </div>
 
             {{-- Menu Kanan: Masuk & Daftar --}}
-            <div class="flex items-center gap-6 sm:gap-8">
-                <a href="{{ route('login') }}" class="text-sm font-bold text-emerald-700">
+            <div class="flex items-center gap-4 sm:gap-8">
+                <a href="{{ route('login') }}" class="text-xs sm:text-sm font-bold text-emerald-700">
                     Masuk
                 </a>
-                <a href="{{ route('register') }}" class="text-sm font-medium text-gray-700 hover:text-emerald-700 transition-colors">
+                <a href="{{ route('register') }}" class="text-xs sm:text-sm font-medium text-gray-700 hover:text-emerald-700 transition-colors">
                     Daftar
                 </a>
             </div>
@@ -51,7 +52,7 @@
     </header>
 
     {{-- ===================== KONTEN LOGIN ===================== --}}
-    <section class="relative flex-1 flex items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-50/80 via-slate-50/40 to-blue-50/50 px-4 py-3">
+    <section class="relative flex-1 flex items-center justify-center bg-gradient-to-br from-emerald-50/80 via-slate-50/40 to-blue-50/50 px-4 py-8 sm:py-12 overflow-y-auto">
 
         {{-- Dekorasi latar --}}
         <div class="hidden lg:block absolute top-10 left-10 w-72 h-72 bg-emerald-200/30 rounded-full blur-3xl pointer-events-none"></div>
@@ -68,10 +69,10 @@
         {{-- Maskot di kiri bawah --}}
         <img src="{{ asset('images/mascot-python.png') }}"
              alt="Maskot PyBeginner"
-             class="hidden lg:block absolute bottom-0 left-6 xl:left-14 z-0 w-[22rem] xl:w-[26rem] max-h-[72vh] object-contain pointer-events-none select-none">
+             class="hidden 2xl:block absolute bottom-0 left-6 xl:left-14 z-0 w-[22rem] xl:w-[26rem] max-h-[72vh] object-contain pointer-events-none select-none">
 
         {{-- Kartu Login di tengah --}}
-        <div class="relative z-10 w-full max-w-[400px] bg-white rounded-3xl p-6 sm:p-7 shadow-xl shadow-emerald-950/5 border border-gray-100/90">
+        <div class="relative z-10 w-full max-w-[420px] bg-white rounded-3xl p-6 sm:p-7 shadow-xl shadow-emerald-950/5 border border-gray-100/90 my-auto">
 
             {{-- Logo brand --}}
             <div class="flex items-center gap-2 mb-1.5">
@@ -166,9 +167,12 @@
                 </div>
 
                 {{-- Remember me --}}
-                <div class="flex items-center gap-2">
-                    <input id="remember" type="checkbox" name="remember" class="w-3.5 h-3.5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-400">
-                    <label for="remember" class="text-xs text-gray-600">Ingat saya</label>
+                <div class="flex items-start gap-2">
+                    <input id="remember" type="checkbox" name="remember" @checked(old('remember')) class="mt-0.5 w-3.5 h-3.5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-400">
+                    <div>
+                        <label for="remember" class="text-xs text-gray-600">Ingat saya di perangkat ini</label>
+                        <p class="text-[11px] text-gray-500">Tetap masuk sampai kamu keluar dari akun.</p>
+                    </div>
                 </div>
 
                 {{-- Captcha Error from Server --}}
@@ -371,6 +375,7 @@
 
             try {
                 const response = await fetch('{{ route("captcha.puzzle.challenge") }}', {
+                    credentials: 'same-origin',
                     headers: { 'Accept': 'application/json' }
                 });
                 if (!response.ok) throw new Error('Gagal memuat tantangan');
@@ -555,6 +560,7 @@
             try {
                 const response = await fetch('{{ route("captcha.puzzle.verify") }}', {
                     method: 'POST',
+                    credentials: 'same-origin',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': csrfToken,
@@ -574,16 +580,23 @@
                     // Sukses verifikasi!
                     isVerified = true;
                     captchaTokenInput.value = result.verification_token;
-                    showFeedback('✓ Verifikasi Berhasil!', 'success');
+                    showFeedback('✓ Verifikasi Berhasil! Memproses...', 'success');
 
                     setTimeout(() => {
                         closeModal();
                         if (pendingAction === 'google' && btnGoogleLogin) {
-                            window.location.href = btnGoogleLogin.href;
+                            const googleLoginUrl = new URL(btnGoogleLogin.href);
+                            googleLoginUrl.searchParams.set('remember', document.getElementById('remember').checked ? '1' : '0');
+                            window.location.href = googleLoginUrl.toString();
                         } else if (pendingAction === 'email' && loginForm) {
+                            if (btnLoginSubmit) {
+                                btnLoginSubmit.disabled = true;
+                                btnLoginSubmit.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Sedang masuk...';
+                                lucide.createIcons();
+                            }
                             loginForm.submit();
                         }
-                    }, 650);
+                    }, 400);
                 } else {
                     // Gagal: goyang canvas dan muat ulang tantangan
                     showFeedback(result.message || 'Posisi belum pas, coba lagi.', 'error');

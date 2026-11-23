@@ -7,3 +7,41 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* ==========================================================================
+   Indikator Garis Tipis Navbar (Minimalis, Ramping & Halus)
+   ========================================================================== */
+
+#nav-indicator {
+    position: absolute;
+    bottom: 0;
+    height: 2px;
+    background-color: #059669;
+    border-radius: 9999px;
+    pointer-events: none;
+    transition: left 0.3s ease, width 0.3s ease, opacity 0.2s ease;
+    will-change: left, width;
+}
+
+/* ==========================================================================
+   Animasi Scroll Reveal Halus (Smooth & Tidak Berlebihan)
+   ========================================================================== */
+
+.reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    will-change: opacity, transform;
+}
+
+.reveal.is-revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.05s; }
+.reveal-delay-2 { transition-delay: 0.1s; }
+.reveal-delay-3 { transition-delay: 0.15s; }
+.reveal-delay-4 { transition-delay: 0.2s; }
+.reveal-delay-5 { transition-delay: 0.25s; }
+.reveal-delay-6 { transition-delay: 0.3s; }
