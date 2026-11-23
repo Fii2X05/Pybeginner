@@ -163,4 +163,64 @@ class AuthTest extends TestCase
             'name' => 'Google User',
         ]);
     }
+
+    public function test_google_registered_learner_can_login_with_email_and_password_and_password_is_automatically_saved(): void
+    {
+        $learner = User::factory()->create([
+            'email' => 'learnergoogle@example.com',
+            'google_id' => 'google-learner-999',
+            'password' => null,
+            'role' => 'learner',
+        ]);
+
+        $this->assertNull($learner->password);
+
+        $response = $this->post('/login', [
+            'email' => 'learnergoogle@example.com',
+            'password' => 'mygooglepass123',
+        ]);
+
+        $response->assertRedirect(route('beranda'));
+        $this->assertAuthenticatedAs($learner);
+
+        $learner->refresh();
+        $this->assertNotNull($learner->password);
+        $this->assertTrue(Hash::check('mygooglepass123', $learner->password));
+    }
+
+    public function test_google_registered_learner_can_login_again_with_saved_password(): void
+    {
+        $learner = User::factory()->create([
+            'email' => 'learnergoogle@example.com',
+            'google_id' => 'google-learner-999',
+            'password' => Hash::make('mygooglepass123'),
+            'role' => 'learner',
+        ]);
+
+        $response = $this->post('/login', [
+            'email' => 'learnergoogle@example.com',
+            'password' => 'mygooglepass123',
+        ]);
+
+        $response->assertRedirect(route('beranda'));
+        $this->assertAuthenticatedAs($learner);
+    }
+
+    public function test_google_registered_learner_cannot_login_with_wrong_password_after_saving(): void
+    {
+        User::factory()->create([
+            'email' => 'learnergoogle@example.com',
+            'google_id' => 'google-learner-999',
+            'password' => Hash::make('mygooglepass123'),
+            'role' => 'learner',
+        ]);
+
+        $response = $this->post('/login', [
+            'email' => 'learnergoogle@example.com',
+            'password' => 'wrongpassword',
+        ]);
+
+        $response->assertSessionHasErrors(['email']);
+        $this->assertGuest();
+    }
 }
