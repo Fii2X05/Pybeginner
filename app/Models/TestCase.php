@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class TestCase extends Model
 {
     use HasFactory;
+
     protected $table = 'test_cases';
 
     protected $fillable = [

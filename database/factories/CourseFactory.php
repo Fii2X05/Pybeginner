@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 class CourseFactory extends Factory
 {
@@ -11,12 +12,12 @@ class CourseFactory extends Factory
         $title = fake()->unique()->sentence(3);
 
         return [
-            'title'        => $title,
-            'slug'         => \Illuminate\Support\Str::slug($title),
-            'description'  => fake()->sentence(),
-            'level'        => 'beginner',
+            'title' => $title,
+            'slug' => Str::slug($title),
+            'description' => fake()->sentence(),
+            'level' => 'beginner',
             'is_published' => true,
-            'sort_order'   => 0,
+            'sort_order' => 0,
         ];
     }
 }

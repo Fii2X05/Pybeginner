@@ -243,4 +243,3 @@ class UserAdminSettingsIntegrationTest extends TestCase
         $this->assertTrue(Hash::check('PasswordLama123!', $admin->password));
     }
 }
-

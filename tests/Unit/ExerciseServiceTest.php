@@ -2,9 +2,11 @@
 
 namespace Tests\Unit;
 
+use App\Models\Exercise;
+use App\Models\Submission;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use App\Models\{User, Exercise, Submission};
 
 class ExerciseServiceTest extends TestCase
 {

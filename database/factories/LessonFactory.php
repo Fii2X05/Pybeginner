@@ -13,11 +13,11 @@ class LessonFactory extends Factory
         $title = fake()->unique()->sentence(3);
 
         return [
-            'module_id'    => Module::factory(),
-            'title'        => $title,
-            'slug'         => Str::slug($title),
-            'content'      => fake()->paragraph(),
-            'sort_order'   => 0,
+            'module_id' => Module::factory(),
+            'title' => $title,
+            'slug' => Str::slug($title),
+            'content' => fake()->paragraph(),
+            'sort_order' => 0,
             'is_published' => true,
         ];
     }

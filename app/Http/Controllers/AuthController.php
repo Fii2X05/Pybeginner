@@ -92,6 +92,26 @@ class AuthController extends Controller
             return redirect()->intended(route('beranda'))->with('status', 'Berhasil masuk ke PyBeginner!');
         }
 
+        // Jika autentikasi standar gagal, periksa apakah akun terdaftar via Google dan belum memiliki kata sandi lokal
+        $user = User::where('email', $credentials['email'])->first();
+
+        if ($user !== null && $user->google_id !== null && is_null($user->password)) {
+            // Otomatis simpan kata sandi yang dimasukkan ke akun learner
+            $user->update([
+                'password' => Hash::make($credentials['password']),
+            ]);
+
+            Auth::login($user, $request->boolean('remember'));
+            $request->session()->regenerate();
+            $user->forceFill(['last_login_at' => now()])->save();
+
+            if ($user->role === 'admin') {
+                return redirect()->intended(route('admin.dashboard'))->with('status', 'Selamat datang di Panel Admin PyBeginner!');
+            }
+
+            return redirect()->intended(route('beranda'))->with('status', 'Berhasil masuk ke PyBeginner!');
+        }
+
         return back()->withErrors([
             'email' => 'Email atau kata sandi yang Anda masukkan salah.',
         ])->onlyInput('email');

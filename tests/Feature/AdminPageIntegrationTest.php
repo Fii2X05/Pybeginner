@@ -142,4 +142,3 @@ class AdminPageIntegrationTest extends TestCase
         $response->assertSee('data-confirm-logout', false);
     }
 }
-

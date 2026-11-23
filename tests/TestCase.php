@@ -2,6 +2,9 @@
 
 namespace Tests;
 
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -11,9 +14,9 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         foreach ([
-            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
-            \Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class,
-            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+            ValidateCsrfToken::class,
+            PreventRequestForgery::class,
+            VerifyCsrfToken::class,
         ] as $middleware) {
             if (class_exists($middleware)) {
                 $this->withoutMiddleware($middleware);

@@ -474,6 +474,7 @@ class SubmissionController extends Controller
 
         $this->adminNotifications->notifyJudge0Failure($statusCode);
     }
+
     private function executionError(array $execution): ?string
     {
         $details = trim(implode("\n", array_filter([

@@ -13,16 +13,16 @@ class ExerciseFactory extends Factory
         $title = fake()->unique()->sentence(3);
 
         return [
-            'lesson_id'    => Lesson::factory(),
-            'title'        => $title,
-            'slug'         => Str::slug($title),
-            'description'  => fake()->paragraph(),
+            'lesson_id' => Lesson::factory(),
+            'title' => $title,
+            'slug' => Str::slug($title),
+            'description' => fake()->paragraph(),
             'instructions' => fake()->sentence(),
             'starter_code' => 'def solve():',
-            'difficulty'   => 'easy',
-            'time_limit_ms'   => 10000,
+            'difficulty' => 'easy',
+            'time_limit_ms' => 10000,
             'memory_limit_mb' => 128,
-            'sort_order'   => 0,
+            'sort_order' => 0,
             'is_published' => true,
         ];
     }

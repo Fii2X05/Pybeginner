@@ -2,7 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\{Exercise, TestCase as TestCaseModel};
+use App\Models\Exercise;
+use App\Models\TestCase as TestCaseModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
