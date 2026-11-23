@@ -24,10 +24,14 @@
         <x-navbar-learner :active="$active" />
     @endif
 
+    @php
+        $isLandingFixed = $navbar === 'landing' && !auth()->check();
+    @endphp
+
     @if ($flush)
-        <main class="flex-1 w-full min-w-0 {{ $navbar === 'landing' ? 'pt-16 sm:pt-20' : '' }}">{{ $slot }}</main>
+        <main class="flex-1 w-full min-w-0 {{ $isLandingFixed ? 'pt-16 sm:pt-20' : '' }}">{{ $slot }}</main>
     @else
-        <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10 min-w-0 {{ $navbar === 'landing' ? 'pt-20 sm:pt-24' : '' }}">{{ $slot }}</main>
+        <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10 min-w-0 {{ $isLandingFixed ? 'pt-20 sm:pt-24' : '' }}">{{ $slot }}</main>
     @endif
 
     <x-footer />
