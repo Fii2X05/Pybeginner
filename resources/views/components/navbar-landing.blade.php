@@ -17,7 +17,7 @@
         ];
 @endphp
 
-<header id="main-landing-navbar" class="fixed top-0 left-0 right-0 z-50 border-b border-emerald-100/90 bg-white/95 backdrop-blur-md shadow-xs transition-all duration-300">
+<header id="main-landing-navbar" class="{{ $isLoggedIn ? 'relative' : 'fixed top-0 left-0 right-0' }} z-50 border-b border-emerald-100/90 bg-white/95 backdrop-blur-md shadow-xs transition-all duration-300">
     <nav class="mx-auto flex h-16 sm:h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:px-10">
 
         {{-- Logo --}}
