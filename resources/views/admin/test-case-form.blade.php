@@ -11,6 +11,7 @@
 @endphp
 
 <x-layouts.admin :title="$heading" active="latihan">
+    <div class="w-full max-w-5xl">
     <x-admin.breadcrumb :items="[
         ['Latihan & Soal', route('admin.latihan')],
         [$exercise->title, route('admin.latihan.test-cases', $exercise)],
@@ -28,7 +29,7 @@
 
     <x-admin.flash />
 
-    <form action="{{ $action }}" method="POST" class="bg-white rounded-2xl border border-slate-200 p-6 space-y-5 max-w-3xl">
+    <form action="{{ $action }}" method="POST" class="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
         @csrf
         @if ($method !== 'POST')
             @method($method)
@@ -113,6 +114,7 @@
         </div>
     </form>
 
+    </div>
     @push('scripts')
         <script>
             (function () {

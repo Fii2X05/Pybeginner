@@ -15,6 +15,7 @@
 @endphp
 
 <x-layouts.admin :title="'Test Case - '.$exercise->title" active="latihan">
+    <div class="w-full max-w-5xl">
     <x-admin.breadcrumb :items="[
         ['Latihan & Soal', route('admin.latihan')],
         [$exercise->title, route('admin.latihan.edit', $exercise)],
@@ -177,5 +178,6 @@
                 </tbody>
             </table>
         </div>
+    </div>
     </div>
 </x-layouts.admin>
