@@ -25,11 +25,11 @@
 
     {{-- ===================== NAVBAR AUTH ===================== --}}
     <header class="border-b border-gray-100 flex-shrink-0 bg-white">
-        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 h-16 sm:h-20 flex items-center justify-between">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 h-14 sm:h-16 flex items-center justify-between">
             {{-- Logo + Kembali ke Beranda --}}
             <div class="flex items-center gap-3 sm:gap-5">
                 <a href="{{ url('/') }}" class="flex items-center">
-                    <img src="{{ asset('images/logo-pybeginner.png') }}" alt="PyBeginner" class="h-8 sm:h-9 w-auto">
+                    <img src="{{ asset('images/logo-pybeginner.png') }}" alt="PyBeginner" class="h-7 sm:h-8 w-auto">
                 </a>
                 <span class="w-px h-5 sm:h-6 bg-gray-200"></span>
                 <a href="{{ route('beranda') }}" class="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-normal text-gray-600 hover:text-gray-900 transition-colors">
@@ -52,7 +52,7 @@
     </header>
 
     {{-- ===================== KONTEN LOGIN ===================== --}}
-    <section class="relative flex-1 flex items-center justify-center bg-gradient-to-br from-emerald-50/80 via-slate-50/40 to-blue-50/50 px-4 py-8 sm:py-12 overflow-y-auto">
+    <section class="relative flex-1 flex items-center justify-center bg-gradient-to-br from-emerald-50/80 via-slate-50/40 to-blue-50/50 px-3 py-2 sm:py-3 overflow-y-auto lg:overflow-hidden">
 
         {{-- Dekorasi latar --}}
         <div class="hidden lg:block absolute top-10 left-10 w-72 h-72 bg-emerald-200/30 rounded-full blur-3xl pointer-events-none"></div>
@@ -69,61 +69,61 @@
         {{-- Maskot di kiri bawah --}}
         <img src="{{ asset('images/mascot-python.png') }}"
              alt="Maskot PyBeginner"
-             class="hidden 2xl:block absolute bottom-0 left-6 xl:left-14 z-0 w-[22rem] xl:w-[26rem] max-h-[72vh] object-contain pointer-events-none select-none">
+             class="hidden 2xl:block absolute bottom-0 left-6 xl:left-14 z-0 w-[20rem] xl:w-[23rem] max-h-[65vh] object-contain pointer-events-none select-none">
 
         {{-- Kartu Login di tengah --}}
-        <div class="relative z-10 w-full max-w-[420px] bg-white rounded-3xl p-6 sm:p-7 shadow-xl shadow-emerald-950/5 border border-gray-100/90 my-auto">
+        <div class="relative z-10 w-full max-w-[390px] bg-white rounded-2xl p-4 sm:p-5 shadow-xl shadow-emerald-950/5 border border-gray-100/90 my-auto">
 
             {{-- Logo brand --}}
-            <div class="flex items-center gap-2 mb-1.5">
-                <img src="{{ asset('images/logo-pybeginner.png') }}" alt="PyBeginner" class="h-7 w-auto">
+            <div class="flex items-center gap-2 mb-1">
+                <img src="{{ asset('images/logo-pybeginner.png') }}" alt="PyBeginner" class="h-6 w-auto">
             </div>
 
-            <h1 class="text-xl font-bold text-gray-900 mb-1">Selamat Datang Kembali</h1>
-            <p class="text-xs text-gray-500 mb-4 leading-relaxed">
+            <h1 class="text-base sm:text-lg font-bold text-gray-900 mb-0.5">Selamat Datang Kembali</h1>
+            <p class="text-[11px] text-gray-500 mb-2.5 leading-tight">
                 Masuk ke akun PyBeginner kamu untuk melanjutkan pembelajaran.
             </p>
 
             {{-- Flash message --}}
             @if (session('status'))
-                <div class="mb-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs px-3 py-2 rounded-xl flex items-start gap-2">
-                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i>
+                <div class="mb-2 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] px-2.5 py-1.5 rounded-lg flex items-start gap-1.5">
+                    <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5"></i>
                     <span>{{ session('status') }}</span>
                 </div>
             @endif
 
             {{-- Google Error --}}
             @error('google_error')
-                <div class="mb-3 bg-red-50 border border-red-200 text-red-700 text-xs px-3 py-2 rounded-xl flex items-start gap-2">
-                    <i data-lucide="alert-circle" class="w-4 h-4 text-red-500 shrink-0 mt-0.5"></i>
+                <div class="mb-2 bg-red-50 border border-red-200 text-red-700 text-[11px] px-2.5 py-1.5 rounded-lg flex items-start gap-1.5">
+                    <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5"></i>
                     <span>{{ $message }}</span>
                 </div>
             @enderror
 
             {{-- Google Login --}}
             <a id="btn-google-login" href="{{ route('auth.google') }}"
-               class="w-full flex items-center justify-center gap-2.5 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-gray-700 font-medium text-xs sm:text-sm py-2.5 sm:py-3 rounded-xl transition-all shadow-sm">
-                <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.52 12.27c0-.85-.07-1.47-.23-2.12H12v3.85h6.59c-.13 1.1-.86 2.76-2.47 3.87l-.02.15 3.59 2.78.25.02c2.28-2.1 3.58-5.2 3.58-8.55z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.07 7.94-2.91l-3.78-2.93c-1.02.7-2.4 1.19-4.16 1.19-3.18 0-5.88-2.1-6.84-4.99l-.14.01-3.73 2.89-.05.13C3.23 21.3 7.26 24 12 24z"/><path fill="#FBBC05" d="M5.16 14.36A7.17 7.17 0 014.76 12c0-.82.14-1.62.39-2.36L5.14 9.5 1.36 6.56l-.12.06A11.98 11.98 0 000 12c0 1.93.46 3.75 1.28 5.38l3.88-3.02z"/><path fill="#EA4335" d="M12 4.75c2.25 0 3.77.97 4.64 1.79l3.39-3.31C17.95 1.19 15.24 0 12 0 7.26 0 3.23 2.7 1.24 6.62l3.91 3.02c.97-2.89 3.67-4.89 6.85-4.89z"/></svg>
-                Masuk dengan Google
+               class="w-full flex items-center justify-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-gray-700 font-medium text-xs py-2 rounded-lg transition-all shadow-xs">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.52 12.27c0-.85-.07-1.47-.23-2.12H12v3.85h6.59c-.13 1.1-.86 2.76-2.47 3.87l-.02.15 3.59 2.78.25.02c2.28-2.1 3.58-5.2 3.58-8.55z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.07 7.94-2.91l-3.78-2.93c-1.02.7-2.4 1.19-4.16 1.19-3.18 0-5.88-2.1-6.84-4.99l-.14.01-3.73 2.89-.05.13C3.23 21.3 7.26 24 12 24z"/><path fill="#FBBC05" d="M5.16 14.36A7.17 7.17 0 014.76 12c0-.82.14-1.62.39-2.36L5.14 9.5 1.36 6.56l-.12.06A11.98 11.98 0 000 12c0 1.93.46 3.75 1.28 5.38l3.88-3.02z"/><path fill="#EA4335" d="M12 4.75c2.25 0 3.77.97 4.64 1.79l3.39-3.31C17.95 1.19 15.24 0 12 0 7.26 0 3.23 2.7 1.24 6.62l3.91 3.02c.97-2.89 3.67-4.89 6.85-4.89z"/></svg>
+                <span>Masuk dengan Google</span>
             </a>
 
             {{-- Divider --}}
-            <div class="flex items-center gap-2.5 my-3.5">
+            <div class="flex items-center gap-2 my-2">
                 <div class="flex-1 h-px bg-gray-200"></div>
-                <span class="text-[11px] text-gray-400 uppercase tracking-wider">Atau masuk dengan email</span>
+                <span class="text-[10px] text-gray-400 uppercase tracking-wider">Atau masuk dengan email</span>
                 <div class="flex-1 h-px bg-gray-200"></div>
             </div>
 
             {{-- Form Login --}}
-            <form id="login-form" method="POST" action="{{ route('login.store') }}" class="space-y-3">
+            <form id="login-form" method="POST" action="{{ route('login.store') }}" class="space-y-2">
                 @csrf
 
                 {{-- Email --}}
                 <div>
-                    <label for="email" class="block text-xs font-medium text-gray-700 mb-1">Alamat Email</label>
+                    <label for="email" class="block text-[11px] font-semibold text-gray-700 mb-0.5">Alamat Email</label>
                     <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                            <i data-lucide="mail" class="w-4 h-4"></i>
+                        <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400">
+                            <i data-lucide="mail" class="w-3.5 h-3.5"></i>
                         </span>
                         <input
                             id="email"
@@ -133,20 +133,20 @@
                             required
                             autocomplete="email"
                             placeholder="nama@email.com"
-                            class="w-full pl-9 pr-3 py-2.5 text-sm border @error('email') border-red-400 bg-red-50 @else border-gray-200 @enderror rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
+                            class="w-full pl-8 pr-3 py-1.5 text-xs border @error('email') border-red-400 bg-red-50 @else border-gray-200 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
                         >
                     </div>
                     @error('email')
-                        <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p>
+                        <p class="text-red-500 text-[10px] mt-0.5">{{ $message }}</p>
                     @enderror
                 </div>
 
                 {{-- Password --}}
                 <div>
-                    <label for="password" class="block text-xs font-medium text-gray-700 mb-1">Kata Sandi</label>
+                    <label for="password" class="block text-[11px] font-semibold text-gray-700 mb-0.5">Kata Sandi</label>
                     <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                            <i data-lucide="lock" class="w-4 h-4"></i>
+                        <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400">
+                            <i data-lucide="lock" class="w-3.5 h-3.5"></i>
                         </span>
                         <input
                             id="password"
@@ -155,30 +155,27 @@
                             required
                             autocomplete="current-password"
                             placeholder="Kata sandi kamu"
-                            class="w-full pl-9 pr-10 py-2.5 text-sm border @error('password') border-red-400 bg-red-50 @else border-gray-200 @enderror rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
+                            class="w-full pl-8 pr-8 py-1.5 text-xs border @error('password') border-red-400 bg-red-50 @else border-gray-200 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
                         >
-                        <button type="button" id="toggle-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                            <i data-lucide="eye" class="w-4 h-4"></i>
+                        <button type="button" id="toggle-password" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
                         </button>
                     </div>
                     @error('password')
-                        <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p>
+                        <p class="text-red-500 text-[10px] mt-0.5">{{ $message }}</p>
                     @enderror
                 </div>
 
                 {{-- Remember me --}}
-                <div class="flex items-start gap-2">
-                    <input id="remember" type="checkbox" name="remember" @checked(old('remember')) class="mt-0.5 w-3.5 h-3.5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-400">
-                    <div>
-                        <label for="remember" class="text-xs text-gray-600">Ingat saya di perangkat ini</label>
-                        <p class="text-[11px] text-gray-500">Tetap masuk sampai kamu keluar dari akun.</p>
-                    </div>
+                <div class="flex items-center gap-1.5 py-0.5">
+                    <input id="remember" type="checkbox" name="remember" @checked(old('remember')) class="w-3.5 h-3.5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-400">
+                    <label for="remember" class="text-[11px] text-gray-600">Ingat saya di perangkat ini</label>
                 </div>
 
                 {{-- Captcha Error from Server --}}
                 @error('captcha')
-                    <div class="bg-red-50 border border-red-200 text-red-700 text-xs px-3 py-2 rounded-xl flex items-start gap-2">
-                        <i data-lucide="alert-circle" class="w-4 h-4 text-red-500 shrink-0 mt-0.5"></i>
+                    <div class="bg-red-50 border border-red-200 text-red-700 text-[11px] px-2.5 py-1.5 rounded-lg flex items-start gap-1.5">
+                        <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5"></i>
                         <span>{{ $message }}</span>
                     </div>
                 @enderror
@@ -190,23 +187,23 @@
                 <button
                     type="submit"
                     id="btn-login-submit"
-                    class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 sm:py-3 rounded-xl text-sm transition-colors shadow-sm shadow-emerald-600/20 flex items-center justify-center gap-2"
+                    class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded-lg text-xs sm:text-sm transition-colors shadow-sm shadow-emerald-600/20 flex items-center justify-center gap-1.5 mt-1"
                 >
-                    <i data-lucide="log-in" class="w-4 h-4"></i>
-                    Masuk Sekarang
+                    <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+                    <span>Masuk Sekarang</span>
                 </button>
             </form>
 
             {{-- Divider --}}
-            <div class="flex items-center gap-2.5 my-3.5">
+            <div class="flex items-center gap-2 my-2">
                 <div class="flex-1 h-px bg-gray-200"></div>
-                <span class="text-[11px] text-gray-400 uppercase tracking-wider">Atau</span>
+                <span class="text-[10px] text-gray-400 uppercase tracking-wider">Atau</span>
                 <div class="flex-1 h-px bg-gray-200"></div>
             </div>
 
             {{-- Tombol Belum punya akun --}}
             <a href="{{ route('register') }}"
-               class="w-full bg-[#275988] hover:bg-[#1f486e] text-white font-medium py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm transition-colors flex items-center justify-center gap-1.5 shadow-md shadow-[#275988]/20">
+               class="w-full bg-[#275988] hover:bg-[#1f486e] text-white font-medium py-1.5 sm:py-2 rounded-lg text-xs transition-colors flex items-center justify-center gap-1 shadow-xs">
                 Belum memiliki akun? <span class="font-bold">Daftar di sini</span>
             </a>
         </div>
