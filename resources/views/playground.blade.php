@@ -563,6 +563,13 @@
                        </div>`;
             }
 
+            if (data.user_stdout && String(data.user_stdout).trim() !== '') {
+                html += `<div class="mt-4">
+                    <p class="mb-1 text-xs font-semibold text-slate-500">Output Program (print)</p>
+                    <pre class="overflow-x-auto whitespace-pre-wrap rounded-xl bg-slate-900 p-3 font-mono text-xs text-slate-100">${esc(data.user_stdout)}</pre>
+                </div>`;
+            }
+
             html += `<div class="mt-4 space-y-2">`;
             data.results.forEach((r, i) => {
                 const warna = r.is_passed ? 'border-emerald-200 bg-emerald-50' : 'border-yellow-300 bg-yellow-50';
@@ -578,6 +585,9 @@
                 html += `</div>`;
             });
             outTests.innerHTML = html + '</div>';
+            if (data.error_message && errors.length === 0) {
+                errors.push(String(data.error_message));
+            }
             setError(errors.join('\n\n'));
             activateTab('out', 'tests');
 
@@ -632,7 +642,11 @@
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     },
-                    body: JSON.stringify({ source_code: editor.getValue(), stdin }),
+                    body: JSON.stringify({
+                        exercise_id: EXERCISE_ID,
+                        source_code: editor.getValue(),
+                        stdin,
+                    }),
                 });
                 const data = await res.json();
                 if (!res.ok || !data.success) {

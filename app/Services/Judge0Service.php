@@ -8,6 +8,12 @@ use RuntimeException;
 
 class Judge0Service
 {
+    public const STATUS_ACCEPTED = 3;
+
+    public const STATUS_TLE = 5;
+
+    public const STATUS_COMPILATION_ERROR = 6;
+
     /**
      * @return array<string, mixed>
      *
@@ -59,5 +65,31 @@ class Judge0Service
         }
 
         return $result;
+    }
+
+    /**
+     * @param  array<string, mixed>  $judge0Result
+     */
+    public function isTimeLimitExceeded(array $judge0Result): bool
+    {
+        return (int) ($judge0Result['status']['id'] ?? 0) === self::STATUS_TLE;
+    }
+
+    /**
+     * @param  array<string, mixed>  $judge0Result
+     */
+    public function isCompilationError(array $judge0Result): bool
+    {
+        return (int) ($judge0Result['status']['id'] ?? 0) === self::STATUS_COMPILATION_ERROR;
+    }
+
+    /**
+     * @param  array<string, mixed>  $judge0Result
+     */
+    public function isRuntimeError(array $judge0Result): bool
+    {
+        $statusId = (int) ($judge0Result['status']['id'] ?? 0);
+
+        return $statusId >= 7 && $statusId <= 14;
     }
 }

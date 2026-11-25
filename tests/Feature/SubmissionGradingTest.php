@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Services\PythonGradingWrapperService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request as ClientRequest;
 use Illuminate\Support\Facades\Cache;
@@ -27,11 +28,7 @@ class SubmissionGradingTest extends TestCase
 
     public function test_run_executes_public_assertion_tests_without_exposing_hidden_cases(): void
     {
-        Http::fake(fn () => Http::response([
-            'status' => ['id' => 3, 'description' => 'Accepted'],
-            'stdout' => '',
-            'time' => '0.01',
-        ]));
+        Http::fake(fn (ClientRequest $request) => $this->fakeWrappedResponse($request));
 
         $exerciseId = $this->createExercise([
             [
@@ -60,7 +57,8 @@ class SubmissionGradingTest extends TestCase
         Http::assertSent(fn (ClientRequest $request): bool => str_contains(
             $request->data()['source_code'],
             'assert jumlah(2, 3) == 5',
-        ) && ! array_key_exists('expected_output', $request->data())
+        ) && ! str_contains($request->data()['source_code'], 'assert jumlah(1, 1) == 2')
+            && ! array_key_exists('expected_output', $request->data())
             && $request->data()['language_id'] === 10
             && $request->data()['max_processes_and_or_threads'] === 8
             && $request->data()['enable_per_process_and_thread_time_limit'] === true
@@ -243,17 +241,23 @@ class SubmissionGradingTest extends TestCase
     public function test_submit_saves_weighted_assertion_results_without_storing_hidden_output(): void
     {
         Http::fake(function (ClientRequest $request) {
-            $isPassingCase = str_contains($request->data()['source_code'], 'assert jumlah(2, 3) == 5');
+            if (! str_contains($request->data()['source_code'], '_RESULT_TOKEN')) {
+                return Http::response([
+                    'status' => ['id' => 3, 'description' => 'Accepted'],
+                    'stdout' => "ok\n",
+                    'time' => '0.01',
+                ]);
+            }
 
-            return Http::response([
-                'status' => [
-                    'id' => $isPassingCase ? 3 : 11,
-                    'description' => $isPassingCase ? 'Accepted' : 'Runtime Error',
-                ],
-                'stdout' => $isPassingCase ? "ok\n" : "private output\n",
-                'stderr' => $isPassingCase ? null : 'AssertionError: private assertion',
-                'time' => '0.02',
-            ]);
+            return $this->fakeWrappedResponse($request, function (array $case): array {
+                $isPassingCase = ($case['assertion_code'] ?? '') === 'assert jumlah(2, 3) == 5';
+
+                return [
+                    'passed' => $isPassingCase,
+                    'actual_output' => $isPassingCase ? "ok\n" : "private output\n",
+                    'error' => $isPassingCase ? null : 'AssertionError: private assertion',
+                ];
+            });
         });
 
         $exerciseId = $this->createExercise([
@@ -285,6 +289,7 @@ class SubmissionGradingTest extends TestCase
         ]);
 
         $response->assertOk()
+            ->assertJsonPath('status', 'partial')
             ->assertJsonPath('score', 25)
             ->assertJsonPath('passed_tests', 1)
             ->assertJsonPath('total_tests', 2)
@@ -295,7 +300,7 @@ class SubmissionGradingTest extends TestCase
         $this->assertDatabaseHas('submissions', [
             'user_id' => $user->id,
             'exercise_id' => $exerciseId,
-            'status' => 'failed',
+            'status' => 'partial',
             'score' => 25,
             'passed_tests' => 1,
             'total_tests' => 2,
@@ -467,11 +472,17 @@ class SubmissionGradingTest extends TestCase
 
     public function test_submit_requires_each_visible_case_to_pass_for_the_current_code(): void
     {
-        Http::fake(fn (ClientRequest $request) => Http::response([
-            'status' => ['id' => 3, 'description' => 'Accepted'],
-            'stdout' => $request->data()['stdin'] === "2\n3" ? "5\n" : "6\n",
-            'time' => '0.01',
-        ]));
+        Http::fake(function (ClientRequest $request) {
+            if (str_contains($request->data()['source_code'], '_RESULT_TOKEN')) {
+                return $this->fakeWrappedResponse($request);
+            }
+
+            return Http::response([
+                'status' => ['id' => 3, 'description' => 'Accepted'],
+                'stdout' => ($request->data()['stdin'] ?? '') === "2\n3" ? "5\n" : "6\n",
+                'time' => '0.01',
+            ]);
+        });
         $exerciseId = $this->createExercise([
             [
                 'input' => "2\n3",
@@ -530,11 +541,7 @@ class SubmissionGradingTest extends TestCase
 
     public function test_run_keeps_supporting_stdin_and_expected_output_test_cases(): void
     {
-        Http::fake(fn () => Http::response([
-            'status' => ['id' => 3, 'description' => 'Accepted'],
-            'stdout' => "Halo, Budi!\n",
-            'time' => '0.01',
-        ]));
+        Http::fake(fn (ClientRequest $request) => $this->fakeWrappedResponse($request));
 
         $exerciseId = $this->createExercise([
             [
@@ -551,8 +558,8 @@ class SubmissionGradingTest extends TestCase
             'source_code' => 'nama = input()',
         ])->assertOk()->assertJsonPath('score', 100);
 
-        Http::assertSent(fn (ClientRequest $request): bool => $request->data()['stdin'] === 'Budi'
-            && $request->data()['expected_output'] === 'Halo, Budi!');
+        Http::assertSent(fn (ClientRequest $request): bool => str_contains($request->data()['source_code'], '"input":"Budi"')
+            && str_contains($request->data()['source_code'], '"expected_output":"Halo, Budi!"'));
     }
 
     public function test_execute_sends_custom_stdin_to_judge0_and_returns_execution_output(): void
@@ -645,11 +652,17 @@ class SubmissionGradingTest extends TestCase
 
     public function test_duplicate_submission_within_short_window_is_prevented(): void
     {
-        Http::fake(fn () => Http::response([
-            'status' => ['id' => 3, 'description' => 'Accepted'],
-            'stdout' => "5\n",
-            'time' => '0.01',
-        ]));
+        Http::fake(function (ClientRequest $request) {
+            if (str_contains($request->data()['source_code'], '_RESULT_TOKEN')) {
+                return $this->fakeWrappedResponse($request);
+            }
+
+            return Http::response([
+                'status' => ['id' => 3, 'description' => 'Accepted'],
+                'stdout' => "5\n",
+                'time' => '0.01',
+            ]);
+        });
 
         $exerciseId = $this->createExercise([
             [
@@ -833,11 +846,17 @@ class SubmissionGradingTest extends TestCase
 
     public function test_perfect_submission_notifies_admin(): void
     {
-        Http::fake(fn () => Http::response([
-            'status' => ['id' => 3, 'description' => 'Accepted'],
-            'stdout' => "ok\n",
-            'time' => '0.01',
-        ]));
+        Http::fake(function (ClientRequest $request) {
+            if (str_contains($request->data()['source_code'], '_RESULT_TOKEN')) {
+                return $this->fakeWrappedResponse($request);
+            }
+
+            return Http::response([
+                'status' => ['id' => 3, 'description' => 'Accepted'],
+                'stdout' => "ok\n",
+                'time' => '0.01',
+            ]);
+        });
 
         $admin = User::factory()->create(['role' => 'admin']);
         $student = User::factory()->create(['role' => 'learner']);
@@ -949,6 +968,117 @@ class SubmissionGradingTest extends TestCase
             ->assertSee('1–1 dari 1')
             ->assertSee("#SUB-{$failedSubmissionId}")
             ->assertDontSee("#SUB-{$passedSubmissionId}");
+    }
+
+    public function test_isolated_token_parser_rejects_spoofed_stdout_and_captures_user_stdout(): void
+    {
+        $wrapper = app(PythonGradingWrapperService::class);
+        $token = $wrapper->generateToken();
+
+        $fakeStdout = implode("\n", [
+            'true',
+            'PYB_RESULT_fake0000000000000000000000000000:{"results":[{"passed":true}]}',
+            $token.':{"compile_error":null,"runtime_error":null,"user_stdout":"debug halo\\n","user_stderr":"","results":[{"test_case_id":1,"is_hidden":false,"weight":1,"passed":false,"actual_output":"","error":"AssertionError"}]}',
+        ]);
+
+        $parsed = $wrapper->parseOutput($fakeStdout, $token);
+
+        $this->assertNotNull($parsed);
+        $this->assertSame("debug halo\n", $parsed['user_stdout']);
+        $this->assertFalse($parsed['results'][0]['passed']);
+    }
+
+    public function test_submit_handles_tle_and_stores_failure_details(): void
+    {
+        Http::fake(function (ClientRequest $request) {
+            if (! str_contains($request->data()['source_code'], '_RESULT_TOKEN')) {
+                return Http::response([
+                    'status' => ['id' => 3, 'description' => 'Accepted'],
+                    'stdout' => "ok\n",
+                    'time' => '0.01',
+                ]);
+            }
+
+            return Http::response([
+                'status' => ['id' => 5, 'description' => 'Time Limit Exceeded'],
+                'stdout' => null,
+                'time' => '5.00',
+            ]);
+        });
+
+        $exerciseId = $this->createExercise([
+            [
+                'assertion_code' => 'assert jumlah(2, 3) == 5',
+                'is_hidden' => false,
+                'weight' => 1,
+            ],
+        ]);
+        $user = User::factory()->create();
+        $sourceCode = "def jumlah(a, b):\n    while True: pass";
+        $testCaseId = DB::table('test_cases')->where('exercise_id', $exerciseId)->value('id');
+
+        $this->actingAs($user)
+            ->postJson(route('submissions.test-case.run', [
+                'exerciseId' => $exerciseId,
+                'testCaseId' => $testCaseId,
+            ]), ['source_code' => $sourceCode])
+            ->assertOk();
+
+        $this->postJson(route('submissions.submit'), [
+            'exercise_id' => $exerciseId,
+            'source_code' => $sourceCode,
+        ])->assertOk()
+            ->assertJsonPath('status', 'tle')
+            ->assertJsonPath('score', 0)
+            ->assertJsonPath('passed_tests', 0);
+
+        $this->assertDatabaseHas('submissions', [
+            'user_id' => $user->id,
+            'exercise_id' => $exerciseId,
+            'status' => 'tle',
+            'judge0_status_id' => 5,
+            'score' => 0,
+        ]);
+    }
+
+    /**
+     * @param  null|callable(array<string, mixed>): array{passed?: bool, actual_output?: string, error?: ?string}  $evaluator
+     */
+    private function fakeWrappedResponse(ClientRequest $request, ?callable $evaluator = null)
+    {
+        $sourceCode = (string) ($request->data()['source_code'] ?? '');
+        preg_match('/_RESULT_TOKEN = ("[^"]+")/', $sourceCode, $tokenMatch);
+        preg_match('/_TEST_CASES = (\[.*?\])\n/s', $sourceCode, $casesMatch);
+
+        $token = json_decode($tokenMatch[1] ?? '""', true);
+        $cases = json_decode($casesMatch[1] ?? '[]', true);
+
+        $results = [];
+        foreach ($cases as $case) {
+            $evaluated = $evaluator ? $evaluator($case) : [];
+            $results[] = [
+                'test_case_id' => $case['id'],
+                'is_hidden' => $case['is_hidden'],
+                'weight' => $case['weight'],
+                'passed' => $evaluated['passed'] ?? true,
+                'actual_output' => $evaluated['actual_output'] ?? ($case['mode'] === 'stdin' ? $case['expected_output'] : ''),
+                'error' => $evaluated['error'] ?? null,
+            ];
+        }
+
+        $payload = json_encode([
+            'compile_error' => null,
+            'runtime_error' => null,
+            'user_stdout' => '',
+            'user_stderr' => '',
+            'results' => $results,
+        ], JSON_THROW_ON_ERROR);
+
+        return Http::response([
+            'status' => ['id' => 3, 'description' => 'Accepted'],
+            'stdout' => "{$token}:{$payload}\n",
+            'time' => '0.01',
+        ]);
     }
 
     /**

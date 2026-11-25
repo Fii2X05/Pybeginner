@@ -20,13 +20,29 @@ class Submission extends Model
         'passed_tests',
         'total_tests',
         'execution_time_ms',
+        'judge0_status_id',
+        'judge0_status_description',
+        'user_stdout',
+        'error_message',
+        'details',
         'submitted_at',
     ];
 
-    // Mengubah tanggal agar otomatis menjadi instance Carbon
-    protected $casts = [
-        'submitted_at' => 'datetime',
-    ];
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'score' => 'float',
+            'passed_tests' => 'integer',
+            'total_tests' => 'integer',
+            'execution_time_ms' => 'integer',
+            'judge0_status_id' => 'integer',
+            'details' => 'array',
+            'submitted_at' => 'datetime',
+        ];
+    }
 
     public function user(): BelongsTo
     {
