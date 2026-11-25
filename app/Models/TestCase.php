@@ -16,6 +16,7 @@ class TestCase extends Model
     protected $fillable = [
         'exercise_id',
         'input',
+        'input_data',
         'expected_output',
         'assertion_code',
         'weight',
@@ -27,8 +28,11 @@ class TestCase extends Model
     protected function casts(): array
     {
         return [
+            'input_data' => 'array',
             'is_hidden' => 'boolean',
             'is_active' => 'boolean',
+            'weight' => 'integer',
+            'sort_order' => 'integer',
         ];
     }
 

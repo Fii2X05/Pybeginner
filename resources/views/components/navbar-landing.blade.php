@@ -45,16 +45,6 @@
         {{-- Kanan --}}
         <div class="flex items-center gap-2 sm:gap-3 justify-self-end">
             @auth
-                @if (auth()->user()->role === 'admin')
-                    <a href="{{ route('admin.dashboard') }}" 
-                       class="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>
-                        </svg>
-                        <span>Dashboard Admin</span>
-                    </a>
-                @endif
-
                 <span class="hidden text-sm font-semibold text-slate-800 xl:inline">{{ auth()->user()->name }}</span>
 
                 <a href="{{ auth()->user()->role === 'admin' ? route('admin.dashboard') : route('profile') }}" title="{{ auth()->user()->role === 'admin' ? 'Dashboard Admin' : 'Profil' }}" class="shrink-0 flex items-center group">

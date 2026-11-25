@@ -9,6 +9,7 @@ use App\Models\TestCase;
 use App\Models\TestCaseProgress;
 use App\Services\AdminNotificationService;
 use App\Services\Judge0Service;
+use App\Services\PythonGradingWrapperService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Request;
@@ -24,6 +25,7 @@ class SubmissionController extends Controller
     public function __construct(
         private Judge0Service $judge0,
         private AdminNotificationService $adminNotifications,
+        private PythonGradingWrapperService $wrapper,
     ) {}
 
     public function history(Request $request): View
@@ -125,9 +127,12 @@ class SubmissionController extends Controller
 
         return response()->json([
             'success' => true,
+            'status' => $evaluated['status'],
             'score' => round($evaluated['score'], 2),
             'passed_tests' => $evaluated['passed'],
             'total_tests' => $evaluated['total'],
+            'user_stdout' => $evaluated['user_stdout'],
+            'error_message' => $evaluated['error_message'],
             'results' => $evaluated['results'],
         ]);
     }
@@ -137,17 +142,21 @@ class SubmissionController extends Controller
         $data = $request->validate([
             'source_code' => 'required|string|max:50000',
             'stdin' => 'nullable|string|max:50000',
-            'exercise_id' => 'required|integer',
+            'exercise_id' => 'nullable|integer|exists:exercises,id',
         ]);
-        $exercise = Exercise::where('is_published', true)->findOrFail($data['exercise_id']);
+        $exercise = isset($data['exercise_id'])
+            ? Exercise::where('is_published', true)->findOrFail($data['exercise_id'])
+            : null;
+        $timeLimitSeconds = min(5, max(1, ($exercise?->time_limit_ms ?? 2000) / 1000));
+        $memoryLimitKb = min(256000, max(16384, ($exercise?->memory_limit_mb ?? 128) * 1024));
 
         try {
             $execution = $this->judge0->evaluateCode(
                 $data['source_code'],
                 null,
                 $data['stdin'] ?? '',
-                min(5, max(1, $exercise->time_limit_ms / 1000)),
-                min(256000, max(16384, $exercise->memory_limit_mb * 1024)),
+                $timeLimitSeconds,
+                $memoryLimitKb,
             );
         } catch (Throwable $e) {
             report($e);
@@ -330,6 +339,8 @@ class SubmissionController extends Controller
                     'score' => (float) $recentSubmission->score,
                     'passed_tests' => $recentSubmission->passed_tests,
                     'total_tests' => $recentSubmission->total_tests,
+                    'user_stdout' => $recentSubmission->user_stdout,
+                    'error_message' => $recentSubmission->error_message,
                     'results' => $recentResults,
                     'message' => $recentSubmission->status === 'accepted'
                         ? 'Selamat! Semua test case lolos.'
@@ -344,15 +355,22 @@ class SubmissionController extends Controller
                     'user_id' => $userId,
                     'exercise_id' => $data['exercise_id'],
                     'source_code' => $data['source_code'],
-                    'status' => $evaluated['score'] === 100.0 ? 'accepted' : 'failed',
+                    'status' => $evaluated['status'],
                     'score' => $evaluated['score'],
                     'passed_tests' => $evaluated['passed'],
                     'total_tests' => $evaluated['total'],
                     'execution_time_ms' => $evaluated['execution_time_ms'],
+                    'judge0_status_id' => $evaluated['judge0_status_id'],
+                    'judge0_status_description' => $evaluated['judge0_status_description'],
+                    'user_stdout' => $evaluated['user_stdout'],
+                    'error_message' => $evaluated['error_message'],
+                    'details' => $evaluated['stored_results'],
                     'submitted_at' => now(),
                 ]);
 
-                $submission->results()->createMany($evaluated['stored_results']);
+                if ($evaluated['stored_results'] !== []) {
+                    $submission->results()->createMany($evaluated['stored_results']);
+                }
 
                 return $submission;
             });
@@ -373,10 +391,14 @@ class SubmissionController extends Controller
                 'score' => $evaluated['score'],
                 'passed_tests' => $evaluated['passed'],
                 'total_tests' => $evaluated['total'],
+                'user_stdout' => $submission->user_stdout,
+                'error_message' => $submission->error_message,
                 'results' => $evaluated['results'],
-                'message' => $submission->status === 'accepted'
-                    ? 'Selamat! Semua test case lolos.'
-                    : 'Belum tepat. Periksa hasil test case dan coba lagi.',
+                'message' => match ($submission->status) {
+                    'accepted' => 'Selamat! Semua test case lolos.',
+                    'partial' => 'Sebagian test case lolos. Periksa hasil test case dan coba lagi.',
+                    default => 'Belum tepat. Periksa hasil test case dan coba lagi.',
+                },
             ]);
         } catch (Throwable $e) {
             report($e);
@@ -389,50 +411,110 @@ class SubmissionController extends Controller
     }
 
     /**
+     * Mengevaluasi kode siswa menggunakan Isolated Token-Based JSON Wrapper
+     * dalam satu panggilan Judge0 dengan dukungan partial scoring berbobot.
+     *
      * @param  Collection<int, TestCase>  $testCases
      * @return array{
+     *     status: string,
      *     score: float,
      *     passed: int,
      *     total: int,
      *     execution_time_ms: int,
+     *     judge0_status_id: int,
+     *     judge0_status_description: string,
+     *     user_stdout: string,
+     *     error_message: ?string,
      *     results: array<int, array<string, mixed>>,
      *     stored_results: array<int, array<string, mixed>>
      * }
      */
     private function evaluate(string $sourceCode, Collection $testCases, Exercise $exercise): array
     {
+        $token = $this->wrapper->generateToken();
+        $wrappedCode = $this->wrapper->wrap($sourceCode, $testCases, $token);
+
+        $execution = $this->judge0->evaluateCode(
+            $wrappedCode,
+            null,
+            null,
+            min(5, max(1, $exercise->time_limit_ms / 1000)),
+            min(256000, max(16384, $exercise->memory_limit_mb * 1024)),
+        );
+
+        $statusId = (int) $execution['status']['id'];
+        $statusDescription = (string) ($execution['status']['description'] ?? 'Unknown');
+        $timeMs = (int) round(((float) ($execution['time'] ?? 0)) * 1000);
+        $totalCount = $testCases->count();
+
+        if ($this->judge0->isTimeLimitExceeded($execution)) {
+            return $this->buildFailureEvaluation(
+                'tle',
+                'Time Limit Exceeded: Eksekusi kode melebihi batas waktu.',
+                $statusId,
+                $statusDescription,
+                $timeMs,
+                $totalCount,
+                $testCases,
+            );
+        }
+
+        $parsed = $this->wrapper->parseOutput($execution['stdout'] ?? null, $token);
+
+        if ($parsed === null || $this->judge0->isCompilationError($execution)) {
+            $rawError = $this->executionError($execution) ?? "Eksekusi gagal dengan status Judge0: {$statusDescription}.";
+            $failureStatus = $this->judge0->isCompilationError($execution) ? 'compile_error' : 'runtime_error';
+
+            return $this->buildFailureEvaluation(
+                $failureStatus,
+                $rawError,
+                $statusId,
+                $statusDescription,
+                $timeMs,
+                $totalCount,
+                $testCases,
+            );
+        }
+
+        if (! empty($parsed['compile_error']) || ! empty($parsed['runtime_error'])) {
+            $isCompile = ! empty($parsed['compile_error']);
+
+            return $this->buildFailureEvaluation(
+                $isCompile ? 'compile_error' : 'runtime_error',
+                (string) ($parsed['compile_error'] ?? $parsed['runtime_error']),
+                $statusId,
+                $statusDescription,
+                $timeMs,
+                $totalCount,
+                $testCases,
+                (string) ($parsed['user_stdout'] ?? ''),
+            );
+        }
+
+        $casesById = $testCases->keyBy('id');
         $results = [];
         $storedResults = [];
         $passedWeight = 0;
         $totalWeight = 0;
         $passedCount = 0;
-        $executionTimeMs = 0;
 
-        foreach ($testCases as $testCase) {
-            $isAssertionTest = is_string($testCase->assertion_code) && trim($testCase->assertion_code) !== '';
-            $code = $isAssertionTest
-                ? rtrim($sourceCode)."\n\n".$testCase->assertion_code."\n"
-                : $sourceCode;
-            $execution = $this->judge0->evaluateCode(
-                $code,
-                $isAssertionTest ? null : $testCase->expected_output,
-                $isAssertionTest ? null : $testCase->input,
-                min(5, max(1, $exercise->time_limit_ms / 1000)),
-                min(256000, max(16384, $exercise->memory_limit_mb * 1024)),
-            );
+        foreach ($parsed['results'] ?? [] as $item) {
+            /** @var TestCase|null $testCase */
+            $testCase = $casesById->get($item['test_case_id'] ?? null);
+            if (! $testCase) {
+                continue;
+            }
 
-            $statusId = (int) $execution['status']['id'];
-            $isPassed = $statusId === 3;
+            $isPassed = (bool) ($item['passed'] ?? false);
             $isHidden = (bool) $testCase->is_hidden;
+            $isAssertionTest = is_string($testCase->assertion_code) && trim($testCase->assertion_code) !== '';
             $weight = max(0, (int) $testCase->weight);
-            $timeMs = (int) round(((float) ($execution['time'] ?? 0)) * 1000);
-            $output = (string) ($execution['stdout'] ?? '');
-            $error = $this->executionError($execution);
+            $output = (string) ($item['actual_output'] ?? '');
+            $error = is_string($item['error'] ?? null) ? trim($item['error']) : '';
 
             $passedCount += $isPassed ? 1 : 0;
             $passedWeight += $isPassed ? $weight : 0;
             $totalWeight += $weight;
-            $executionTimeMs += $timeMs;
 
             $results[] = [
                 'is_hidden' => $isHidden,
@@ -456,11 +538,91 @@ class SubmissionController extends Controller
             ];
         }
 
+        $score = $totalWeight > 0 ? round(($passedWeight / $totalWeight) * 100, 2) : 0.0;
+        $status = match (true) {
+            $score === 100.0 && $totalCount > 0 => 'accepted',
+            $passedCount > 0 => 'partial',
+            default => 'failed',
+        };
+
+        $userStderr = is_string($parsed['user_stderr'] ?? null) ? trim($parsed['user_stderr']) : '';
+
         return [
-            'score' => $totalWeight > 0 ? round(($passedWeight / $totalWeight) * 100, 2) : 0.0,
+            'status' => $status,
+            'score' => $score,
             'passed' => $passedCount,
-            'total' => $testCases->count(),
+            'total' => $totalCount,
+            'execution_time_ms' => $timeMs,
+            'judge0_status_id' => $statusId,
+            'judge0_status_description' => $statusDescription,
+            'user_stdout' => (string) ($parsed['user_stdout'] ?? ''),
+            'error_message' => $userStderr !== '' ? $userStderr : null,
+            'results' => $results,
+            'stored_results' => $storedResults,
+        ];
+    }
+
+    /**
+     * @param  Collection<int, TestCase>  $testCases
+     * @return array{
+     *     status: string,
+     *     score: float,
+     *     passed: int,
+     *     total: int,
+     *     execution_time_ms: int,
+     *     judge0_status_id: int,
+     *     judge0_status_description: string,
+     *     user_stdout: string,
+     *     error_message: string,
+     *     results: array<int, array<string, mixed>>,
+     *     stored_results: array<int, array<string, mixed>>
+     * }
+     */
+    private function buildFailureEvaluation(
+        string $status,
+        string $errorMessage,
+        int $judge0StatusId,
+        string $judge0StatusDescription,
+        int $executionTimeMs,
+        int $totalCount,
+        Collection $testCases,
+        string $userStdout = '',
+    ): array {
+        $results = [];
+        $storedResults = [];
+
+        foreach ($testCases as $testCase) {
+            $isHidden = (bool) $testCase->is_hidden;
+            $isAssertionTest = is_string($testCase->assertion_code) && trim($testCase->assertion_code) !== '';
+
+            $results[] = [
+                'is_hidden' => $isHidden,
+                'is_passed' => false,
+                'input' => $isHidden || $isAssertionTest ? null : $testCase->input,
+                'expected' => $isHidden ? null : ($isAssertionTest ? 'Semua assertion harus lolos' : $testCase->expected_output),
+                'actual' => null,
+                'error' => $isHidden ? 'Test case tersembunyi gagal.' : $errorMessage,
+            ];
+
+            $storedResults[] = [
+                'test_case_id' => $testCase->id,
+                'status' => 'failed',
+                'actual_output' => null,
+                'error_message' => $isHidden ? 'Test case tersembunyi gagal.' : $errorMessage,
+                'execution_time_ms' => $executionTimeMs,
+            ];
+        }
+
+        return [
+            'status' => $status,
+            'score' => 0.0,
+            'passed' => 0,
+            'total' => $totalCount,
             'execution_time_ms' => $executionTimeMs,
+            'judge0_status_id' => $judge0StatusId,
+            'judge0_status_description' => $judge0StatusDescription,
+            'user_stdout' => $userStdout,
+            'error_message' => $errorMessage,
             'results' => $results,
             'stored_results' => $storedResults,
         ];
