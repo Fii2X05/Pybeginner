@@ -37,8 +37,47 @@ class AuthTest extends TestCase
         $response = $this->get('/register');
 
         $response->assertStatus(200);
-        $response->assertSee('Daftar Cepat dengan Google');
+        $response->assertDontSee('Daftar Cepat dengan Google');
+        $response->assertSee('Nama Lengkap');
+        $response->assertSee('Alamat Email');
+        $response->assertSee('Kata Sandi');
+        $response->assertSee('Konfirmasi Kata Sandi');
+        $response->assertSee('Buat Akun Sekarang');
         $response->assertSee('Sudah memiliki akun?');
+    }
+
+    public function test_user_can_register_and_then_login_with_created_credentials(): void
+    {
+        $registerResponse = $this->post('/register', [
+            'name' => 'Sukma Ananda',
+            'email' => 'sukma@example.com',
+            'password' => 'SukmaPass123',
+            'password_confirmation' => 'SukmaPass123',
+        ]);
+
+        $registerResponse->assertRedirect(route('beranda'));
+        $this->assertAuthenticated();
+        $this->assertDatabaseHas('users', [
+            'name' => 'Sukma Ananda',
+            'email' => 'sukma@example.com',
+            'role' => 'learner',
+        ]);
+
+        // Pengguna logout
+        $this->post('/logout');
+        $this->assertGuest();
+
+        // Pengguna login kembali menggunakan email dan kata sandi yang baru saja dibuat
+        $loginResponse = $this->post('/login', [
+            'email' => 'sukma@example.com',
+            'password' => 'SukmaPass123',
+        ]);
+
+        $loginResponse->assertRedirect(route('beranda'));
+        $this->assertAuthenticated();
+
+        $user = User::where('email', 'sukma@example.com')->first();
+        $this->assertAuthenticatedAs($user);
     }
 
     public function test_users_can_register_and_be_saved_to_database(): void
