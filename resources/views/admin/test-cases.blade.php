@@ -1,183 +1,193 @@
-@php
-    $activeCases = $testCases->where('is_active', true);
-    $visibleCount = $activeCases->where('is_hidden', false)->count();
-    $hiddenCount = $activeCases->where('is_hidden', true)->count();
-    $inactiveCount = $testCases->where('is_active', false)->count();
-
-    $secondaryBtn = 'inline-flex items-center gap-2 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm px-4 py-2 rounded-xl transition whitespace-nowrap';
-
-    $statusBox = match (true) {
-        $exercise->is_published && ! $canPublish => 'bg-rose-50 border-rose-200 text-rose-800',
-        $exercise->is_published => 'bg-emerald-50 border-emerald-200 text-emerald-800',
-        ! $canPublish => 'bg-amber-50 border-amber-200 text-amber-800',
-        default => 'bg-emerald-50 border-emerald-200 text-emerald-800',
-    };
-@endphp
-
-<x-layouts.admin :title="'Test Case - '.$exercise->title" active="latihan">
-    <div class="w-full max-w-5xl">
-    <x-admin.breadcrumb :items="[
-        ['Latihan & Soal', route('admin.latihan')],
-        [$exercise->title, route('admin.latihan.edit', $exercise)],
-        ['Test Case', null],
-    ]" />
-
-    {{-- Header --}}
-    <div class="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+<x-layouts.admin title="Test Case - {{ $exercise->title }}" active="latihan">
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-            <h1 class="text-xl font-black text-slate-900">Test Case: {{ $exercise->title }}</h1>
-            <p class="text-sm text-slate-500 mt-0.5">
-                {{ $activeCases->count() }} aktif ({{ $visibleCount }} tampil sebagai contoh, {{ $hiddenCount }} tersembunyi)@if ($inactiveCount > 0), {{ $inactiveCount }} nonaktif @endif.
-                Status soal: <span class="font-semibold {{ $exercise->is_published ? 'text-emerald-700' : 'text-slate-600' }}">{{ $exercise->is_published ? 'Terbit' : 'Draft' }}</span>.
+            <a href="{{ route('admin.latihan') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-emerald-700 mb-2">
+                <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                Kembali ke Daftar Latihan
+            </a>
+            <h1 class="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
+                Test Case &middot; {{ $exercise->title }}
+            </h1>
+            <p class="text-sm text-slate-500 mt-1">
+                Kode siswa dijalankan terhadap semua test case aktif. Yang <strong>Tersembunyi</strong> tetap dipakai menilai tanpa diperlihatkan ke siswa.
             </p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-            <a href="{{ route('admin.latihan') }}" class="{{ $secondaryBtn }}">
-                <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
+            <a href="{{ route('admin.latihan.answer-key', $exercise) }}"
+               class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition shadow-2xs">
+                <i data-lucide="play" class="w-4 h-4 text-emerald-600"></i>
+                Uji Kunci Jawaban
             </a>
             <a href="{{ route('admin.latihan.test-cases.create', $exercise) }}"
-               class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-4 py-2.5 rounded-xl transition">
-                <i data-lucide="plus" class="w-4 h-4"></i> Tambah Test Case
+               class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-2xs">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                Tambah Test Case
             </a>
         </div>
     </div>
 
-    @unless ($exercise->is_published)
-        <x-admin.stepper :current="$canPublish ? 3 : 2" />
-    @endunless
-    <x-admin.exercise-tabs :exercise="$exercise" active="testcase" />
+    @if (session('status'))
+        <div class="mb-4 px-4 py-3 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-sm font-medium">
+            {{ session('status') }}
+        </div>
+    @endif
+    @if ($errors->any())
+        <div class="mb-4 px-4 py-3 rounded-xl border border-rose-200 bg-rose-50 text-rose-800 text-sm space-y-1">
+            @foreach ($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    @endif
 
-    <x-admin.flash />
-
-    {{-- Status soal dan pilihan simpan --}}
-    <div class="mb-6 rounded-2xl px-5 py-4 text-sm border flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 {{ $statusBox }}">
-        <span>
-            @if ($exercise->is_published && ! $canPublish)
-                Soal ini sedang terbit, tetapi tidak punya test case aktif yang terlihat sehingga siswa tidak bisa mengirim jawaban. Tambahkan test case terlihat, atau tarik soal ke draft.
-            @elseif ($exercise->is_published)
-                Soal ini sudah terbit dan tampil untuk siswa.
-            @elseif (! $canPublish)
-                Soal belum bisa diterbitkan sampai punya minimal satu test case aktif yang terlihat oleh siswa.
-            @else
-                Soal sudah siap diterbitkan. Sebaiknya jalankan <b>Uji Kunci Jawaban</b> dulu untuk memastikan output yang diharapkan benar.
-            @endif
-        </span>
-
-        <div class="flex flex-wrap items-center gap-2">
+    {{-- Status terbit soal & tombol langsung --}}
+    <div class="mb-6 p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 {{ $exercise->is_published ? 'bg-emerald-50/70 border-emerald-200' : 'bg-amber-50/70 border-amber-200' }}">
+        <div class="text-xs leading-relaxed">
             @if ($exercise->is_published)
-                <form method="POST" action="{{ route('admin.latihan.status.update', $exercise) }}">
-                    @csrf
-                    @method('PUT')
-                    <input type="hidden" name="is_published" value="0">
-                    <button type="submit" class="{{ $secondaryBtn }}">
-                        <i data-lucide="eye-off" class="w-4 h-4"></i> Tarik ke Draft
-                    </button>
-                </form>
+                <span class="font-bold text-emerald-900">Status Soal: Terbit</span>
+                <span class="text-emerald-800"> — siswa sudah dapat mengerjakan latihan ini.</span>
+            @elseif ($canPublish)
+                <span class="font-bold text-amber-900">Status Soal: Draft (Siap Terbit)</span>
+                <span class="text-amber-800"> — test case sudah lengkap. Terbitkan sekarang atau uji kunci jawabannya terlebih dahulu.</span>
             @else
-                <a href="{{ route('admin.latihan') }}" class="{{ $secondaryBtn }}">
-                    <i data-lucide="check" class="w-4 h-4"></i> Selesai (tetap Draft)
-                </a>
-                <form method="POST" action="{{ route('admin.latihan.status.update', $exercise) }}">
-                    @csrf
-                    @method('PUT')
-                    <input type="hidden" name="is_published" value="1">
-                    <button type="submit"
-                            @disabled(! $canPublish)
-                            title="{{ $canPublish ? 'Terbitkan agar bisa dikerjakan siswa' : 'Tambahkan minimal satu test case terlihat untuk menerbitkan' }}"
-                            class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold text-sm px-4 py-2 rounded-xl transition whitespace-nowrap">
-                        <i data-lucide="upload" class="w-4 h-4"></i> Simpan &amp; Terbitkan
-                    </button>
-                </form>
+                <span class="font-bold text-amber-900">Status Soal: Draft</span>
+                <span class="text-amber-800"> — tambahkan minimal satu test case aktif yang terlihat oleh siswa agar soal ini bisa diterbitkan.</span>
             @endif
         </div>
+        <form method="POST" action="{{ route('admin.latihan.status.update', $exercise) }}">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="is_published" value="{{ $exercise->is_published ? 0 : 1 }}">
+            <button type="submit" @disabled(! $exercise->is_published && ! $canPublish)
+                    class="px-4 py-2 rounded-xl text-xs font-bold transition {{ $exercise->is_published ? 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50' : 'bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-40 disabled:cursor-not-allowed' }}">
+                {{ $exercise->is_published ? 'Tarik ke Draft' : 'Terbitkan Soal' }}
+            </button>
+        </form>
     </div>
 
-    {{-- Tabel Test Case --}}
-    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left">
-                <thead class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    <tr>
-                        <th class="px-5 py-3.5 w-16">#</th>
-                        <th class="px-5 py-3.5">Input / Assertion</th>
-                        <th class="px-5 py-3.5">Output yang Diharapkan</th>
-                        <th class="px-5 py-3.5 text-center w-32">Status &amp; Tipe</th>
-                        <th class="px-5 py-3.5 text-center w-24">Bobot</th>
-                        <th class="px-5 py-3.5 text-right w-44">Aksi</th>
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-100 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                        <th class="py-3.5 px-4 text-center">No</th>
+                        <th class="py-3.5 px-4">Jenis</th>
+                        <th class="py-3.5 px-4">Input / Pengujian</th>
+                        <th class="py-3.5 px-4">Output Diharapkan</th>
+                        <th class="py-3.5 px-4 text-center">Bobot</th>
+                        <th class="py-3.5 px-4 text-center">Tampilan</th>
+                        <th class="py-3.5 px-4 text-center">Status</th>
+                        <th class="py-3.5 px-4 text-right">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                    @forelse ($testCases as $testCase)
+                    @forelse ($testCases as $tc)
                         @php
-                            $hasResults = ($testCaseResultsCount[$testCase->id] ?? 0) > 0;
+                            $isAssertion = is_string($tc->assertion_code) && trim($tc->assertion_code) !== '';
+                            $hasResults = $withResults->contains($tc->id);
                         @endphp
-                        <tr class="hover:bg-slate-50/60 transition {{ ! $testCase->is_active ? 'opacity-60 bg-slate-50/40' : '' }}">
-                            <td class="px-5 py-4 font-bold text-slate-400 text-sm">
-                                {{ sprintf('%02d', $testCase->sort_order) }}
+                        <tr class="hover:bg-slate-50/70 transition {{ $tc->is_active ? '' : 'opacity-60' }}">
+                            <td class="py-3.5 px-4 text-center">
+                                <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 text-xs font-bold text-slate-500">
+                                    {{ $tc->sort_order }}
+                                </span>
                             </td>
-                            <td class="px-5 py-4">
-                                @if ($testCase->assertion_code)
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-700 mb-1 border border-purple-200">Assertion</span>
-                                    <pre class="font-mono text-xs text-slate-700 whitespace-pre-wrap">{{ \Illuminate\Support\Str::limit($testCase->assertion_code, 160) }}</pre>
+
+                            <td class="py-3.5 px-4">
+                                @if ($isAssertion)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-indigo-50 text-indigo-700">Assertion</span>
                                 @else
-                                    <pre class="font-mono text-xs text-slate-700 whitespace-pre-wrap">{{ $testCase->input !== null && $testCase->input !== '' ? \Illuminate\Support\Str::limit($testCase->input, 160) : '(tanpa input)' }}</pre>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-700">Input / Output</span>
                                 @endif
                             </td>
-                            <td class="px-5 py-4">
-                                <pre class="font-mono text-xs text-slate-700 whitespace-pre-wrap">{{ $testCase->expected_output !== '' ? \Illuminate\Support\Str::limit($testCase->expected_output, 160) : '-' }}</pre>
-                            </td>
-                            <td class="px-5 py-4 text-center whitespace-nowrap">
-                                @if (! $testCase->is_active)
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-100">Nonaktif</span>
-                                @elseif ($testCase->is_hidden)
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">Tersembunyi</span>
+
+                            <td class="py-3.5 px-4 max-w-xs">
+                                @if ($isAssertion)
+                                    <pre class="text-xs font-mono text-slate-700 bg-slate-50 border border-slate-200/80 rounded-lg px-2.5 py-1.5 overflow-x-auto max-h-24 whitespace-pre-wrap">{{ $tc->assertion_code }}</pre>
+                                @elseif ($tc->input !== null && $tc->input !== '')
+                                    <pre class="text-xs font-mono text-slate-700 bg-slate-50 border border-slate-200/80 rounded-lg px-2.5 py-1.5 overflow-x-auto max-h-24 whitespace-pre-wrap">{{ $tc->input }}</pre>
                                 @else
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">Contoh</span>
+                                    <span class="text-xs text-slate-400 italic">Tanpa input</span>
                                 @endif
                             </td>
-                            <td class="px-5 py-4 text-center font-semibold text-slate-700">{{ $testCase->weight }}</td>
-                            <td class="px-5 py-4">
-                                <div class="flex items-center justify-end gap-1.5 whitespace-nowrap">
-                                    <a href="{{ route('admin.test-cases.edit', $testCase) }}"
-                                       class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg transition">
-                                        <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-                                        Edit
+
+                            <td class="py-3.5 px-4 max-w-xs">
+                                @if ($isAssertion)
+                                    <span class="text-xs text-slate-400 italic">Diperiksa oleh assertion</span>
+                                @else
+                                    <pre class="text-xs font-mono text-slate-700 bg-slate-50 border border-slate-200/80 rounded-lg px-2.5 py-1.5 overflow-x-auto max-h-24 whitespace-pre-wrap">{{ $tc->expected_output }}</pre>
+                                @endif
+                            </td>
+
+                            <td class="py-3.5 px-4 text-center font-mono text-xs text-slate-700 font-semibold">
+                                {{ $tc->weight }}
+                            </td>
+
+                            <td class="py-3.5 px-4 text-center">
+                                @if ($tc->is_hidden)
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700">
+                                        <i data-lucide="eye-off" class="w-3 h-3"></i>
+                                        Tersembunyi
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-50 text-sky-700">
+                                        <i data-lucide="eye" class="w-3 h-3"></i>
+                                        Terlihat
+                                    </span>
+                                @endif
+                            </td>
+
+                            <td class="py-3.5 px-4 text-center">
+                                <form method="POST" action="{{ route('admin.test-cases.active.update', $tc) }}">
+                                    @csrf
+                                    @method('PUT')
+                                    <select name="is_active" aria-label="Status test case {{ $tc->sort_order }}"
+                                            onchange="this.form.submit()"
+                                            class="h-8 px-2 rounded-lg border text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 {{ $tc->is_active ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-50 border-slate-200 text-slate-500' }}">
+                                        <option value="1" @selected($tc->is_active)>Aktif</option>
+                                        <option value="0" @selected(! $tc->is_active)>Draft</option>
+                                    </select>
+                                </form>
+                            </td>
+
+                            <td class="py-3.5 px-4">
+                                <div class="flex items-center justify-end gap-1.5">
+                                    <a href="{{ route('admin.test-cases.edit', $tc) }}" title="Edit test case"
+                                       class="w-8 h-8 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600 transition">
+                                        <i data-lucide="pencil" class="w-4 h-4"></i>
                                     </a>
-                                    <form method="POST" action="{{ route('admin.test-cases.active.update', $testCase) }}">
-                                        @csrf
-                                        @method('PUT')
-                                        <input type="hidden" name="is_active" value="{{ $testCase->is_active ? 0 : 1 }}">
-                                        <button type="submit"
-                                                class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg transition">
-                                            <i data-lucide="power" class="w-3.5 h-3.5"></i>
-                                            {{ $testCase->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
-                                        </button>
-                                    </form>
-                                    @unless ($hasResults)
-                                        <form method="POST" action="{{ route('admin.test-cases.destroy', $testCase) }}"
-                                              onsubmit="return confirm('Hapus test case ini?')">
+
+                                    @if ($hasResults)
+                                        <span title="Sudah ada hasil pengerjaan siswa; ubah status ke Draft jika tidak lagi dipakai menilai"
+                                              class="w-8 h-8 inline-flex items-center justify-center rounded-lg border border-slate-100 bg-slate-50 text-slate-300 cursor-not-allowed">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        </span>
+                                    @else
+                                        <form method="POST" action="{{ route('admin.test-cases.destroy', $tc) }}"
+                                              onsubmit="return confirm('Hapus test case #{{ $tc->sort_order }}?')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Hapus test case" aria-label="Hapus test case {{ $testCase->sort_order }}">
+                                            <button type="submit" title="Hapus test case"
+                                                    class="w-8 h-8 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 transition">
                                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                                             </button>
                                         </form>
-                                    @else
-                                        <span class="px-1 text-[11px] text-slate-400" title="Sudah punya hasil pengerjaan siswa, hanya bisa dinonaktifkan">Ada riwayat</span>
-                                    @endunless
+                                    @endif
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-5 py-12 text-center text-slate-400 text-sm">
-                                Belum ada test case. Klik "Tambah Test Case" untuk membuat yang pertama.
+                            <td colspan="8" class="py-12 px-6 text-center text-slate-400 text-sm">
+                                Belum ada test case untuk soal ini. Klik "Tambah Test Case" untuk menambahkan pengujian pertama.
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-    </div>
+
+        <div class="px-6 py-3 border-t border-slate-100 bg-slate-50/60 text-xs text-slate-500">
+            Total {{ $testCases->count() }} test case &middot; {{ $testCases->where('is_active', true)->count() }} aktif
+        </div>
     </div>
 </x-layouts.admin>

@@ -114,7 +114,7 @@ class AdminController extends Controller
      */
     public function materi(): View
     {
-        $modules = Module::with(['lessons' => fn ($q) => $q->orderBy('sort_order')])
+        $modules = Module::with(['course', 'lessons' => fn ($q) => $q->orderBy('sort_order')])
             ->withCount('lessons')
             ->orderBy('sort_order')
             ->get();
@@ -205,6 +205,23 @@ class AdminController extends Controller
         ]);
 
         return back()->with('status', 'Modul berhasil diperbarui!');
+    }
+
+    /**
+     * Update status terbit modul langsung dari daftar materi belajar.
+     */
+    public function updateModuleStatus(Request $request, Module $module): RedirectResponse
+    {
+        $validated = $request->validate([
+            'is_published' => ['required', 'boolean'],
+        ]);
+
+        $publish = (bool) $validated['is_published'];
+        $module->update(['is_published' => $publish]);
+
+        return back()->with('status', $publish
+            ? "Modul \"{$module->title}\" sekarang terbit dan tampil untuk siswa."
+            : "Modul \"{$module->title}\" ditarik menjadi draft.");
     }
 
     /**
@@ -329,9 +346,12 @@ class AdminController extends Controller
             'is_published' => ['required', 'boolean'],
         ]);
 
-        $lesson->update(['is_published' => $validated['is_published']]);
+        $publish = (bool) $validated['is_published'];
+        $lesson->update(['is_published' => $publish]);
 
-        return back()->with('status', 'Status bagian materi berhasil diperbarui.');
+        return back()->with('status', $publish
+            ? "Bagian materi \"{$lesson->title}\" sekarang terbit."
+            : "Bagian materi \"{$lesson->title}\" ditarik menjadi draft.");
     }
 
     /**
@@ -608,7 +628,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Aktifkan / nonaktifkan test case. Test case nonaktif tidak tampil dan tidak dipakai menilai.
+     * Aktifkan / tarik ke draft test case. Test case draft tidak tampil dan tidak dipakai menilai.
      */
     public function updateTestCaseActive(Request $request, TestCase $testCase): RedirectResponse
     {
@@ -626,7 +646,7 @@ class AdminController extends Controller
 
         return back()->with('status', $active
             ? 'Test case diaktifkan kembali.'
-            : 'Test case dinonaktifkan. Siswa tidak lagi melihat atau dinilai dengan test case ini.');
+            : 'Test case ditarik menjadi draft. Siswa tidak lagi melihat atau dinilai dengan test case ini.');
     }
 
     /**
@@ -635,7 +655,7 @@ class AdminController extends Controller
     public function destroyTestCase(TestCase $testCase): RedirectResponse
     {
         if ($this->testCaseHasStudentResults($testCase)) {
-            return back()->withErrors(['test_case' => 'Test case ini sudah punya hasil pengerjaan siswa, jadi tidak bisa dihapus. Nonaktifkan saja agar riwayat siswa tetap utuh.']);
+            return back()->withErrors(['test_case' => 'Test case ini sudah punya hasil pengerjaan siswa, jadi tidak bisa dihapus. Ubah statusnya menjadi Draft saja agar riwayat siswa tetap utuh.']);
         }
 
         if ($this->isLastVisibleTestCaseOfPublishedExercise($testCase)) {
@@ -814,9 +834,6 @@ class AdminController extends Controller
     /**
      * @return array<string, mixed>
      */
-    /**
-     * @return array<string, mixed>
-     */
     private function validateExercise(Request $request, ?Exercise $exercise = null): array
     {
         $validated = $request->validate([
@@ -891,7 +908,7 @@ class AdminController extends Controller
     {
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:100'],
-            'role' => ['nullable', 'in:learner,mentor,admin'],
+            'role' => ['nullable', 'in:learner,admin'],
             'registration' => ['nullable', 'in:google,email'],
             'status' => ['nullable', 'in:active,suspended'],
             'joined' => ['nullable', 'in:newest,oldest'],
@@ -926,6 +943,8 @@ class AdminController extends Controller
         $students = (clone $query)->where('role', 'learner')->get();
 
         return view('admin.siswa', compact('users', 'students', 'filters'));
+
+        
     }
 
     public function siswaShow(User $user): View
@@ -1038,15 +1057,77 @@ class AdminController extends Controller
     }
 
     /**
-     * Tampilkan Halaman Penilaian / Hasil Submission
+     * Tampilkan Halaman Penilaian / Hasil Pengumpulan Kode
      */
-    public function penilaian(): View
+    public function penilaian(Request $request): View
     {
-        $submissions = Submission::with(['user', 'exercise'])
-            ->latest('submitted_at')
-            ->paginate(15);
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'exercise_id' => ['nullable', 'integer', Rule::exists('exercises', 'id')],
+            'status' => ['nullable', Rule::in(['lolos', 'belum_lolos'])],
+            'sort' => ['nullable', Rule::in(['terbaru', 'terlama', 'soal_asc', 'soal_desc', 'skor_desc', 'skor_asc'])],
+        ]);
 
-        return view('admin.penilaian', compact('submissions'));
+        $query = Submission::query()
+            ->select('submissions.*')
+            ->with(['user', 'exercise']);
+
+        if (filled($filters['search'] ?? null)) {
+            $term = '%'.trim($filters['search']).'%';
+            $query->where(function (Builder $q) use ($term): void {
+                $q->whereHas('user', function (Builder $userQuery) use ($term): void {
+                    $userQuery->where('name', 'like', $term)
+                        ->orWhere('email', 'like', $term);
+                })->orWhereHas('exercise', function (Builder $exerciseQuery) use ($term): void {
+                    $exerciseQuery->where('title', 'like', $term)
+                        ->orWhere('slug', 'like', $term);
+                });
+            });
+        }
+
+        if (! empty($filters['exercise_id'])) {
+            $query->where('submissions.exercise_id', $filters['exercise_id']);
+        }
+
+        if (! empty($filters['status'])) {
+            if ($filters['status'] === 'lolos') {
+                $query->whereIn(DB::raw('LOWER(submissions.status)'), ['accepted', 'passed']);
+            } else {
+                $query->whereNotIn(DB::raw('LOWER(submissions.status)'), ['accepted', 'passed']);
+            }
+        }
+
+        $sort = $filters['sort'] ?? 'terbaru';
+
+        switch ($sort) {
+            case 'terlama':
+                $query->orderBy('submissions.submitted_at', 'asc')->orderBy('submissions.id', 'asc');
+                break;
+            case 'soal_asc':
+                $query->leftJoin('exercises', 'submissions.exercise_id', '=', 'exercises.id')
+                    ->orderBy('exercises.title', 'asc')
+                    ->orderByDesc('submissions.submitted_at');
+                break;
+            case 'soal_desc':
+                $query->leftJoin('exercises', 'submissions.exercise_id', '=', 'exercises.id')
+                    ->orderBy('exercises.title', 'desc')
+                    ->orderByDesc('submissions.submitted_at');
+                break;
+            case 'skor_desc':
+                $query->orderByDesc('submissions.score')->orderByDesc('submissions.submitted_at');
+                break;
+            case 'skor_asc':
+                $query->orderBy('submissions.score', 'asc')->orderByDesc('submissions.submitted_at');
+                break;
+            default:
+                $query->latest('submissions.submitted_at')->orderByDesc('submissions.id');
+                break;
+        }
+
+        $submissions = $query->paginate(15)->withQueryString();
+        $exercises = Exercise::orderBy('sort_order')->orderBy('title')->get(['id', 'title']);
+
+        return view('admin.penilaian', compact('submissions', 'exercises', 'filters'));
     }
 
     /**

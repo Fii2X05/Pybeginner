@@ -103,6 +103,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/materi', [AdminController::class, 'storeModule'])->name('materi.store');
     Route::get('/materi/{module}/edit', [AdminContentController::class, 'editModule'])->name('materi.edit');
     Route::put('/materi/{module}', [AdminController::class, 'updateModule'])->name('materi.update');
+    Route::put('/materi/{module}/status', [AdminController::class, 'updateModuleStatus'])->name('materi.status.update');
     Route::put('/materi/{module}/tingkat-kesulitan', [AdminController::class, 'updateModuleLevel'])->name('materi.level.update');
     Route::delete('/materi/{module}', [AdminController::class, 'destroyModule'])->name('materi.destroy');
 

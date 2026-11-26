@@ -6,7 +6,7 @@
                 <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
             </div>
             <h1 class="text-2xl font-black tracking-tight text-slate-900 lg:text-3xl">Kelola Pengguna</h1>
-            <p class="mt-1 text-sm text-slate-500">Cari dan kelola akun learner, mentor, serta admin.</p>
+            <p class="mt-1 text-sm text-slate-500">Cari dan kelola akun siswa, serta admin.</p>
         </div>
         <span class="w-fit rounded-xl bg-emerald-100/70 px-3.5 py-1.5 text-xs font-bold text-emerald-800">
             {{ $users->total() }} Pengguna
@@ -26,11 +26,10 @@
         <label class="sr-only" for="user-search">Cari nama atau email</label>
         <input id="user-search" name="search" value="{{ $filters['search'] ?? '' }}" type="search" placeholder="Cari nama atau email..." class="rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100">
 
-        <label class="sr-only" for="user-role">Filter role pengguna</label>
+        <label class="sr-only" for="user-role">Saring peran pengguna</label>
         <select id="user-role" name="role" class="rounded-xl border border-slate-200 px-3 py-2 text-sm">
-            <option value="">Semua role</option>
-            <option value="learner" @selected(($filters['role'] ?? '') === 'learner')>Learner</option>
-            <option value="mentor" @selected(($filters['role'] ?? '') === 'mentor')>Mentor</option>
+            <option value="">Semua peran</option>
+            <option value="learner" @selected(($filters['role'] ?? '') === 'learner')>Siswa</option>
             <option value="admin" @selected(($filters['role'] ?? '') === 'admin')>Admin</option>
         </select>
 
@@ -56,7 +55,7 @@
 
         <div class="flex gap-2">
             <button type="submit" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-emerald-700">Terapkan</button>
-            <a href="{{ route('admin.siswa') }}" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">Reset</a>
+            <a href="{{ route('admin.siswa') }}" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">Atur Ulang</a>
         </div>
     </form>
 
@@ -76,6 +75,12 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse ($users as $user)
+                        @php
+                            $roleLabel = match ($user->role) {
+                                'learner' => 'Siswa',
+                                default => 'Admin',
+                            };
+                        @endphp
                         <tr class="align-top transition hover:bg-slate-50/50">
                             <td class="whitespace-nowrap px-5 py-4">
                                 <div class="flex items-center gap-3">
@@ -112,8 +117,7 @@
                                         @csrf
                                         @method('PUT')
                                         <select name="role" aria-label="Peran {{ $user->name }}" class="min-w-0 flex-1 rounded-lg border border-slate-200 px-2 py-1.5 text-xs">
-                                            <option value="learner" @selected($user->role === 'learner')>Learner</option>
-                                            <option value="mentor" @selected($user->role === 'mentor')>Mentor</option>
+                                            <option value="learner" @selected($user->role === 'learner')>Siswa</option>
                                             <option value="admin">Admin</option>
                                         </select>
                                         <button type="submit" title="Simpan peran" class="rounded-lg px-2 text-emerald-700 hover:bg-emerald-50">
@@ -121,7 +125,7 @@
                                         </button>
                                     </form>
                                 @else
-                                    <span class="text-xs font-semibold text-slate-500">{{ ucfirst($user->role) }} <span class="text-slate-400">(dilindungi)</span></span>
+                                    <span class="text-xs font-semibold text-slate-500">{{ $roleLabel }} <span class="text-slate-400">(dilindungi)</span></span>
                                 @endif
                             </td>
                             <td class="whitespace-nowrap px-5 py-4 text-center">
@@ -173,7 +177,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" class="px-6 py-10 text-center text-sm text-slate-400">Tidak ada pengguna yang cocok dengan pencarian atau filter.</td></tr>
+                        <tr><td colspan="7" class="px-6 py-10 text-center text-sm text-slate-400">Tidak ada pengguna yang cocok dengan pencarian atau penyaring.</td></tr>
                     @endforelse
                 </tbody>
             </table>

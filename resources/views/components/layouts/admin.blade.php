@@ -31,11 +31,11 @@
                     </div>
 
                     <nav class="space-y-1">
-                        <!-- Dashboard -->
+                        <!-- Dasbor -->
                         <a href="{{ route('admin.dashboard') }}" 
                            class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold transition {{ $active === 'dashboard' ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-500/20' : 'text-slate-600 hover:text-emerald-700 hover:bg-emerald-50/70' }}">
                             <i data-lucide="layout-grid" class="w-4 h-4 shrink-0"></i>
-                            <span>Dashboard</span>
+                            <span>Dasbor</span>
                         </a>
 
                         <!-- Materi Belajar -->
