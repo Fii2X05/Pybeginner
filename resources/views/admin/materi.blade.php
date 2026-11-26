@@ -16,10 +16,11 @@
             <span class="px-3.5 py-2 rounded-xl bg-emerald-100/70 text-emerald-800 text-xs font-bold">
                 Total {{ $modules->count() }} Modul Terurut
             </span>
-            <a href="{{ route('admin.materi.create') }}" class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 transition shadow-2xs">
+            <button type="button" onclick="document.getElementById('modal-create').classList.remove('hidden')"
+                    class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 transition shadow-2xs cursor-pointer">
                 <i data-lucide="plus" class="h-4 w-4"></i>
                 <span>Tambah Modul</span>
-            </a>
+            </button>
             <a href="{{ route('modul.index') }}" target="_blank"
                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition shadow-2xs">
                 <span>Tinjau di Web Siswa</span>
@@ -140,10 +141,10 @@
                                     <a href="{{ $routeDetail }}" target="_blank" title="Buka Modul Siswa" class="rounded-lg p-2 text-emerald-600 hover:bg-emerald-50 transition">
                                         <i data-lucide="external-link" class="h-4 w-4"></i>
                                     </a>
-                                    <form method="POST" action="{{ route('admin.materi.destroy', $module) }}" onsubmit="return confirm('Hapus modul kosong ini?')">
+                                    <form method="POST" action="{{ route('admin.materi.destroy', $module) }}" onsubmit="return confirm('Hapus modul ini beserta seluruh materi pembelajarannya?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" @disabled($module->lessons_count > 0) title="{{ $module->lessons_count > 0 ? 'Hapus pelajaran terlebih dahulu' : 'Hapus modul' }}" class="rounded-lg p-2 text-rose-600 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-30 transition">
+                                        <button type="submit" title="Hapus modul" class="rounded-lg p-2 text-rose-600 hover:bg-rose-50 transition cursor-pointer">
                                             <i data-lucide="trash-2" class="h-4 w-4"></i>
                                         </button>
                                     </form>
@@ -161,4 +162,98 @@
             </table>
         </div>
     </div>
+
+    {{-- ===== MODAL TAMBAH MODUL ===== --}}
+    @php
+        $shouldOpenCreateModal = $errors->hasAny([
+            'title',
+            'level',
+            'sort_order',
+            'is_published',
+            'description',
+            'lesson_title',
+            'lesson_content',
+        ]);
+    @endphp
+    <div id="modal-create"
+         onclick="if (event.target === this) this.classList.add('hidden')"
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 overflow-y-auto {{ $shouldOpenCreateModal ? '' : 'hidden' }}">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl my-auto max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-5">
+                <h3 class="font-bold text-slate-900">Tambah Modul Baru</h3>
+                <button type="button" onclick="document.getElementById('modal-create').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form action="{{ route('admin.materi.store') }}" method="POST" class="space-y-4">
+                @csrf
+                <div>
+                    <label for="create-title" class="block text-xs font-semibold text-slate-700 mb-1">Judul Modul <span class="text-red-500">*</span></label>
+                    <input id="create-title" type="text" name="title" required maxlength="255" value="{{ old('title') }}" placeholder="Contoh: Dasar Python & Sintaks"
+                           class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    @error('title')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label for="create-level" class="block text-xs font-semibold text-slate-700 mb-1">Level</label>
+                    <select id="create-level" name="level" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="Pemula" @selected(old('level', 'Pemula') === 'Pemula')>Pemula</option>
+                        <option value="Menengah Bawah" @selected(old('level') === 'Menengah Bawah')>Menengah Bawah</option>
+                        <option value="Menengah" @selected(old('level') === 'Menengah')>Menengah</option>
+                    </select>
+                    @error('level')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="create-sort-order" class="block text-xs font-semibold text-slate-700 mb-1">Urutan</label>
+                        <input id="create-sort-order" type="number" name="sort_order" min="1" value="{{ old('sort_order', ($modules->max('sort_order') ?? 0) + 1) }}"
+                               class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        @error('sort_order')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+                    </div>
+                    <div>
+                        <label for="create-is-published" class="block text-xs font-semibold text-slate-700 mb-1">Status</label>
+                        <select id="create-is-published" name="is_published" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="1" @selected((string) old('is_published', '1') === '1')>Aktif</option>
+                            <option value="0" @selected((string) old('is_published') === '0')>Draft</option>
+                        </select>
+                        @error('is_published')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+                    </div>
+                </div>
+                <div>
+                    <label for="create-description" class="block text-xs font-semibold text-slate-700 mb-1">Deskripsi Singkat</label>
+                    <textarea id="create-description" name="description" rows="2" maxlength="1000" placeholder="Ringkasan singkat isi modul ini..."
+                              class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">{{ old('description') }}</textarea>
+                    @error('description')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+                </div>
+                <div class="border-t border-slate-100 pt-4">
+                    <div class="mb-3">
+                        <p class="text-sm font-bold text-slate-900">Bagian materi pertama</p>
+                        <p class="mt-1 text-xs leading-5 text-slate-500">Modul berisi beberapa bagian yang tampil berurutan dalam satu halaman lengkap. Setelah modul dibuat, bagian lain bisa ditambahkan lewat Kelola Isi.</p>
+                    </div>
+                    <label for="create-lesson-title" class="block text-xs font-semibold text-slate-700 mb-1">Judul bagian <span class="text-red-500">*</span></label>
+                    <input id="create-lesson-title" type="text" name="lesson_title" required maxlength="255" value="{{ old('lesson_title') }}" placeholder="Contoh: Pengenalan Variabel"
+                           class="mb-3 w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    @error('lesson_title')<p class="mb-2 text-xs text-red-600">{{ $message }}</p>@enderror
+                    <label for="create-lesson-content" class="block text-xs font-semibold text-slate-700 mb-1">Isi materi <span class="text-red-500">*</span></label>
+                    <textarea id="create-lesson-content" name="lesson_content" rows="7" required placeholder="Tulis penjelasan, contoh, dan rangkuman. Markdown didukung: ## Subjudul, **teks tebal**, dan blok kode dengan ```python ... ```"
+                              class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500">{{ old('lesson_content') }}</textarea>
+                    @error('lesson_content')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+                    <p class="mt-1 text-xs text-slate-400">Contoh kode hanya ditampilkan rapi sebagai materi; tidak perlu menjalankan kode di editor latihan.</p>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="document.getElementById('modal-create').classList.add('hidden')"
+                            class="flex-1 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50">Batal</button>
+                    <button type="submit"
+                            class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition">Simpan Modul</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                document.getElementById('modal-create')?.classList.add('hidden');
+            }
+        });
+    </script>
 </x-layouts.admin>
