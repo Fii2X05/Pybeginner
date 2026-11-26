@@ -1,4 +1,4 @@
-<x-layouts.admin title="Dashboard Monitoring - Admin" active="dashboard">
+<x-layouts.admin title="Dasbor Pemantauan - Admin" active="dashboard">
     <!-- Header Title & Description -->
     <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -7,9 +7,9 @@
                 <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
             </div>
             <h1 class="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
-                Dashboard Monitoring &amp; Penilaian
+                Dasbor Pemantauan &amp; Penilaian
             </h1>
-            <p class="text-sm text-slate-500 mt-1">Pantau progres learner, evaluasi autograder per latihan, dan statistik nilai platform secara real-time.</p>
+            <p class="text-sm text-slate-500 mt-1">Pantau progres siswa, evaluasi otomatis per latihan, dan statistik nilai platform secara langsung.</p>
         </div>
 
         <div class="flex items-center gap-2.5">
@@ -24,7 +24,7 @@
         </div>
     </div>
 
-    <!-- Stat Cards Row (4 KPI Cards) -->
+    <!-- Kartu Statistik Utama -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         <!-- Total Siswa -->
         <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-xs flex items-center justify-between">
@@ -56,7 +56,7 @@
             </div>
         </div>
 
-        <!-- Total Submissions & Pass Rate -->
+        <!-- Total Pengumpulan & Tingkat Lolos -->
         <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-xs flex items-center justify-between">
             <div>
                 <p class="text-xs font-semibold text-slate-400">Total Evaluasi Masuk</p>
@@ -87,15 +87,15 @@
         </div>
     </div>
 
-    <!-- Section 1: PENILAIAN PERSOAL (Analisis Kinerja Autograder Tiap Latihan) -->
+    <!-- Bagian 1: PENILAIAN PER SOAL -->
     <div class="bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden mb-8">
         <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
                 <div class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 tracking-wider uppercase">
                     <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>
-                    <span>MONITORING EVALUASI PERSOAL</span>
+                    <span>PEMANTAUAN EVALUASI PER SOAL</span>
                 </div>
-                <h2 class="text-lg font-black text-slate-900 mt-0.5">Penilaian &amp; Performa per Latihan Coding</h2>
+                <h2 class="text-lg font-black text-slate-900 mt-0.5">Penilaian &amp; Performa per Latihan Pemrograman</h2>
                 <p class="text-xs text-slate-500 mt-0.5">Analisis tingkat keberhasilan siswa pada masing-masing soal untuk mendeteksi soal yang sulit atau membutuhkan bimbingan tambahan.</p>
             </div>
             <div class="flex items-center gap-2">
@@ -113,8 +113,8 @@
                         <th class="py-3.5 px-6">Urutan</th>
                         <th class="py-3.5 px-6">Judul Latihan</th>
                         <th class="py-3.5 px-6 text-center">Tingkat</th>
-                        <th class="py-3.5 px-6 text-center">Submission</th>
-                        <th class="py-3.5 px-6">Tingkat Kelulusan (Pass Rate)</th>
+                        <th class="py-3.5 px-6 text-center">Pengumpulan</th>
+                        <th class="py-3.5 px-6">Tingkat Kelulusan</th>
                         <th class="py-3.5 px-6 text-center">Rata-rata Skor</th>
                         <th class="py-3.5 px-6 text-center">Diagnostik</th>
                         <th class="py-3.5 px-6 text-right">Aksi</th>
@@ -139,11 +139,11 @@
                             <td class="py-4 px-6 text-center">
                                 @if (strtolower($ex->difficulty) === 'easy')
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
-                                        Pemula
+                                        Mudah
                                     </span>
                                 @elseif (strtolower($ex->difficulty) === 'medium')
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100">
-                                        Menengah
+                                        Sedang
                                     </span>
                                 @else
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-100">
@@ -200,7 +200,7 @@
                     @empty
                         <tr>
                             <td colspan="8" class="py-8 px-6 text-center text-slate-400 text-sm">
-                                Belum ada latihan coding tersedia.
+                                Belum ada latihan pemrograman tersedia.
                             </td>
                         </tr>
                     @endforelse
@@ -209,15 +209,15 @@
         </div>
     </div>
 
-    <!-- Section 2: PENILAIAN PER LEARNER & LIVE SUBMISSIONS ROW -->
+    <!-- Bagian 2: PENILAIAN PER SISWA & AKSES CEPAT -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-        <!-- Penilaian per Learner / Siswa Monitoring (2 Kolom di Desktop) -->
+        <!-- Penilaian per Siswa -->
         <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden">
             <div class="p-6 border-b border-slate-100 flex items-center justify-between">
                 <div>
                     <div class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 tracking-wider uppercase">
                         <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
-                        <span>MONITORING KINERJA SISWA</span>
+                        <span>PEMANTAUAN KINERJA SISWA</span>
                     </div>
                     <h2 class="text-lg font-black text-slate-900 mt-0.5">Penilaian per Siswa Teraktif</h2>
                     <p class="text-xs text-slate-500 mt-0.5">Daftar siswa yang aktif mengirimkan kode beserta tingkat keberhasilan dan rata-rata nilainya.</p>
@@ -233,7 +233,7 @@
                     <thead>
                         <tr class="bg-slate-50/80 border-b border-slate-100 text-xs font-bold text-slate-500 uppercase tracking-wider">
                             <th class="py-3 px-6">Siswa</th>
-                            <th class="py-3 px-6 text-center">Submission</th>
+                            <th class="py-3 px-6 text-center">Pengumpulan</th>
                             <th class="py-3 px-6 text-center">Soal Lolos</th>
                             <th class="py-3 px-6 text-center">Rata-rata Nilai</th>
                             <th class="py-3 px-6 text-center">Status</th>
@@ -283,7 +283,7 @@
                         @empty
                             <tr>
                                 <td colspan="5" class="py-8 px-6 text-center text-slate-400 text-sm">
-                                    Belum ada aktivitas submission dari siswa.
+                                    Belum ada aktivitas pengumpulan jawaban dari siswa.
                                 </td>
                             </tr>
                         @endforelse
@@ -329,13 +329,13 @@
                 </div>
             </div>
 
-            <!-- Quick Action Cards -->
+            <!-- Kartu Akses Cepat -->
             <a href="{{ route('admin.latihan') }}" class="block bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl p-5 text-white shadow-sm hover:opacity-95 transition">
                 <div class="flex items-center justify-between">
                     <div>
                         <div class="text-xs font-medium text-emerald-100 uppercase tracking-wide">Kelola Bank Soal</div>
                         <div class="text-base font-bold mt-1">Pengaturan Soal &amp; Batas Memori</div>
-                        <div class="text-xs text-emerald-100/80 mt-1">Cek keunikan slug, urutan, &amp; limit Judge0</div>
+                        <div class="text-xs text-emerald-100/80 mt-1">Cek keunikan tautan, urutan, &amp; batas eksekusi</div>
                     </div>
                     <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
                         <i data-lucide="code" class="w-5 h-5 text-white"></i>
@@ -345,16 +345,16 @@
         </div>
     </div>
 
-    <!-- Section 3: LIVE FEED RIWAYAT EVALUASI TERBARU -->
+    <!-- Bagian 3: RIWAYAT EVALUASI TERBARU -->
     <div class="bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden">
         <div class="p-6 border-b border-slate-100 flex items-center justify-between">
             <div>
                 <div class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 tracking-wider uppercase">
                     <i data-lucide="radio" class="w-3.5 h-3.5 text-emerald-600"></i>
-                    <span>LIVE EVALUATION FEED</span>
+                    <span>PANTAUAN EVALUASI LANGSUNG</span>
                 </div>
-                <h2 class="text-lg font-black text-slate-900 mt-0.5">Riwayat Evaluasi Kode Submission Terbaru</h2>
-                <p class="text-xs text-slate-500 mt-0.5">Hasil eksekusi autograder dan pengujian test case solusi kode dari siswa.</p>
+                <h2 class="text-lg font-black text-slate-900 mt-0.5">Riwayat Evaluasi Pengumpulan Kode Terbaru</h2>
+                <p class="text-xs text-slate-500 mt-0.5">Hasil eksekusi penilaian otomatis dan pengujian kasus uji solusi kode dari siswa.</p>
             </div>
             <a href="{{ route('admin.penilaian') }}" class="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
                 <span>Lihat Seluruh Riwayat</span>
@@ -369,7 +369,7 @@
                         <th class="py-3 px-6">Waktu</th>
                         <th class="py-3 px-6">Siswa</th>
                         <th class="py-3 px-6">Latihan / Soal</th>
-                        <th class="py-3 px-6 text-center">Test Passed</th>
+                        <th class="py-3 px-6 text-center">Uji Lolos</th>
                         <th class="py-3 px-6 text-center">Skor</th>
                         <th class="py-3 px-6 text-center">Status</th>
                     </tr>
@@ -385,7 +385,7 @@
                                 <div class="text-[11px] text-slate-400">{{ $sub->user->email ?? '-' }}</div>
                             </td>
                             <td class="py-3.5 px-6">
-                                <div class="font-semibold text-slate-800">{{ $sub->exercise->title ?? 'Latihan Coding' }}</div>
+                                <div class="font-semibold text-slate-800">{{ $sub->exercise->title ?? 'Latihan Pemrograman' }}</div>
                                 <div class="text-[11px] text-slate-400 font-mono">{{ $sub->exercise->slug ?? '' }}</div>
                             </td>
                             <td class="py-3.5 px-6 text-center font-mono text-xs text-slate-600">
@@ -397,13 +397,13 @@
                                 </span>
                             </td>
                             <td class="py-3.5 px-6 text-center">
-                                @if (strtolower($sub->status) === 'accepted' || strtolower($sub->status) === 'passed')
+                                @if (in_array(strtolower((string) $sub->status), ['accepted', 'passed'], true))
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
                                         Lolos
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-100">
-                                        {{ ucfirst($sub->status ?? 'Gagal') }}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100">
+                                        Belum Lolos
                                     </span>
                                 @endif
                             </td>
@@ -411,7 +411,7 @@
                     @empty
                         <tr>
                             <td colspan="6" class="py-8 px-6 text-center text-slate-400 text-sm">
-                                Belum ada submission terbaru yang tercatat.
+                                Belum ada pengumpulan terbaru yang tercatat.
                             </td>
                         </tr>
                     @endforelse
